@@ -1,0 +1,6 @@
+*.el
+!init.el
+*.*~
+recentf
+auto-save-list
+elpa

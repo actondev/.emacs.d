@@ -1,0 +1,163 @@
+* Some defaults
+  #+BEGIN_SRC emacs-lisp
+    (menu-bar-mode 1) ;; show menu: useful things there some times!
+    (tool-bar-mode 0) ;; toolbar definetly not
+    (scroll-bar-mode 0) ;; hide system scrollbars
+    (cua-mode 1) ;; ctrl-c ctrl-v copy paste etc
+    (global-hl-line-mode 1) ;; Highlight current line
+    (fset 'yes-or-no-p 'y-or-n-p)
+    (define-key cua-global-keymap [C-return] nil) ;; don't remember the use-case of this
+    (global-visual-line-mode 1) ;; word/line wrap
+    (show-paren-mode 1) ;; don't remember
+    (winner-mode t) ;; C-c left will undo window position changes
+    (setq ring-bell-function 'ignore)
+  #+END_SRC
+* Package source, use-package etc
+  #+BEGIN_SRC emacs-lisp
+    (setq package-enable-at-startup nil)
+    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+    ; for org-plus-contrib (t is for append true)
+    (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+  #+END_SRC
+
+  Bootstrapping use-package
+  #+BEGIN_SRC emacs-lisp
+    (unless (package-installed-p 'use-package)
+      (package-refresh-contents)
+      (package-install 'use-package))
+  #+END_SRC
+
+* Org customizations
+  #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "M-n") 'outline-next-visible-heading)
+    (global-set-key (kbd "M-p") 'outline-previous-visible-heading)
+  #+END_SRC
+* Helm
+  #+BEGIN_SRC emacs-lisp
+    (use-package helm
+      :ensure t
+      :bind(
+	    ("M-x" . helm-M-x)
+	    ("C-<tab>" . helm-mini)
+	    ("C-x C-f" . helm-find-files)
+	    :map helm-map
+	    ("<tab>" . helm-execute-persistent-action)
+	    ("<left>" . left-char)
+	    ("<right>" . right-char)
+	    )
+      :init
+      (require 'helm-config)
+      :config
+      (setq helm-M-x-fuzzy-match t
+	    helm-recentf-fuzzy-match t
+	    helm-apropos-fuzzy-match t
+	    helm-buffers-fuzzy-matching t
+	    helm-completion-in-region-fuzzy-match t
+	    helm-mode-fuzzy-match t)
+      ;; disable auto input
+      (setq helm-swoop-pre-input-function
+	    (lambda () nil)))
+  #+END_SRC
+
+* Rainbow
+  rainbow-delimiters help everytime :)
+  #+BEGIN_SRC emacs-lisp
+    (use-package rainbow-delimiters
+      :ensure t
+      :config
+      (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+      )
+  #+END_SRC
+* Theming
+** COMMENT monokai
+   #+BEGIN_SRC emacs-lisp
+     (use-package monokai-theme
+       :ensure t)
+
+     ;; (use-package sublime-themes
+     ;;   :ensure t
+     ;;   :config
+     ;;   (load-theme 'spolsky t)
+     ;;   )
+   #+END_SRC
+** doom
+   #+BEGIN_SRC emacs-lisp
+     (use-package doom-themes
+       :ensure t
+       :config
+       (load-theme 'doom-molokai t))
+   #+END_SRC
+* powerline
+  #+BEGIN_SRC emacs-lisp
+    (use-package powerline
+      :ensure t
+      :config
+      (powerline-default-theme))
+  #+END_SRC
+* expand-region
+  #+BEGIN_SRC emacs-lisp
+    (use-package expand-region
+      :ensure t
+      ;; :bind
+      ;; ("C-o" . er/expand-region)
+      )
+  #+END_SRC
+* Key-chord
+  #+BEGIN_SRC emacs-lisp
+    (defun key-chord-helm ()
+      ;; helm: , (right hand middle finger)
+      (key-chord-define-global ",r" 'helm-all-mark-rings) ;; Rings
+      (key-chord-define-global ",m" 'helm-mini) ;; Mini
+      (key-chord-define-global ",s" 'helm-swoop) ;; Swoop
+      (key-chord-define-global ",t" 'helm-projectile) ;; projecTile
+      (key-chord-define-global ",g" 'helm-projectile-ag) ;; aG
+      )
+
+    (defun key-chord-ace-jump ()
+      ;; ace: c (c for jump : left hand middle finger)
+      (key-chord-define-global "cj" 'ace-jump-mode)
+      ;; Jump Character
+      (key-chord-define-global "ck" 'ace-jump-char-mode)
+      ;; Jump Line
+      (key-chord-define-global "cl" 'ace-jump-line-mode)
+      )
+
+    (defun key-chord-windows-management ()
+      ;; move between windows -WASD- like movement, except for the right hand
+      ;; using ;
+      (key-chord-define-global ";w" 'windmove-up)
+      (key-chord-define-global ";a" 'windmove-left)
+      (key-chord-define-global ";s" 'windmove-down)
+      (key-chord-define-global ";d" 'windmove-right)
+
+	;; windows
+      (key-chord-define-global ";q" 'delete-window) ;;q Quit
+      (key-chord-define-global ";e" 'delete-other-windows)
+      (key-chord-define-global ";f" (lambda () (interactive)(split-window-horizontally) (other-window 1))) ;; f home row
+      (key-chord-define-global ";v" (lambda () (interactive)(split-window-vertically) (other-window 1))) ;; Vertical
+
+      (key-chord-define-global ";r" 'windresize) ;; Resize
+      )
+
+    (defun key-chord-editing ()
+      ;; Expand Region (r for region)
+      (key-chord-define-global "er" 'er/expand-region)
+      )
+
+    (use-package key-chord
+      :ensure t
+      :config
+      ;; disable in mini buffers
+      (setq key-chord-two-keys-delay .05
+		    key-chord-one-key-delay .1)
+      (defun disable-key-chord-mode ()
+	    (set (make-local-variable 'input-method-function) nil))
+
+      (add-hook 'minibuffer-setup-hook #'disable-key-chord-mode)
+      (key-chord-mode 1)
+
+      (key-chord-helm)
+      (key-chord-windows-management)
+      (key-chord-editing)
+      )
+  #+END_SRC
