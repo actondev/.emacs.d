@@ -1,6 +1,12 @@
+# no .el files except for init.el
+# this is because the .org files expand to .el files
 *.el
 !init.el
-*.*~
+
+# ignoring emacs temp files
+*~
+
+# ignoring other emacs stuff
 recentf
 auto-save-list
 elpa

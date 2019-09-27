@@ -57,6 +57,16 @@
       ;; disable auto input
       (setq helm-swoop-pre-input-function
 	    (lambda () nil)))
+
+    (use-package helm-swoop
+      :ensure t
+      :config
+      (setq helm-swoop-use-fuzzy-match nil)
+      (setq helm-swoop-speed-or-color t)
+      (setq helm-autoresize-max-height 35)
+      (setq helm-autoresize-min-height 20)
+      (helm-autoresize-mode)
+      )
   #+END_SRC
 
 * Rainbow
@@ -94,12 +104,20 @@
       :config
       (powerline-default-theme))
   #+END_SRC
-* expand-region
+* editing etc
   #+BEGIN_SRC emacs-lisp
+    ;; usecase: select the block (enclosed by parenthesis).. expand -> wrap around the outter block
     (use-package expand-region
       :ensure t
-      ;; :bind
-      ;; ("C-o" . er/expand-region)
+      )
+
+    (use-package multiple-cursors
+      :ensure t
+      :config
+      (global-set-key (kbd "C->") 'mc/mark-next-like-this-word)
+      (global-set-key (kbd "C-<") 'mc/mark-previous-like-this-word)
+      (global-set-key (kbd "M-<f3>") 'mc/mark-all-like-this) ;; submlime like
+      (global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
       )
   #+END_SRC
 * Key-chord
