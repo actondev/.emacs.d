@@ -5,6 +5,7 @@
 
 # ignoring emacs temp files
 *~
+projectile-bookmarks.eld
 
 # package management
 straight/

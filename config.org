@@ -5,7 +5,11 @@
 (menu-bar-mode 1) ;; show menu: useful things there some times!
 (tool-bar-mode 0) ;; toolbar definetly not
 (scroll-bar-mode 0) ;; hide system scrollbars
-;; (cua-mode 1) ;; ctrl-c ctrl-v copy paste etc
+
+;; CUA
+(cua-mode 0) ;; ctrl-c ctrl-v copy paste etc
+(global-set-key (kbd "C-v") 'yank)
+
 (global-hl-line-mode 1) ;; Highlight current line
 (fset 'yes-or-no-p 'y-or-n-p)
 ;;(define-key cua-global-keymap [C-return] nil) ;; don't remember the use-case of this
@@ -150,6 +154,7 @@
 	("M-x" . helm-M-x)
 	("C-<tab>" . helm-mini)
 	("C-x C-f" . helm-find-files)
+	("C-S-v" . helm-show-kill-ring)
 	:map helm-map
 	("<tab>" . helm-execute-persistent-action)
 	("<left>" . left-char)
@@ -177,7 +182,16 @@
   (setq helm-autoresize-min-height 20)
   (helm-autoresize-mode)
   )
+
+(use-package helm-ag
+  :ensure t)
   #+END_SRC
+
+** installing ag (used in helm-ag)
+   In ubuntu:
+   #+BEGIN_SRC sh
+sudo apt-get install silversearcher-ag
+   #+END_SRC
 
 * Rainbow
   rainbow-delimiters help everytime :)
@@ -196,6 +210,35 @@
   (setq windresize-default-increment 5)
   )
   #+END_SRC
+
+* Project management
+
+** Projectile & neotree
+   #+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode 1)
+  )
+(use-package helm-projectile
+  :ensure t
+  )
+
+(defun display-line-numbers-disable-hook (_)
+  "Disable display-line-numbers locally."
+  (display-line-numbers-mode -1))
+
+(use-package neotree
+  :ensure t
+  :config
+  (setq neo-smart-open t)
+  (add-hook 'neo-after-create-hook 'display-line-numbers-disable-hook)
+
+  :bind(
+	("<f8>" . neotree-toggle)
+	)
+  )
+   #+END_SRC
 * Appearance
 ** COMMENT monokai
    #+BEGIN_SRC emacs-lisp
@@ -213,7 +256,9 @@
 (use-package doom-themes
   :ensure t
   :config
-  (load-theme 'doom-molokai t))
+  (load-theme 'doom-molokai t)
+  (doom-themes-visual-bell-config)
+  (doom-themes-neotree-config))
    #+END_SRC
 ** COMMENT powerline
    #+BEGIN_SRC emacs-lisp
@@ -355,3 +400,5 @@ echo hi2
 echo "hi from sh2"
 echo hi2
    #+END_SRC
+* TODO magit, ace jump, projectile (neotree..?), start screen
+   + https://emacs.stackexchange.com/questions/14282/replace-splash-screen-with-list-of-recentf
