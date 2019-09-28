@@ -1,0 +1,11 @@
+* My emacs setup
+  Rewrote my emacs setup using iterate programming (org-mode)
+  Files to check:
+  + [[file:init.el][init.el]]
+    the most minimal file, loading the org file
+  + [[file:config.org][config.org]]
+    contains all the configuration
+
+* TODO moar doc
+  + what packages are used
+  + certain kbd shortcuts etc

@@ -85,7 +85,6 @@
 
 (setq straight-use-package-by-default nil)
    #+END_SRC
-
 * Org customizations
   #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "M-n") 'outline-next-visible-heading)
@@ -145,7 +144,6 @@
   (:map org-mode-map
 	("C-<return>" . ober-eval-in-repl)))
    #+END_SRC
-
 * Helm
   #+BEGIN_SRC emacs-lisp
 (use-package helm
@@ -171,7 +169,9 @@
 	helm-mode-fuzzy-match t)
   ;; disable auto input
   (setq helm-swoop-pre-input-function
-	(lambda () nil)))
+	(lambda () nil))
+  (helm-mode 1)
+	)
 
 (use-package helm-swoop
   :ensure t
@@ -192,7 +192,6 @@
    #+BEGIN_SRC sh
 sudo apt-get install silversearcher-ag
    #+END_SRC
-
 * Rainbow
   rainbow-delimiters help everytime :)
   #+BEGIN_SRC emacs-lisp
@@ -276,6 +275,21 @@ sudo apt-get install silversearcher-ag
 
 
    Note: after you have to run =all-the-icons-install-fonts= with M-x.
+* Welcome screen
+  #+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :ensure t
+  :diminish dashboard-mode
+  :config
+  ;;  (setq dashboard-banner-logo-title "your custom text")
+  (setq dashboard-startup-banner 1) ;; integer is for text
+  (setq dashboard-items '(
+			  (projects . 10)
+                          (bookmarks . 10)
+			  (recents  . 10)
+			  ))
+  (dashboard-setup-startup-hook))
+  #+END_SRC
 * editing etc
 ** selection
    #+BEGIN_SRC emacs-lisp
