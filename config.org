@@ -21,6 +21,9 @@
 (global-display-line-numbers-mode 1)
 (setq inhibit-startup-screen 1)
 (delete-selection-mode 1)
+
+;; Keeping clipboard data before replacing it with emacs copy/kill etc
+(setq save-interprogram-paste-before-kill t)
   #+END_SRC
 
 ** functions
@@ -28,7 +31,18 @@
 (defun indent-buffer ()
   (interactive)
   (save-excursion
-	(indent-region (point-min) (point-max) nil)))
+    (indent-region (point-min) (point-max) nil)))
+
+(defun toggle-comment-on-line ()
+  "comment or uncomment current line"
+  (interactive)
+  (comment-or-uncomment-region (line-beginning-position) (line-end-position))
+  )
+   #+END_SRC
+** bindings
+   #+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-/") 'toggle-comment-on-line)
+(global-set-key (kbd "C-?") 'comment-or-uncomment-region)
    #+END_SRC
 * Package source, use-package etc
   #+BEGIN_SRC emacs-lisp
@@ -213,6 +227,11 @@ sudo apt-get install silversearcher-ag
 * Project management
 
 ** Projectile & neotree
+   Useful neotree shortcuts
+   + =A= : stretch toggle
+   + =U= : go up to parent
+   + =C-c C-a= : collapse all
+
    #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :ensure t
@@ -311,15 +330,34 @@ sudo apt-get install silversearcher-ag
    #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
   :ensure t
+  :config
+  (global-undo-tree-mode 1)
   :bind(
 	("M-/" . undo-tree-visualize)
 	("C-z" . undo-tree-undo)
 	("C-S-z" . undo-tree-redo)
 	)
-  :config
-  (unbind-key "C-/" undo-tree-undo)
-  (global-undo-tree-mode 1)
   )
+   #+END_SRC
+* (Ma)git
+  #+BEGIN_SRC emacs-lisp
+(use-package magit
+  :ensure t
+  )
+  #+END_SRC
+* Languages
+** Clojure
+   #+BEGIN_SRC emacs-lisp
+(use-package clojure-mode
+  :ensure t
+  :bind(
+	:map clojure-mode-map
+	("C-<return>" . cider-eval-defun-at-point)
+	)
+  )
+
+(use-package cider
+  :ensure t)
    #+END_SRC
 * Key-chord
   #+BEGIN_SRC emacs-lisp
