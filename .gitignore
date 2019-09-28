@@ -6,6 +6,10 @@
 # ignoring emacs temp files
 *~
 
+# package management
+straight/
+quelpa/
+
 # ignoring other emacs stuff
 recentf
 auto-save-list

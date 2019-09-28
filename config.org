@@ -11,6 +11,7 @@
     (show-paren-mode 1) ;; don't remember
     (winner-mode t) ;; C-c left will undo window position changes
     (setq ring-bell-function 'ignore)
+    (global-display-line-numbers-mode 1)
   #+END_SRC
 * Package source, use-package etc
   #+BEGIN_SRC emacs-lisp
@@ -19,19 +20,124 @@
     ; for org-plus-contrib (t is for append true)
     (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
   #+END_SRC
+** use-package
+   Bootstrapping use-package
+   #+BEGIN_SRC emacs-lisp
+     (unless (package-installed-p 'use-package)
+       (package-refresh-contents)
+       (package-install 'use-package))
+   #+END_SRC
+** quelpa (for github sources)
+   #+BEGIN_SRC emacs-lisp
+     (use-package quelpa
+       :ensure t)
+   #+END_SRC
 
-  Bootstrapping use-package
-  #+BEGIN_SRC emacs-lisp
-    (unless (package-installed-p 'use-package)
-      (package-refresh-contents)
-      (package-install 'use-package))
-  #+END_SRC
+** COMMENT straight.el
+   see
+   + https://github.crookster.org/switching-to-straight.el-from-emacs-26-builtin-package.el/
+   + https://github.com/raxod502/straight.el/blob/develop/README.md#getting-started
+
+   #+BEGIN_SRC emacs-lisp
+     (defvar bootstrap-version)
+     (let ((bootstrap-file
+	    (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	   (bootstrap-version 5))
+       (unless (file-exists-p bootstrap-file)
+	 (with-current-buffer
+	     (url-retrieve-synchronously
+	      "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	      'silent 'inhibit-cookies)
+	   (goto-char (point-max))
+	   (eval-print-last-sexp)))
+       (load bootstrap-file nil 'nomessage))
+
+     ;;;;  Effectively replace use-package with straight-use-package
+     ;;; https://github.com/raxod502/straight.el/blob/develop/README.md#integration-with-use-package
+     (straight-use-package 'use-package)
+     (setq straight-use-package-by-default t)
+   #+END_SRC
 
 * Org customizations
   #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "M-n") 'outline-next-visible-heading)
     (global-set-key (kbd "M-p") 'outline-previous-visible-heading)
   #+END_SRC
+
+** babel languages
+   #+BEGIN_SRC emacs-lisp
+     (org-babel-do-load-languages 'org-babel-load-languages
+	 '(
+	       (shell . t)
+     ;;	  (python . t)
+     ;;	  (sql . t)
+     ;;	  (python . t)
+     ;;	  (restclient . t)
+     ;;	  (php . t)
+     ;;	  (clojure . t)
+	 )
+     )
+   #+END_SRC
+
+** quelpa eval-in-repl : github forks
+   #+BEGIN_SRC emacs-lisp
+     (quelpa '(eval-in-repl
+	       :repo "actondev/eval-in-repl" :fetcher github
+	       :branch "feature/multiple_sh_sessions"))
+
+     (quelpa '(org-babel-eval-in-repl
+	       :repo "actondev/org-babel-eval-in-repl" :fetcher github
+	       :branch "feature/multiple_sh_sessions"))
+
+     (use-package eval-in-repl
+       :ensure t)
+
+     (use-package org-babel-eval-in-repl
+       :ensure t
+       :bind
+       (:map org-mode-map
+	     ("C-<return>" . ober-eval-in-repl) ))
+   #+END_SRC
+
+** COMMENT eval in repl
+   Making use of straight.el to use my forks
+   #+BEGIN_SRC emacs-lisp
+     ;; (use-package
+     ;;  :straight
+     ;;  (eval-in-repl
+     ;;    :type git :host github :repo "kaz-yos/eval-in-repl"
+     ;;    :fork (:host github :repo "actondev/eval-in-repl" :branch "feature/multiple_sh_sessions"))
+     ;;  :bind(
+     ;;  :map org-mode-map
+     ;;  ("C-<return>" . ober-eval-in-repl)))
+
+
+     (use-package eval-in-repl
+       :straight
+       (:type git :host github :repo "kaz-yos/eval-in-repl"
+	:fork (:host github :repo "actondev/eval-in-repl" :branch "feature/multiple_sh_sessions"))
+       :bind
+       (:map org-mode-map
+	     ("C-<return>" . ober-eval-in-repl) ))
+
+     (straight-use-package
+       '(
+	org-babel-eval-in-repl
+	:type git :host github :repo "diadochos/org-babel-eval-in-repl"
+	:fork (:host github :repo "actondev/org-babel-eval-in-repl" :branch "feature/multiple_sh_sessions")))
+   #+END_SRC
+
+** COMMENT org sh sessions example
+   #+BEGIN_SRC sh :session *sh1*
+   echo hi
+   echo hi2
+   #+END_SRC
+
+   #+BEGIN_SRC sh :session *sh2*
+     echo "hi from sh2"
+     echo hi2
+   #+END_SRC
+
 * Helm
   #+BEGIN_SRC emacs-lisp
     (use-package helm
