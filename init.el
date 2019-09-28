@@ -10,3 +10,6 @@
 (setq custom-file (relative-from-init ".emacs-custom.el"))
 (when (file-exists-p custom-file)
   (load custom-file))
+
+(message (format "%s%s" "Startup time: " (emacs-init-time)))
+

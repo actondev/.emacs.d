@@ -1,287 +1,357 @@
+#+PROPERTY: header-args :results silent
+
 * Some defaults
   #+BEGIN_SRC emacs-lisp
-    (menu-bar-mode 1) ;; show menu: useful things there some times!
-    (tool-bar-mode 0) ;; toolbar definetly not
-    (scroll-bar-mode 0) ;; hide system scrollbars
-    (cua-mode 1) ;; ctrl-c ctrl-v copy paste etc
-    (global-hl-line-mode 1) ;; Highlight current line
-    (fset 'yes-or-no-p 'y-or-n-p)
-    (define-key cua-global-keymap [C-return] nil) ;; don't remember the use-case of this
-    (global-visual-line-mode 1) ;; word/line wrap
-    (show-paren-mode 1) ;; don't remember
-    (winner-mode t) ;; C-c left will undo window position changes
-    (setq ring-bell-function 'ignore)
-    (global-display-line-numbers-mode 1)
+(menu-bar-mode 1) ;; show menu: useful things there some times!
+(tool-bar-mode 0) ;; toolbar definetly not
+(scroll-bar-mode 0) ;; hide system scrollbars
+;; (cua-mode 1) ;; ctrl-c ctrl-v copy paste etc
+(global-hl-line-mode 1) ;; Highlight current line
+(fset 'yes-or-no-p 'y-or-n-p)
+;;(define-key cua-global-keymap [C-return] nil) ;; don't remember the use-case of this
+;;(define-key cua--cua-keys-keymap [C-z] nil)
+(global-visual-line-mode 1) ;; word/line wrap
+(show-paren-mode 1) ;; don't remember
+(winner-mode t) ;; C-c left will undo window position changes
+(setq ring-bell-function 'ignore)
+(global-display-line-numbers-mode 1)
+(setq inhibit-startup-screen 1)
+(delete-selection-mode 1)
   #+END_SRC
+
+** functions
+   #+BEGIN_SRC emacs-lisp
+(defun indent-buffer ()
+  (interactive)
+  (save-excursion
+	(indent-region (point-min) (point-max) nil)))
+   #+END_SRC
 * Package source, use-package etc
   #+BEGIN_SRC emacs-lisp
-    (setq package-enable-at-startup nil)
-    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-    ; for org-plus-contrib (t is for append true)
-    (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+(setq package-enable-at-startup nil)
+
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
+			 ("org" . "https://orgmode.org/elpa/")))
   #+END_SRC
+
 ** use-package
    Bootstrapping use-package
    #+BEGIN_SRC emacs-lisp
-     (unless (package-installed-p 'use-package)
-       (package-refresh-contents)
-       (package-install 'use-package))
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
    #+END_SRC
-** quelpa (for github sources)
+** COMMENT quelpa (for github sources)
    #+BEGIN_SRC emacs-lisp
-     (use-package quelpa
-       :ensure t)
+(setq quelpa-update-melpa-p nil)
+;;     (setq quelpa-checkout-melpa-p nil)
+(use-package quelpa
+  :ensure t
+  :config)
+
+
+;;     (package-initialize)
+;; (if (require 'quelpa nil t)
+;;     (quelpa-self-upgrade)
+;;   (with-temp-buffer
+;;     (url-insert-file-contents "https://framagit.org/steckerhalter/quelpa/raw/master/bootstrap.el")
+;;     (eval-buffer)))
+
    #+END_SRC
 
-** COMMENT straight.el
+** straight.el
    see
    + https://github.crookster.org/switching-to-straight.el-from-emacs-26-builtin-package.el/
    + https://github.com/raxod502/straight.el/blob/develop/README.md#getting-started
 
    #+BEGIN_SRC emacs-lisp
-     (defvar bootstrap-version)
-     (let ((bootstrap-file
-	    (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-	   (bootstrap-version 5))
-       (unless (file-exists-p bootstrap-file)
-	 (with-current-buffer
-	     (url-retrieve-synchronously
-	      "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-	      'silent 'inhibit-cookies)
-	   (goto-char (point-max))
-	   (eval-print-last-sexp)))
-       (load bootstrap-file nil 'nomessage))
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+	(url-retrieve-synchronously
+	 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	 'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-     ;;;;  Effectively replace use-package with straight-use-package
-     ;;; https://github.com/raxod502/straight.el/blob/develop/README.md#integration-with-use-package
-     (straight-use-package 'use-package)
-     (setq straight-use-package-by-default t)
+(setq straight-use-package-by-default nil)
    #+END_SRC
 
 * Org customizations
   #+BEGIN_SRC emacs-lisp
-    (global-set-key (kbd "M-n") 'outline-next-visible-heading)
-    (global-set-key (kbd "M-p") 'outline-previous-visible-heading)
+(global-set-key (kbd "M-n") 'outline-next-visible-heading)
+(global-set-key (kbd "M-p") 'outline-previous-visible-heading)
+;; org-src-fontify-natively t
+(setq org-src-preserve-indentation t)
   #+END_SRC
-
 ** babel languages
    #+BEGIN_SRC emacs-lisp
-     (org-babel-do-load-languages 'org-babel-load-languages
-	 '(
-	       (shell . t)
-     ;;	  (python . t)
-     ;;	  (sql . t)
-     ;;	  (python . t)
-     ;;	  (restclient . t)
-     ;;	  (php . t)
-     ;;	  (clojure . t)
-	 )
-     )
+(org-babel-do-load-languages 'org-babel-load-languages
+			     '(
+			       (shell . t)
+			       ;;	  (python . t)
+			       ;;	  (sql . t)
+			       ;;	  (python . t)
+			       ;;	  (restclient . t)
+			       ;;	  (php . t)
+			       ;;	  (clojure . t)
+			       )
+			     )
    #+END_SRC
 
-** quelpa eval-in-repl : github forks
+** COMMENT quelpa eval-in-repl : github forks
    #+BEGIN_SRC emacs-lisp
-     (quelpa '(eval-in-repl
-	       :repo "actondev/eval-in-repl" :fetcher github
-	       :branch "feature/multiple_sh_sessions"))
+(quelpa '(eval-in-repl
+	  :repo "actondev/eval-in-repl" :fetcher github
+	  :branch "feature/multiple_sh_sessions"))
 
-     (quelpa '(org-babel-eval-in-repl
-	       :repo "actondev/org-babel-eval-in-repl" :fetcher github
-	       :branch "feature/multiple_sh_sessions"))
+(quelpa '(org-babel-eval-in-repl
+	  :repo "actondev/org-babel-eval-in-repl" :fetcher github
+	  :branch "feature/multiple_sh_sessions"))
 
-     (use-package eval-in-repl
-       :ensure t)
+(use-package eval-in-repl
+  :ensure t)
 
-     (use-package org-babel-eval-in-repl
-       :ensure t
-       :bind
-       (:map org-mode-map
-	     ("C-<return>" . ober-eval-in-repl) ))
+(use-package org-babel-eval-in-repl
+  :ensure t
+  :bind
+  (:map org-mode-map
+	("C-<return>" . ober-eval-in-repl) ))
    #+END_SRC
 
-** COMMENT eval in repl
+** eval in repl
    Making use of straight.el to use my forks
    #+BEGIN_SRC emacs-lisp
-     ;; (use-package
-     ;;  :straight
-     ;;  (eval-in-repl
-     ;;    :type git :host github :repo "kaz-yos/eval-in-repl"
-     ;;    :fork (:host github :repo "actondev/eval-in-repl" :branch "feature/multiple_sh_sessions"))
-     ;;  :bind(
-     ;;  :map org-mode-map
-     ;;  ("C-<return>" . ober-eval-in-repl)))
+(use-package eval-in-repl
+  :straight
+  (:type git :host github :repo "kaz-yos/eval-in-repl"
+	 :fork (:host github :repo "actondev/eval-in-repl" :branch "feature/multiple_sh_sessions"))
+  )
 
-
-     (use-package eval-in-repl
-       :straight
-       (:type git :host github :repo "kaz-yos/eval-in-repl"
-	:fork (:host github :repo "actondev/eval-in-repl" :branch "feature/multiple_sh_sessions"))
-       :bind
-       (:map org-mode-map
-	     ("C-<return>" . ober-eval-in-repl) ))
-
-     (straight-use-package
-       '(
-	org-babel-eval-in-repl
-	:type git :host github :repo "diadochos/org-babel-eval-in-repl"
-	:fork (:host github :repo "actondev/org-babel-eval-in-repl" :branch "feature/multiple_sh_sessions")))
-   #+END_SRC
-
-** COMMENT org sh sessions example
-   #+BEGIN_SRC sh :session *sh1*
-   echo hi
-   echo hi2
-   #+END_SRC
-
-   #+BEGIN_SRC sh :session *sh2*
-     echo "hi from sh2"
-     echo hi2
+(use-package org-babel-eval-in-repl
+  :straight
+  (:type git :host github :repo "diadochos/org-babel-eval-in-repl"
+	 :fork (:host github :repo "actondev/org-babel-eval-in-repl" :branch "feature/multiple_sh_sessions"))
+  :bind
+  (:map org-mode-map
+	("C-<return>" . ober-eval-in-repl)))
    #+END_SRC
 
 * Helm
   #+BEGIN_SRC emacs-lisp
-    (use-package helm
-      :ensure t
-      :bind(
-	    ("M-x" . helm-M-x)
-	    ("C-<tab>" . helm-mini)
-	    ("C-x C-f" . helm-find-files)
-	    :map helm-map
-	    ("<tab>" . helm-execute-persistent-action)
-	    ("<left>" . left-char)
-	    ("<right>" . right-char)
-	    )
-      :init
-      (require 'helm-config)
-      :config
-      (setq helm-M-x-fuzzy-match t
-	    helm-recentf-fuzzy-match t
-	    helm-apropos-fuzzy-match t
-	    helm-buffers-fuzzy-matching t
-	    helm-completion-in-region-fuzzy-match t
-	    helm-mode-fuzzy-match t)
-      ;; disable auto input
-      (setq helm-swoop-pre-input-function
-	    (lambda () nil)))
+(use-package helm
+  :ensure t
+  :bind(
+	("M-x" . helm-M-x)
+	("C-<tab>" . helm-mini)
+	("C-x C-f" . helm-find-files)
+	:map helm-map
+	("<tab>" . helm-execute-persistent-action)
+	("<left>" . left-char)
+	("<right>" . right-char)
+	)
+  :init
+  (require 'helm-config)
+  :config
+  (setq helm-M-x-fuzzy-match t
+	helm-recentf-fuzzy-match t
+	helm-apropos-fuzzy-match t
+	helm-buffers-fuzzy-matching t
+	helm-completion-in-region-fuzzy-match t
+	helm-mode-fuzzy-match t)
+  ;; disable auto input
+  (setq helm-swoop-pre-input-function
+	(lambda () nil)))
 
-    (use-package helm-swoop
-      :ensure t
-      :config
-      (setq helm-swoop-use-fuzzy-match nil)
-      (setq helm-swoop-speed-or-color t)
-      (setq helm-autoresize-max-height 35)
-      (setq helm-autoresize-min-height 20)
-      (helm-autoresize-mode)
-      )
+(use-package helm-swoop
+  :ensure t
+  :config
+  (setq helm-swoop-use-fuzzy-match nil)
+  (setq helm-swoop-speed-or-color t)
+  (setq helm-autoresize-max-height 35)
+  (setq helm-autoresize-min-height 20)
+  (helm-autoresize-mode)
+  )
   #+END_SRC
 
 * Rainbow
   rainbow-delimiters help everytime :)
   #+BEGIN_SRC emacs-lisp
-    (use-package rainbow-delimiters
-      :ensure t
-      :config
-      (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-      )
+(use-package rainbow-delimiters
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  )
   #+END_SRC
-* Theming
+* Window management
+  #+BEGIN_SRC emacs-lisp
+(use-package windresize
+  :ensure t
+  :config
+  (setq windresize-default-increment 5)
+  )
+  #+END_SRC
+* Appearance
 ** COMMENT monokai
    #+BEGIN_SRC emacs-lisp
-     (use-package monokai-theme
-       :ensure t)
+(use-package monokai-theme
+  :ensure t)
 
-     ;; (use-package sublime-themes
-     ;;   :ensure t
-     ;;   :config
-     ;;   (load-theme 'spolsky t)
-     ;;   )
+;; (use-package sublime-themes
+;;   :ensure t
+;;   :config
+;;   (load-theme 'spolsky t)
+;;   )
    #+END_SRC
 ** doom
    #+BEGIN_SRC emacs-lisp
-     (use-package doom-themes
-       :ensure t
-       :config
-       (load-theme 'doom-molokai t))
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-molokai t))
    #+END_SRC
-* powerline
-  #+BEGIN_SRC emacs-lisp
-    (use-package powerline
+** COMMENT powerline
+   #+BEGIN_SRC emacs-lisp
+(use-package powerline
+  :ensure t
+  :config
+  (powerline-default-theme))
+   #+END_SRC
+** doom-modeline
+   #+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
       :ensure t
-      :config
-      (powerline-default-theme))
-  #+END_SRC
-* editing etc
-  #+BEGIN_SRC emacs-lisp
-    ;; usecase: select the block (enclosed by parenthesis).. expand -> wrap around the outter block
-    (use-package expand-region
-      :ensure t
-      )
+      :hook (after-init . doom-modeline-mode))
+   #+END_SRC
 
-    (use-package multiple-cursors
-      :ensure t
-      :config
-      (global-set-key (kbd "C->") 'mc/mark-next-like-this-word)
-      (global-set-key (kbd "C-<") 'mc/mark-previous-like-this-word)
-      (global-set-key (kbd "M-<f3>") 'mc/mark-all-like-this) ;; submlime like
-      (global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
-      )
-  #+END_SRC
+
+   Note: after you have to run =all-the-icons-install-fonts= with M-x.
+* editing etc
+** selection
+   #+BEGIN_SRC emacs-lisp
+;; usecase: select the block (enclosed by parenthesis).. expand -> wrap around the outter block
+(use-package expand-region
+  :ensure t
+  )
+
+(use-package multiple-cursors
+  :ensure t
+  :config
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this-word)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this-word)
+  (global-set-key (kbd "M-<f3>") 'mc/mark-all-like-this) ;; submlime like
+  (global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
+  )
+   #+END_SRC
+** undo
+   #+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :ensure t
+  :bind(
+	("M-/" . undo-tree-visualize)
+	("C-z" . undo-tree-undo)
+	("C-S-z" . undo-tree-redo)
+	)
+  :config
+  (unbind-key "C-/" undo-tree-undo)
+  (global-undo-tree-mode 1)
+  )
+   #+END_SRC
 * Key-chord
   #+BEGIN_SRC emacs-lisp
-    (defun key-chord-helm ()
-      ;; helm: , (right hand middle finger)
-      (key-chord-define-global ",r" 'helm-all-mark-rings) ;; Rings
-      (key-chord-define-global ",m" 'helm-mini) ;; Mini
-      (key-chord-define-global ",s" 'helm-swoop) ;; Swoop
-      (key-chord-define-global ",t" 'helm-projectile) ;; projecTile
-      (key-chord-define-global ",g" 'helm-projectile-ag) ;; aG
-      )
+(defun key-chord-helm ()
+  ;; helm: , (right hand middle finger)
+  (key-chord-define-global ",r" 'helm-all-mark-rings) ;; Rings
+  (key-chord-define-global ",m" 'helm-mini) ;; Mini
+  (key-chord-define-global ",s" 'helm-swoop) ;; Swoop
+  (key-chord-define-global ",t" 'helm-projectile) ;; projecTile
+  (key-chord-define-global ",g" 'helm-projectile-ag) ;; aG
+  )
 
-    (defun key-chord-ace-jump ()
-      ;; ace: c (c for jump : left hand middle finger)
-      (key-chord-define-global "cj" 'ace-jump-mode)
-      ;; Jump Character
-      (key-chord-define-global "ck" 'ace-jump-char-mode)
-      ;; Jump Line
-      (key-chord-define-global "cl" 'ace-jump-line-mode)
-      )
+(defun key-chord-ace-jump ()
+  ;; ace: c (c for jump : left hand middle finger)
+  (key-chord-define-global "cj" 'ace-jump-mode)
+  ;; Jump Character
+  (key-chord-define-global "ck" 'ace-jump-char-mode)
+  ;; Jump Line
+  (key-chord-define-global "cl" 'ace-jump-line-mode)
+  )
 
-    (defun key-chord-windows-management ()
-      ;; move between windows -WASD- like movement, except for the right hand
-      ;; using ;
-      (key-chord-define-global ";w" 'windmove-up)
-      (key-chord-define-global ";a" 'windmove-left)
-      (key-chord-define-global ";s" 'windmove-down)
-      (key-chord-define-global ";d" 'windmove-right)
+(defun key-chord-windows-management ()
+  ;; move between windows -WASD- like movement, except for the right hand
+  ;; using ;
+  (key-chord-define-global ";w" 'windmove-up)
+  (key-chord-define-global ";a" 'windmove-left)
+  (key-chord-define-global ";s" 'windmove-down)
+  (key-chord-define-global ";d" 'windmove-right)
 
-	;; windows
-      (key-chord-define-global ";q" 'delete-window) ;;q Quit
-      (key-chord-define-global ";e" 'delete-other-windows)
-      (key-chord-define-global ";f" (lambda () (interactive)(split-window-horizontally) (other-window 1))) ;; f home row
-      (key-chord-define-global ";v" (lambda () (interactive)(split-window-vertically) (other-window 1))) ;; Vertical
+  ;; windows
+  (key-chord-define-global ";q" 'delete-window) ;;q Quit
+  (key-chord-define-global ";e" 'delete-other-windows)
+  (key-chord-define-global ";f" (lambda () (interactive)(split-window-horizontally) (other-window 1))) ;; f home row
+  (key-chord-define-global ";v" (lambda () (interactive)(split-window-vertically) (other-window 1))) ;; Vertical
 
-      (key-chord-define-global ";r" 'windresize) ;; Resize
-      )
+  (key-chord-define-global ";r" 'windresize) ;; Resize
+  )
 
-    (defun key-chord-editing ()
-      ;; Expand Region (r for region)
-      (key-chord-define-global "er" 'er/expand-region)
-      )
+(defun key-chord-editing ()
+  ;; Expand Region (r for region)
+  (key-chord-define-global "er" 'er/expand-region)
+  )
 
-    (use-package key-chord
-      :ensure t
-      :config
-      ;; disable in mini buffers
-      (setq key-chord-two-keys-delay .05
-		    key-chord-one-key-delay .1)
-      (defun disable-key-chord-mode ()
-	    (set (make-local-variable 'input-method-function) nil))
+(use-package key-chord
+  :ensure t
+  :config
+  ;; disable in mini buffers
+  (setq key-chord-two-keys-delay .05
+	key-chord-one-key-delay .1)
+  (defun disable-key-chord-mode ()
+    (set (make-local-variable 'input-method-function) nil))
 
-      (add-hook 'minibuffer-setup-hook #'disable-key-chord-mode)
-      (key-chord-mode 1)
+  (add-hook 'minibuffer-setup-hook #'disable-key-chord-mode)
+  (key-chord-mode 1)
 
-      (key-chord-helm)
-      (key-chord-windows-management)
-      (key-chord-editing)
-      )
+  (key-chord-helm)
+  (key-chord-windows-management)
+  (key-chord-editing)
+  )
   #+END_SRC
+* COMMENT notes
+  #+BEGIN_SRC emacs-lisp
+;; customize inital screen
+(customize-group 'initialization)
+  #+END_SRC
+** cua mode
+
+   #+BEGIN_SRC text
+`cua--ena-cua-keys-keymap' Minor Mode Bindings:
+key             binding
+---             -------
+
+C-c		Prefix Command
+C-v		yank
+C-x		Prefix Command
+C-z		undo
+ESC		Prefix Command
+
+M-v		delete-selection-repeat-replace-region
+
+C-c <timeout>	copy-region-as-kill
+
+C-x <timeout>	kill-region   
+   #+END_SRC
+** org sh sessions example
+   #+BEGIN_SRC sh :session *sh1*
+echo hi
+echo hi2
+   #+END_SRC
+
+   #+BEGIN_SRC sh :session *sh2*
+echo "hi from sh2"
+echo hi2
+   #+END_SRC
