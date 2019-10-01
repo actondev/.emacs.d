@@ -15,7 +15,6 @@
 ;;(define-key cua-global-keymap [C-return] nil) ;; don't remember the use-case of this
 ;;(define-key cua--cua-keys-keymap [C-z] nil)
 (global-visual-line-mode 1) ;; word/line wrap
-(show-paren-mode 1) ;; don't remember
 (winner-mode t) ;; C-c left will undo window position changes
 (setq ring-bell-function 'ignore)
 (global-display-line-numbers-mode 1)
@@ -276,7 +275,9 @@ sudo apt-get install silversearcher-ag
   :config
   (load-theme 'doom-molokai t)
   (doom-themes-visual-bell-config)
-  (doom-themes-neotree-config))
+  ;; (doom-themes-neotree-config)
+  ;; (setq doom-themes-neotree-file-icons t)
+)
    #+END_SRC
 ** COMMENT powerline
    #+BEGIN_SRC emacs-lisp
@@ -292,8 +293,24 @@ sudo apt-get install silversearcher-ag
       :hook (after-init . doom-modeline-mode))
    #+END_SRC
 
-
    Note: after you have to run =all-the-icons-install-fonts= with M-x.
+*** minions: showing minor modes
+    #+BEGIN_SRC emacs-lisp
+(use-package minions
+  :config
+  (minions-mode 1)
+  (setq doom-modeline-minor-modes (featurep 'minions)))
+    #+END_SRC
+
+** highlighting matching tag (show-paren)
+   #+BEGIN_SRC emacs-lisp
+(show-paren-mode 1)
+(require 'paren)
+(set-face-attribute 'show-paren-match nil
+		    :box '(:line-width -1 :color "#ccc")
+		    :foreground nil
+		    :weight 'normal)
+   #+END_SRC
 * Welcome screen
   #+BEGIN_SRC emacs-lisp
 (use-package dashboard
@@ -332,6 +349,8 @@ sudo apt-get install silversearcher-ag
   :ensure t
   :config
   (global-undo-tree-mode 1)
+  (unbind-key "C-/" undo-tree-map)
+  (unbind-key "C-?" undo-tree-map)
   :bind(
 	("M-/" . undo-tree-visualize)
 	("C-z" . undo-tree-undo)
@@ -339,10 +358,78 @@ sudo apt-get install silversearcher-ag
 	)
   )
    #+END_SRC
+** Working with lisps
+*** paredit
+    #+BEGIN_SRC emacs-lisp
+(use-package paredit
+  :ensure t
+  ;; <C-right>	paredit-forward-slurp-sexp
+  ;; <C-left>	paredit-forward-barf-sexp
+  ;; <C-M-right>	paredit-backward-barf-sexp
+  ;; <C-M-left>	paredit-backward-slurp-sexp
+  :config
+  (unbind-key "C-<right>" paredit-mode-map)
+  (unbind-key "C-<left>" paredit-mode-map)
+  :bind(
+	:map paredit-mode-map
+	("M-]" . paredit-forward-slurp-sexp) ;; c ->
+	("M-[" . paredit-forward-barf-sexp) ;; c <-
+	("M-}" . paredit-backward-barf-sexp) ;; C-M >
+	("M-{" . paredit-backward-slurp-sexp) ;; C M <
+	)
+  )
+    #+END_SRC
+*** COMMENT parinfer
+    #+BEGIN_SRC emacs-lisp
+(defun add-parinfer-hooks ()
+  (add-hook 'clojure-mode-hook #'parinfer-mode)
+  (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)
+  (add-hook 'common-lisp-mode-hook #'parinfer-mode)
+  (add-hook 'scheme-mode-hook #'parinfer-mode)
+  (add-hook 'lisp-mode-hook #'parinfer-mode))
+
+(use-package parinfer
+  :ensure t
+  :bind
+  (("C-," . parinfer-toggle-mode))
+  :init
+  (progn
+    (setq parinfer-extensions
+          '(
+	    defaults       ; should be included.
+            ;; pretty-parens  ; different paren styles for different modes.
+            ;; evil           ; If you use Evil.
+            ;; lispy          ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
+            paredit        ; Introduce some paredit commands.
+            smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
+            smart-yank
+	    ))   ; Yank behavior depend on mode.
+    ))
+    #+END_SRC
+*** aggresive indent?
+    https://github.com/Malabarba/aggressive-indent-mode
+    vs electric
+    #+BEGIN_SRC emacs-lisp
+(defun add-aggressive-indent-mode-hooks ()
+  (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
+  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+  ;; (add-hook 'common-lisp-mode-hook #'aggressive-indent-mode)
+  ;; (add-hook 'scheme-mode-hook #'aggressive-indent-mode)
+  ;; (add-hook 'lisp-mode-hook #'aggressive-indent-mode)
+  )
+
+(use-package aggressive-indent
+  :ensure t
+  :config
+  (add-aggressive-indent-mode-hooks)
+  )
+    #+END_SRC
 * (Ma)git
   #+BEGIN_SRC emacs-lisp
 (use-package magit
   :ensure t
+  :config
+  (setq ediff-split-window-function 'split-window-horizontally)
   )
   #+END_SRC
 * Languages
@@ -359,6 +446,7 @@ sudo apt-get install silversearcher-ag
 (use-package cider
   :ensure t)
    #+END_SRC
+   
 * Key-chord
   #+BEGIN_SRC emacs-lisp
 (defun key-chord-helm ()
@@ -366,7 +454,7 @@ sudo apt-get install silversearcher-ag
   (key-chord-define-global ",r" 'helm-all-mark-rings) ;; Rings
   (key-chord-define-global ",m" 'helm-mini) ;; Mini
   (key-chord-define-global ",s" 'helm-swoop) ;; Swoop
-  (key-chord-define-global ",t" 'helm-projectile) ;; projecTile
+  (key-chord-define-global ",t" 'helm-projectile-find-file) ;; projecTile
   (key-chord-define-global ",g" 'helm-projectile-ag) ;; aG
   )
 
@@ -398,7 +486,7 @@ sudo apt-get install silversearcher-ag
 
 (defun key-chord-editing ()
   ;; Expand Region (r for region)
-  (key-chord-define-global "er" 'er/expand-region)
+  (key-chord-define-global "rj" 'er/expand-region)
   )
 
 (use-package key-chord
