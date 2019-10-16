@@ -13,8 +13,9 @@ projectile.cache
 # package management
 straight/
 quelpa/
+elpa/
 
 # ignoring other emacs stuff
 recentf
 auto-save-list
-elpa
+

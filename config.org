@@ -58,14 +58,15 @@
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
+
+(setq use-package-always-ensure t)
+(setq use-package-always-defer nil)
    #+END_SRC
 ** COMMENT quelpa (for github sources)
    #+BEGIN_SRC emacs-lisp
 (setq quelpa-update-melpa-p nil)
 ;;     (setq quelpa-checkout-melpa-p nil)
-(use-package quelpa
-  :ensure t
-  :config)
+(use-package quelpa)
 
 
 ;;     (package-initialize)
@@ -96,7 +97,8 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-(setq straight-use-package-by-default nil)
+(setq straight-vc-git-default-clone-depth 1)
+;; (setq straight-use-package-by-default t)
    #+END_SRC
 * Org customizations
   #+BEGIN_SRC emacs-lisp
@@ -130,11 +132,9 @@
 	  :repo "actondev/org-babel-eval-in-repl" :fetcher github
 	  :branch "feature/multiple_sh_sessions"))
 
-(use-package eval-in-repl
-  :ensure t)
+(use-package eval-in-repl)
 
 (use-package org-babel-eval-in-repl
-  :ensure t
   :bind
   (:map org-mode-map
 	("C-<return>" . ober-eval-in-repl) ))
@@ -160,7 +160,6 @@
 * Helm
   #+BEGIN_SRC emacs-lisp
 (use-package helm
-  :ensure t
   :bind(
 	("M-x" . helm-M-x)
 	("C-<tab>" . helm-mini)
@@ -187,7 +186,6 @@
 	)
 
 (use-package helm-swoop
-  :ensure t
   :config
   (setq helm-swoop-use-fuzzy-match nil)
   (setq helm-swoop-speed-or-color t)
@@ -196,8 +194,7 @@
   (helm-autoresize-mode)
   )
 
-(use-package helm-ag
-  :ensure t)
+(use-package helm-ag)
   #+END_SRC
 
 ** installing ag (used in helm-ag)
@@ -209,7 +206,6 @@ sudo apt-get install silversearcher-ag
   rainbow-delimiters help everytime :)
   #+BEGIN_SRC emacs-lisp
 (use-package rainbow-delimiters
-  :ensure t
   :config
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
   )
@@ -218,7 +214,6 @@ sudo apt-get install silversearcher-ag
 ** Resizing (windresize)
    #+BEGIN_SRC emacs-lisp
 (use-package windresize
-  :ensure t
   :config
   (setq windresize-default-increment 5)
   )
@@ -227,7 +222,6 @@ sudo apt-get install silversearcher-ag
 ** ace-window
    #+BEGIN_SRC emacs-lisp
 (use-package ace-window
-  :ensure t
   :config
   (global-set-key (kbd "M-o") 'ace-window)
   )
@@ -243,20 +237,24 @@ sudo apt-get install silversearcher-ag
 
    #+BEGIN_SRC emacs-lisp
 (use-package projectile
-  :ensure t
   :config
   (projectile-mode 1)
+  ;; speed!
+  (setq projectile-indexing-method 'hybrid)
+  
+  ;; https://github.com/bbatsov/projectile/issues/1302#issuecomment-433894379
+  ;; windows fix
+  ;; (setq projectile-git-submodule-command nil)
+  ;; oor install tr with "choco install tr"
+  ;; oor msys2 paths (see heading)
   )
-(use-package helm-projectile
-  :ensure t
-  )
+(use-package helm-projectile)
 
 (defun display-line-numbers-disable-hook (_)
   "Disable display-line-numbers locally."
   (display-line-numbers-mode -1))
 
 (use-package neotree
-  :ensure t
   :config
   (setq neo-smart-open t)
   (add-hook 'neo-after-create-hook 'display-line-numbers-disable-hook)
@@ -270,10 +268,10 @@ sudo apt-get install silversearcher-ag
 ** COMMENT monokai
    #+BEGIN_SRC emacs-lisp
 (use-package monokai-theme
-  :ensure t)
+  
 
 ;; (use-package sublime-themes
-;;   :ensure t
+;;   
 ;;   :config
 ;;   (load-theme 'spolsky t)
 ;;   )
@@ -281,33 +279,31 @@ sudo apt-get install silversearcher-ag
 ** doom
    #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
-  :ensure t
   :config
   (load-theme 'doom-molokai t)
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
+  ;; https://github.com/domtronn/all-the-icons.el/issues/28#issuecomment-312089198
+  (setq inhibit-compacting-font-caches t)
   ;; (setq doom-themes-neotree-file-icons t)
-)
+  )
    #+END_SRC
 ** COMMENT powerline
    #+BEGIN_SRC emacs-lisp
 (use-package powerline
-  :ensure t
   :config
   (powerline-default-theme))
    #+END_SRC
 ** doom-modeline
    #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
-      :ensure t
-      :hook (after-init . doom-modeline-mode))
+   :hook (after-init . doom-modeline-mode))
    #+END_SRC
 
    Note: after you have to run =all-the-icons-install-fonts= with M-x.
 *** minions: showing minor modes
     #+BEGIN_SRC emacs-lisp
-(use-package minions
-  :config
+(use-package minions  :config
   (minions-mode 1)
   (setq doom-modeline-minor-modes (featurep 'minions)))
     #+END_SRC
@@ -324,7 +320,6 @@ sudo apt-get install silversearcher-ag
 * Welcome screen
   #+BEGIN_SRC emacs-lisp
 (use-package dashboard
-  :ensure t
   :diminish dashboard-mode
   :config
   ;;  (setq dashboard-banner-logo-title "your custom text")
@@ -340,12 +335,9 @@ sudo apt-get install silversearcher-ag
 ** selection
    #+BEGIN_SRC emacs-lisp
 ;; usecase: select the block (enclosed by parenthesis).. expand -> wrap around the outter block
-(use-package expand-region
-  :ensure t
-  )
+(use-package expand-region)
 
 (use-package multiple-cursors
-  :ensure t
   :config
   (global-set-key (kbd "C->") 'mc/mark-next-like-this-word)
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this-word)
@@ -356,7 +348,6 @@ sudo apt-get install silversearcher-ag
 ** undo
    #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
-  :ensure t
   :config
   (global-undo-tree-mode 1)
   (unbind-key "C-/" undo-tree-map)
@@ -372,11 +363,10 @@ sudo apt-get install silversearcher-ag
 *** paredit
     #+BEGIN_SRC emacs-lisp
 (use-package paredit
-  :ensure t
   ;; <C-right>	paredit-forward-slurp-sexp
   ;; <C-left>	paredit-forward-barf-sexp
   ;; <C-M-right>	paredit-backward-barf-sexp
-  ;; <C-M-left>	paredit-backward-slurp-sexp
+  ;; <C-M-left>	paredit-backward-slurp-sexp  :config
   :config
   (unbind-key "C-<right>" paredit-mode-map)
   (unbind-key "C-<left>" paredit-mode-map)
@@ -399,7 +389,6 @@ sudo apt-get install silversearcher-ag
   (add-hook 'lisp-mode-hook #'parinfer-mode))
 
 (use-package parinfer
-  :ensure t
   :bind
   (("C-," . parinfer-toggle-mode))
   :init
@@ -410,7 +399,8 @@ sudo apt-get install silversearcher-ag
             ;; pretty-parens  ; different paren styles for different modes.
             ;; evil           ; If you use Evil.
             ;; lispy          ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
-            paredit        ; Introduce some paredit commands.
+            
+paredit        ; Introduce some paredit commands.
             smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
             smart-yank
 	    ))   ; Yank behavior depend on mode.
@@ -429,7 +419,6 @@ sudo apt-get install silversearcher-ag
   )
 
 (use-package aggressive-indent
-  :ensure t
   :config
   (add-aggressive-indent-mode-hooks)
   )
@@ -437,15 +426,12 @@ sudo apt-get install silversearcher-ag
 ** jumping around (ace jump)
 
    #+BEGIN_SRC emacs-lisp
-(use-package ace-jump-mode
-  :ensure t
-  )
+(use-package ace-jump-mode)
    #+END_SRC
 
 * (Ma)git
   #+BEGIN_SRC emacs-lisp
 (use-package magit
-  :ensure t
   :config
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
@@ -455,7 +441,6 @@ sudo apt-get install silversearcher-ag
 ** Clojure
    #+BEGIN_SRC emacs-lisp
 (use-package clojure-mode
-  :ensure t
   :bind(
 	:map clojure-mode-map
 	("C-<return>" . cider-eval-defun-at-point)
@@ -463,14 +448,12 @@ sudo apt-get install silversearcher-ag
 	)
   )
 
-(use-package cider
-  :ensure t)
+(use-package cider)
    #+END_SRC
 
 ** etc (yaml..)
    #+BEGIN_SRC emacs-lisp
-(use-package yaml-mode
-  :ensure t)
+(use-package yaml-mode)
    #+END_SRC
 
 * Key-chord
@@ -516,7 +499,6 @@ sudo apt-get install silversearcher-ag
   )
 
 (use-package key-chord
-  :ensure t
   :config
   ;; disable in mini buffers
   (setq key-chord-two-keys-delay .05
@@ -536,8 +518,7 @@ sudo apt-get install silversearcher-ag
 
 * Presentation? (command-log)
   #+BEGIN_SRC emacs-lisp
-(use-package command-log-mode
-  :ensure t)
+(use-package command-log-mode)
   #+END_SRC
 * COMMENT notes
   #+BEGIN_SRC emacs-lisp
@@ -573,5 +554,31 @@ echo hi2
 echo "hi from sh2"
 echo hi2
    #+END_SRC
+
+* Windows paths: msys2
+  #+BEGIN_SRC emacs-lisp
+(when (eq system-type 'windows-nt)
+  (let (
+        (mypaths
+         '(
+           "C:/msys64/mingw64/bin"
+	   "C:/msys64/usr/local/bin"
+	   "C:/msys64/usr/bin"
+	   "C:/msys64/usr/bin"
+	   "C:/msys64/usr/bin/site_perl"
+	   "C:/msys64/usr/bin/vendor_perl"
+	   "C:/msys64/usr/bin/core_perl"
+           ) )
+        )
+
+    (setenv "PATH" (concat
+		    (mapconcat 'identity mypaths ";")
+		    ";" (getenv "PATH")
+		    ))
+
+    (setq exec-path (append mypaths (list "." exec-directory)) )
+    ))
+
+  #+END_SRC
 * TODO magit, ace jump, projectile (neotree..?), start screen
    + https://emacs.stackexchange.com/questions/14282/replace-splash-screen-with-list-of-recentf
