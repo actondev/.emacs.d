@@ -202,14 +202,6 @@
    #+BEGIN_SRC sh
 sudo apt-get install silversearcher-ag
    #+END_SRC
-* Rainbow
-  rainbow-delimiters help everytime :)
-  #+BEGIN_SRC emacs-lisp
-(use-package rainbow-delimiters
-  :config
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-  )
-  #+END_SRC
 * Window management
 ** Resizing (windresize)
    #+BEGIN_SRC emacs-lisp
@@ -228,7 +220,6 @@ sudo apt-get install silversearcher-ag
    #+END_SRC
 
 * Project management
-
 ** Projectile & neotree
    Useful neotree shortcuts
    + =A= : stretch toggle
@@ -244,7 +235,7 @@ sudo apt-get install silversearcher-ag
   
   ;; https://github.com/bbatsov/projectile/issues/1302#issuecomment-433894379
   ;; windows fix
-  ;; (setq projectile-git-submodule-command nil)
+  (setq projectile-git-submodule-command nil)
   ;; oor install tr with "choco install tr"
   ;; oor msys2 paths (see heading)
   )
@@ -265,6 +256,20 @@ sudo apt-get install silversearcher-ag
   )
    #+END_SRC
 * Appearance
+** Welcome screen
+   #+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :diminish dashboard-mode
+  :config
+  ;;  (setq dashboard-banner-logo-title "your custom text")
+  (setq dashboard-startup-banner 1) ;; integer is for text
+  (setq dashboard-items '(
+			  (projects . 10)
+                          (bookmarks . 10)
+			  (recents  . 10)
+			  ))
+  (dashboard-setup-startup-hook))
+   #+END_SRC
 ** frame title
    For distinguishing between windows and linux (WSL in windows)
    #+BEGIN_SRC emacs-lisp
@@ -274,7 +279,7 @@ sudo apt-get install silversearcher-ag
    #+END_SRC
 ** COMMENT monokai
    #+BEGIN_SRC emacs-lisp
-(use-package monokai-theme
+(use-package monokai-theme)
   
 
 ;; (use-package sublime-themes
@@ -295,12 +300,6 @@ sudo apt-get install silversearcher-ag
   ;; (setq doom-themes-neotree-file-icons t)
   )
    #+END_SRC
-** COMMENT powerline
-   #+BEGIN_SRC emacs-lisp
-(use-package powerline
-  :config
-  (powerline-default-theme))
-   #+END_SRC
 ** doom-modeline
    #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
@@ -314,6 +313,12 @@ sudo apt-get install silversearcher-ag
   (minions-mode 1)
   (setq doom-modeline-minor-modes (featurep 'minions)))
     #+END_SRC
+** COMMENT powerline
+   #+BEGIN_SRC emacs-lisp
+(use-package powerline
+  :config
+  (powerline-default-theme))
+   #+END_SRC
 
 ** highlighting matching tag (show-paren)
    #+BEGIN_SRC emacs-lisp
@@ -324,20 +329,6 @@ sudo apt-get install silversearcher-ag
 		    :weight 'normal)
 (show-paren-mode 1) ;; has to be called after set-face-attribute?
    #+END_SRC
-* Welcome screen
-  #+BEGIN_SRC emacs-lisp
-(use-package dashboard
-  :diminish dashboard-mode
-  :config
-  ;;  (setq dashboard-banner-logo-title "your custom text")
-  (setq dashboard-startup-banner 1) ;; integer is for text
-  (setq dashboard-items '(
-			  (projects . 10)
-                          (bookmarks . 10)
-			  (recents  . 10)
-			  ))
-  (dashboard-setup-startup-hook))
-  #+END_SRC
 * editing etc
 ** selection
    #+BEGIN_SRC emacs-lisp
@@ -435,6 +426,14 @@ paredit        ; Introduce some paredit commands.
    #+BEGIN_SRC emacs-lisp
 (use-package ace-jump-mode)
    #+END_SRC
+** Rainbow
+   rainbow-delimiters help everytime :)
+   #+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters
+  :config
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  )
+   #+END_SRC
 
 * (Ma)git
   #+BEGIN_SRC emacs-lisp
@@ -527,6 +526,33 @@ paredit        ; Introduce some paredit commands.
   #+BEGIN_SRC emacs-lisp
 (use-package command-log-mode)
   #+END_SRC
+
+* COMMENT Windows paths: msys2
+  #+BEGIN_SRC emacs-lisp
+(when (eq system-type 'windows-nt)
+  (let (
+        (mypaths
+         '(
+           "C:/msys64/mingw64/bin"
+	   "C:/msys64/usr/local/bin"
+	   "C:/msys64/usr/bin"
+	   "C:/msys64/usr/bin"
+	   "C:/msys64/usr/bin/site_perl"
+	   "C:/msys64/usr/bin/vendor_perl"
+	   "C:/msys64/usr/bin/core_perl"
+           ) )
+        )
+
+    (setenv "PATH" (concat
+                    (getenv "PATH")
+		    ";"
+		    (mapconcat 'identity mypaths ";")
+		    ))
+
+    (setq exec-path (append mypaths (list "." exec-directory)) )
+    ))
+
+  #+END_SRC
 * COMMENT notes
   #+BEGIN_SRC emacs-lisp
 ;; customize inital screen
@@ -561,31 +587,3 @@ echo hi2
 echo "hi from sh2"
 echo hi2
    #+END_SRC
-
-* Windows paths: msys2
-  #+BEGIN_SRC emacs-lisp
-(when (eq system-type 'windows-nt)
-  (let (
-        (mypaths
-         '(
-           "C:/msys64/mingw64/bin"
-	   "C:/msys64/usr/local/bin"
-	   "C:/msys64/usr/bin"
-	   "C:/msys64/usr/bin"
-	   "C:/msys64/usr/bin/site_perl"
-	   "C:/msys64/usr/bin/vendor_perl"
-	   "C:/msys64/usr/bin/core_perl"
-           ) )
-        )
-
-    (setenv "PATH" (concat
-		    (mapconcat 'identity mypaths ";")
-		    ";" (getenv "PATH")
-		    ))
-
-    (setq exec-path (append mypaths (list "." exec-directory)) )
-    ))
-
-  #+END_SRC
-* TODO magit, ace jump, projectile (neotree..?), start screen
-   + https://emacs.stackexchange.com/questions/14282/replace-splash-screen-with-list-of-recentf
