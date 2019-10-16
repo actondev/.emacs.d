@@ -1,3 +1,8 @@
+;; to be able to load with custom init.el location
+;; see https://emacs.stackexchange.com/questions/4253/how-to-start-emacs-with-a-custom-user-emacs-directory
+(setq user-init-file (or load-file-name (buffer-file-name)))
+;; (setq user-emacs-directory (file-name-directory user-init-file))
+
 (defun relative-from-init (file)
   "Returns a complete file path relative from the init file.
   eg if loaded ~/.emacs.d/init.el and you pass config.org you get

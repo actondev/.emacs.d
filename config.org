@@ -19,7 +19,7 @@
 (setq ring-bell-function 'ignore)
 (global-display-line-numbers-mode 1)
 (setq inhibit-startup-screen 1)
-(delete-selection-mode 1)
+(delete-selection-mode 1) ;; delete selected region if starting typing
 
 ;; Keeping clipboard data before replacing it with emacs copy/kill etc
 (setq save-interprogram-paste-before-kill t)
@@ -215,13 +215,23 @@ sudo apt-get install silversearcher-ag
   )
   #+END_SRC
 * Window management
-  #+BEGIN_SRC emacs-lisp
+** Resizing (windresize)
+   #+BEGIN_SRC emacs-lisp
 (use-package windresize
   :ensure t
   :config
   (setq windresize-default-increment 5)
   )
-  #+END_SRC
+   #+END_SRC
+
+** ace-window
+   #+BEGIN_SRC emacs-lisp
+(use-package ace-window
+  :ensure t
+  :config
+  (global-set-key (kbd "M-o") 'ace-window)
+  )
+   #+END_SRC
 
 * Project management
 
@@ -275,7 +285,7 @@ sudo apt-get install silversearcher-ag
   :config
   (load-theme 'doom-molokai t)
   (doom-themes-visual-bell-config)
-  ;; (doom-themes-neotree-config)
+  (doom-themes-neotree-config)
   ;; (setq doom-themes-neotree-file-icons t)
 )
    #+END_SRC
@@ -304,12 +314,12 @@ sudo apt-get install silversearcher-ag
 
 ** highlighting matching tag (show-paren)
    #+BEGIN_SRC emacs-lisp
-(show-paren-mode 1)
 (require 'paren)
 (set-face-attribute 'show-paren-match nil
 		    :box '(:line-width -1 :color "#ccc")
 		    :foreground nil
 		    :weight 'normal)
+(show-paren-mode 1) ;; has to be called after set-face-attribute?
    #+END_SRC
 * Welcome screen
   #+BEGIN_SRC emacs-lisp
@@ -424,12 +434,21 @@ sudo apt-get install silversearcher-ag
   (add-aggressive-indent-mode-hooks)
   )
     #+END_SRC
+** jumping around (ace jump)
+
+   #+BEGIN_SRC emacs-lisp
+(use-package ace-jump-mode
+  :ensure t
+  )
+   #+END_SRC
+
 * (Ma)git
   #+BEGIN_SRC emacs-lisp
 (use-package magit
   :ensure t
   :config
   (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   )
   #+END_SRC
 * Languages
@@ -440,13 +459,20 @@ sudo apt-get install silversearcher-ag
   :bind(
 	:map clojure-mode-map
 	("C-<return>" . cider-eval-defun-at-point)
+	("M-<return>" . cider-eval-last-sexp)
 	)
   )
 
 (use-package cider
   :ensure t)
    #+END_SRC
-   
+
+** etc (yaml..)
+   #+BEGIN_SRC emacs-lisp
+(use-package yaml-mode
+  :ensure t)
+   #+END_SRC
+
 * Key-chord
   #+BEGIN_SRC emacs-lisp
 (defun key-chord-helm ()
@@ -504,7 +530,14 @@ sudo apt-get install silversearcher-ag
   (key-chord-helm)
   (key-chord-windows-management)
   (key-chord-editing)
+  (key-chord-ace-jump)
   )
+  #+END_SRC
+
+* Presentation? (command-log)
+  #+BEGIN_SRC emacs-lisp
+(use-package command-log-mode
+  :ensure t)
   #+END_SRC
 * COMMENT notes
   #+BEGIN_SRC emacs-lisp
