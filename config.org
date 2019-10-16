@@ -265,6 +265,13 @@ sudo apt-get install silversearcher-ag
   )
    #+END_SRC
 * Appearance
+** frame title
+   For distinguishing between windows and linux (WSL in windows)
+   #+BEGIN_SRC emacs-lisp
+;; note: can't use for some reason directy the system-type
+(setq system-type-name (symbol-name system-type))
+(setq frame-title-format '("%f  -- " system-type-name))
+   #+END_SRC
 ** COMMENT monokai
    #+BEGIN_SRC emacs-lisp
 (use-package monokai-theme
