@@ -195,6 +195,7 @@
   )
 
 (use-package helm-ag)
+
   #+END_SRC
 
 ** installing ag (used in helm-ag)
@@ -235,7 +236,7 @@ sudo apt-get install silversearcher-ag
   
   ;; https://github.com/bbatsov/projectile/issues/1302#issuecomment-433894379
   ;; windows fix
-  (setq projectile-git-submodule-command nil)
+  ;; (setq projectile-git-submodule-command nil)
   ;; oor install tr with "choco install tr"
   ;; oor msys2 paths (see heading)
   )
@@ -527,7 +528,7 @@ paredit        ; Introduce some paredit commands.
 (use-package command-log-mode)
   #+END_SRC
 
-* COMMENT Windows paths: msys2
+* Windows paths: msys2
   #+BEGIN_SRC emacs-lisp
 (when (eq system-type 'windows-nt)
   (let (
@@ -549,10 +550,24 @@ paredit        ; Introduce some paredit commands.
 		    (mapconcat 'identity mypaths ";")
 		    ))
 
-    (setq exec-path (append mypaths (list "." exec-directory)) )
+    ;;(setq exec-path (append mypaths (list "." exec-directory)) )
+    (setq exec-path (append exec-path mypaths (list exec-directory)))
     ))
 
   #+END_SRC
+
+* COMMENT Troubleshooting etc
+** checking executables
+   #+BEGIN_SRC emacs-lisp
+(message "do you see me?")
+(executable-find "ag")
+   #+END_SRC
+
+** windows ag problem
+   see https://github.com/bbatsov/helm-projectile/issues/90
+   + choco uninstall ag
+   + choco install ag --version 0.29.1.1641
+
 * COMMENT notes
   #+BEGIN_SRC emacs-lisp
 ;; customize inital screen
