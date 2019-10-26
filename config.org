@@ -1,4 +1,4 @@
-#+PROPERTY: header-args :results silent
+#+PROPERTY: header-args :results silent :tangle yes
 
 * Some defaults
   #+BEGIN_SRC emacs-lisp
@@ -331,6 +331,17 @@ sudo apt-get install silversearcher-ag
 (show-paren-mode 1) ;; has to be called after set-face-attribute?
    #+END_SRC
 * editing etc
+** auto completion
+   #+BEGIN_SRC emacs-lisp
+(use-package company
+  :ensure t
+  :config
+  (add-hook 'after-init-hook 'global-company-mode)
+  (setq company-dabbrev-downcase nil)
+  (setq company-dabbrev-ignore-case t)
+  )
+   #+END_SRC
+
 ** selection
    #+BEGIN_SRC emacs-lisp
 ;; usecase: select the block (enclosed by parenthesis).. expand -> wrap around the outter block
@@ -369,6 +380,8 @@ sudo apt-get install silversearcher-ag
   :config
   (unbind-key "C-<right>" paredit-mode-map)
   (unbind-key "C-<left>" paredit-mode-map)
+  (add-hook 'clojure-mode-hook #'paredit-mode)
+  (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
   :bind(
 	:map paredit-mode-map
 	("M-]" . paredit-forward-slurp-sexp) ;; c ->
@@ -430,12 +443,45 @@ paredit        ; Introduce some paredit commands.
 ** Rainbow
    rainbow-delimiters help everytime :)
    #+BEGIN_SRC emacs-lisp
+;; cause in the default colors there was some white cursors, not really apparent
+'(((((((((())))))))))
+(defun my-rainbow-custom-colors ()
+  (custom-set-faces
+   `(rainbow-delimiters-depth-1-face ((t (:foreground ,"#e91e63"))))
+   `(rainbow-delimiters-depth-2-face ((t (:foreground ,"#2196F3"))))
+   `(rainbow-delimiters-depth-3-face ((t (:foreground ,"#EF6C00"))))
+   `(rainbow-delimiters-depth-4-face ((t (:foreground ,"#B388FF"))))
+   `(rainbow-delimiters-depth-5-face ((t (:foreground ,"#76ff03"))))
+   `(rainbow-delimiters-depth-6-face ((t (:foreground ,"#26A69A"))))
+   `(rainbow-delimiters-depth-7-face ((t (:foreground ,"#FFCDD2"))))
+   `(rainbow-delimiters-depth-8-face ((t (:foreground ,"#795548"))))
+   `(rainbow-delimiters-depth-9-face ((t (:foreground ,"#DCE775"))))
+   )
+  )
+
 (use-package rainbow-delimiters
   :config
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  (my-rainbow-custom-colors)
   )
    #+END_SRC
 
+** LSP: Language Server Protocol
+   #+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+  :commands lsp
+  :config
+  (add-to-list 'lsp-language-id-configuration '(clojure-mode . "clojure-mode"))
+  :init
+  (setq lsp-enable-indentation nil))
+
+(use-package lsp-ui
+  :commands lsp-ui-mode)
+
+(use-package company-lsp
+  :commands company-lsp)
+
+   #+END_SRC
 * (Ma)git
   #+BEGIN_SRC emacs-lisp
 (use-package magit
@@ -528,8 +574,18 @@ paredit        ; Introduce some paredit commands.
 (use-package command-log-mode)
   #+END_SRC
 
-* Windows paths: msys2
-  #+BEGIN_SRC emacs-lisp
+* Windows
+:PROPERTIES:
+:header-args: :tangle (when (eq system-type 'windows-nt) "yes")
+:END:
+
+** lsp clojure fix
+   #+BEGIN_SRC emacs-lisp
+(setq lsp-clojure-server-command '("clojure-lsp.bat"))
+   #+END_SRC
+
+** paths: msys2
+   #+BEGIN_SRC emacs-lisp
 (when (eq system-type 'windows-nt)
   (let (
         (mypaths
@@ -554,7 +610,7 @@ paredit        ; Introduce some paredit commands.
     (setq exec-path (append exec-path mypaths (list exec-directory)))
     ))
 
-  #+END_SRC
+   #+END_SRC
 
 * COMMENT Troubleshooting etc
 ** checking executables

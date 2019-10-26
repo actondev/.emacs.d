@@ -5,7 +5,32 @@
     the most minimal file, loading the org file
   + [[file:config.org][config.org]]
     contains all the configuration
+  + [ ] [[file:emacs-lisp/]] (maybe rename?)
+    folder containing other .el files (mostly found around the web eg https://www.emacswiki.org/ )
 
+* Useful info
+** editing
+   + C-M-i
+     completing things. In cider (clojure), org-mode, text (ispell) etc
+   + company-complete
+** TODO navigating code
+   + helm-imenu ??
+   + [[file:emacs-lisp/hideshowvis.el]]
+     displaying + - icons to show/hide blocks
+     functions to know
+     + hs-minor
+     + hs-hide-block
+       or all..
+     + hs-show-block
+     + https://github.com/shanecelis/hideshow-org/tree/master
+     + https://www.emacswiki.org/emacs/HideShow
+       fix for goto-line 
+** Other packages
+   + https://www.emacswiki.org/emacs/ButtonLockMode
+     define clickable text based on regular expressions
+** Org-mode
+   + (setq org-hide-emphasis-markers t)
+     to hide the =markers= (= ~ * etc)
 * TODO moar doc
   + what packages are used
   + certain kbd shortcuts etc

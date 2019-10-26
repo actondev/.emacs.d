@@ -3,6 +3,9 @@
 *.el
 !init.el
 
+# hidden files
+.*
+
 # ignoring emacs temp files
 *~
 \#*#
