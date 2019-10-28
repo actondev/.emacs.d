@@ -2,6 +2,10 @@
 # this is because the .org files expand to .el files
 *.el
 !init.el
+!emacs-lisp/*.el
+
+# ignoring tangled sh
+*.sh
 
 # hidden files
 .*

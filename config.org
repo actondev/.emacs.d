@@ -100,6 +100,14 @@
 (setq straight-vc-git-default-clone-depth 1)
 ;; (setq straight-use-package-by-default t)
    #+END_SRC
+** Custom directories
+   Note: in [[file:init.el]] we defined the =relative-from-init= function.
+   Here we add relative folders (from the init file) to load files from.
+   + [ ] TODO add here something like a =custom= folder (which will be in gitignore)
+   #+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path (relative-from-init "emacs-lisp"))
+   #+END_SRC
+
 * Org customizations
   #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "M-n") 'outline-next-visible-heading)
@@ -340,6 +348,26 @@ sudo apt-get install silversearcher-ag
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-ignore-case t)
   )
+   #+END_SRC
+
+** Hiding/showing blocks
+   + [[file:emacs-lisp/hideshowvis.el]]
+     adds clickable + - icons in the left fringe for folding/unfolding (hiding/showing) code blocks
+   + [[file:emacs-lisp/hideshow-org.el]]
+     adds functionality similar to org-mode: toggle code block hide/show by pressing tab
+   #+BEGIN_SRC emacs-lisp
+(require 'hideshow-org)
+(require 'hideshowvis)
+   #+END_SRC
+
+   Enabling in programming modes
+   #+BEGIN_SRC emacs-lisp
+
+(defun my-hideshow-hook ()
+  (hs-org/minor-mode)
+  (hideshowvis-minor-mode))
+
+(add-hook 'prog-mode-hook #'my-hideshow-hook)
    #+END_SRC
 
 ** selection

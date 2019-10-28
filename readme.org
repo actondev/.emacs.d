@@ -5,7 +5,7 @@
     the most minimal file, loading the org file
   + [[file:config.org][config.org]]
     contains all the configuration
-  + [ ] [[file:emacs-lisp/]] (maybe rename?)
+  + [[file:emacs-lisp/]]
     folder containing other .el files (mostly found around the web eg https://www.emacswiki.org/ )
 
 * Useful info
