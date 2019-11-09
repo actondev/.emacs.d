@@ -1,0 +1,57 @@
+* Removing hooks
+  Let's say I added a lambda function that is giving errors
+  #+BEGIN_SRC emacs-lisp
+
+(add-hook 'clojure-mode-hook
+	    (lambda ()
+	      (message "how do i remove myself??")))
+
+
+clojure-mode-hook
+(first clojure-mode-hook)
+
+(remove-hook 'clojure-mode-hook (first clojure-mode-hook))
+  #+END_SRC
+* profiling time of each block
+  + https://emacs.stackexchange.com/a/21251/19673
+
+#+BEGIN_SRC emacs-lisp
+(defmacro with-timer (title &rest forms)
+  "Run the given FORMS, counting the elapsed time.
+A message including the given TITLE and the corresponding elapsed
+time is displayed."
+  (declare (indent 1))
+  (let ((nowvar (make-symbol "now"))
+        (body   `(progn ,@forms)))
+    `(let ((,nowvar (current-time)))
+       (message "%s..." ,title)
+       (prog1 ,body
+         (let ((elapsed
+                (float-time (time-subtract (current-time) ,nowvar))))
+           (message "%s... done (%.3fs)" ,title elapsed))))))
+
+
+
+#+END_SRC
+** COMMENT playing with use-package
+#+BEGIN_SRC emacs-lisp
+
+(defalias 'use-package-old 'use-package)
+(defmacro use-package (&rest forms)
+  (declare (indent 1))
+  (let ((nowvar (make-symbol "now"))
+        (body   `(progn (use-package-old ,@forms)))
+	(package (symbol-name (first forms)))
+	)
+    `(let ((,nowvar (current-time)))
+       (message "use-package: %s..." ,package)
+       (prog1 ,body
+         (let ((elapsed
+                (float-time (time-subtract (current-time) ,nowvar))))
+           (message "%s... done (%.3fs)" ,package elapsed))))))
+
+(macroexpand-all '(use-package-old helm))
+(macroexpand-1 '(use-package2 helm))
+(use-package helm)
+(macroexpand-all '(with-timer "test " (+ 1 2)))
+#+END_SRC

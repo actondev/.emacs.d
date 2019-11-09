@@ -1,8 +1,10 @@
-# no .el files except for init.el
-# this is because the .org files expand to .el files
+# ignore .el files: tangled from .org files
 *.el
+
+# .el files we want to keep
 !init.el
-!emacs-lisp/*.el
+!functions.el
+!elisp/*.el
 
 # ignoring tangled sh
 *.sh

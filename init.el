@@ -1,3 +1,19 @@
+(setq start-time (float-time))
+
+(defun msg-time (text)
+  (message (format "%s : %f" text (- (float-time) start-time))))
+
+;; WIP: startup time
+(setq gc-cons-threshold 64000000
+      inhibit-startup-screen t
+      package-enable-at-startup nil)
+
+(add-hook 'after-init-hook
+	  #'(lambda ()
+	      (setq gc-cons-threshold 800000)))
+;; startup time end
+
+
 ;; to be able to load with custom init.el location
 ;; see https://emacs.stackexchange.com/questions/4253/how-to-start-emacs-with-a-custom-user-emacs-directory
 (setq user-init-file (or load-file-name (buffer-file-name)))
@@ -9,12 +25,13 @@
   ~/.emacs.d/config.org"
   (format "%s%s" (file-name-directory user-init-file) file))
 
-(package-initialize)
-(org-babel-load-file (relative-from-init "config.org")) ;; loading relative, instead of "~/.emacs.d/config.org")
-
 (setq custom-file (relative-from-init ".emacs-custom.el"))
 (when (file-exists-p custom-file)
   (load custom-file))
 
-(message (format "%s%s" "Startup time: " (emacs-init-time)))
+(load (relative-from-init "functions.el"))
 
+;; loading org files : not loading org-mode everytime, but load the .el cached file
+(load-org-cached "config.org")
+
+(message (format "%s%s" "Startup time: " (emacs-init-time)))

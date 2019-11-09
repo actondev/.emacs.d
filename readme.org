@@ -5,7 +5,7 @@
     the most minimal file, loading the org file
   + [[file:config.org][config.org]]
     contains all the configuration
-  + [[file:emacs-lisp/]]
+  + [[file:elisp/]]
     folder containing other .el files (mostly found around the web eg https://www.emacswiki.org/ )
 
 * Useful info
@@ -30,7 +30,19 @@
      define clickable text based on regular expressions
 ** Org-mode
    + (setq org-hide-emphasis-markers t)
+     #+BEGIN_SRC emacs-lisp
+(setq org-hide-emphasis-markers t)
+     #+END_SRC
+
+     #+RESULTS:
+     : t
+
      to hide the =markers= (= ~ * etc)
 * TODO moar doc
   + what packages are used
   + certain kbd shortcuts etc
+* <2019-11-09 Sat> optimizing..
+  use-package cider was taking around 5 seconds (f**ing windows)
+  so adding a =:defer t= really helped
+
+  helm stuff also seems to take long
