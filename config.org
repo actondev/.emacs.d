@@ -158,21 +158,38 @@
 ** org-babel-eval-in-repl
    Making use of straight.el to use my forks
    #+BEGIN_SRC emacs-lisp
+;; (use-package eval-in-repl
+ ;;  :straight
+ ;;  (eval-in-repl
+ ;;   ;; :depth 'full
+ ;;   :type git :host github :repo "kaz-yos/eval-in-repl"
+ ;;   :fork (:host github :repo "actondev/eval-in-repl" :branch "feature/multiple_sh_sessions"))
+ ;;  )
+
 (use-package eval-in-repl
-  :straight
-  (eval-in-repl
-   ;; :depth 'full
-   :type git :host github :repo "kaz-yos/eval-in-repl"
-   :fork (:host github :repo "actondev/eval-in-repl" :branch "feature/multiple_sh_sessions"))
+  ;; :ensure t
   )
-;;(use-package eval-in-repl)
+
+;; (use-package org-babel-eval-in-repl
+ ;;  :straight
+ ;;  (org-babel-eval-in-repl
+ ;;   ;; :depth 'full
+ ;;   :type git :host github :repo "diadochos/org-babel-eval-in-repl"
+ ;;   :fork (:host github :repo "actondev/org-babel-eval-in-repl" :branch "feature/multiple_sh_sessions"))
+ ;;  :bind
+ ;;  (:map org-mode-map
+ ;; 	("C-<return>" . ober-eval-in-repl)))
 
 (use-package org-babel-eval-in-repl
+  ;;  :ensure t
+  
+  ;; straight.. until the PR gets merged
   :straight
   (org-babel-eval-in-repl
    ;; :depth 'full
    :type git :host github :repo "diadochos/org-babel-eval-in-repl"
    :fork (:host github :repo "actondev/org-babel-eval-in-repl" :branch "feature/multiple_sh_sessions"))
+  ;; straight end
   :bind
   (:map org-mode-map
 	("C-<return>" . ober-eval-in-repl)))
@@ -321,7 +338,11 @@ sudo apt-get install silversearcher-ag
                           (bookmarks . 10)
 			  (recents  . 10)
 			  ))
-  (dashboard-setup-startup-hook))
+  (dashboard-setup-startup-hook)
+  ;; fixing emacs client starting with scratch
+  ;; https://www.reddit.com/r/emacs/comments/8i2ip7/emacs_dashboard_emacsclient/
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  )
    #+END_SRC
 ** frame title
    For distinguishing between windows and linux (WSL in windows)

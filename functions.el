@@ -24,16 +24,16 @@
 	 (equal checksum stored-checksum)
 	 (file-exists-p el-path))
 	(progn
-	  (message "loading stored .el file %s " el-path)
+	  (message "Loading cached .el file %s " el-path)
 	  (load-file el-path)
 	  )
       (progn
-	(message "Checksum mismath, or .el not found, loading .org file " path)
+	(message "Checksum mismatch, or .el not found, loading .org file %s" path)
 	(require 'org)
 	(org-babel-load-file path)
 	)
       )
     (when (not (equal checksum stored-checksum))
-      (message "saving new checksum for %s" path)
+      (message "Saving new checksum for %s" path)
       ;; after all went good, store the checksum
       (customize-save-variable symbol checksum))))

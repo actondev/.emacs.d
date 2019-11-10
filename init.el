@@ -5,8 +5,7 @@
 
 ;; WIP: startup time
 (setq gc-cons-threshold 64000000
-      inhibit-startup-screen t
-      package-enable-at-startup nil)
+      inhibit-startup-screen t)
 
 (add-hook 'after-init-hook
 	  #'(lambda ()
@@ -31,6 +30,7 @@
 
 (load (relative-from-init "functions.el"))
 
+(package-initialize)
 ;; loading org files : not loading org-mode everytime, but load the .el cached file
 (load-org-cached "config.org")
 

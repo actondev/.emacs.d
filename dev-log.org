@@ -1,0 +1,4 @@
+* TODO <2019-11-10 Sun> use-package always ensure bug?
+  Had =(setq use-package-always-ensure t)= yet (when deleted from elpa directory the eval-in-repl) i got errors that it couldn't load these packages.
+
+  Fixed when added manually =:ensure t=
