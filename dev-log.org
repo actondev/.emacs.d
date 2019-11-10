@@ -2,3 +2,75 @@
   Had =(setq use-package-always-ensure t)= yet (when deleted from elpa directory the eval-in-repl) i got errors that it couldn't load these packages.
 
   Fixed when added manually =:ensure t=
+* <2019-11-10 Sun> merged to master the eval in repl extensions
+  I had an open PR for https://github.com/kaz-yos/eval-in-repl and https://github.com/diadochos/org-babel-eval-in-repl . Until they got merged this is how I was using my version locally
+  #+BEGIN_SRC emacs-lisp
+(use-package eval-in-repl
+  :straight
+  (eval-in-repl
+   ;; :depth 'full
+   :type git :host github :repo "kaz-yos/eval-in-repl"
+   :fork (:host github :repo "actondev/eval-in-repl" :branch "feature/multiple_sh_sessions"))
+  )
+
+(use-package org-babel-eval-in-repl
+  :straight
+  (org-babel-eval-in-repl
+   ;; :depth 'full
+   :type git :host github :repo "diadochos/org-babel-eval-in-repl"
+   :fork (:host github :repo "actondev/org-babel-eval-in-repl" :branch "feature/multiple_sh_sessions"))
+  :bind
+  (:map org-mode-map
+	("C-<return>" . ober-eval-in-repl)))
+  #+END_SRC
+
+  Note: I probably could have used a local path with use-package instead of straight like this (irrelevant extension, code only for reference)
+
+  #+BEGIN_SRC emacs-lisp
+(use-package hideshow-org
+  :load-path "elisp/"
+  ;; :demand t
+  :hook (prog-mode . hs-org/minor-mode))
+  #+END_SRC
+** quelpa: failed me?
+   I tried the following with quelpa, but I was getting errors. don't know
+   #+BEGIN_SRC emacs-lisp
+(use-package eval-in-repl
+  :quelpa (eval-in-repl
+	   :fetcher git
+	   :url "https://github.com/actonDev/eval-in-repl.git"
+	   :branch "feature/multiple_sh_sessions"))
+   #+END_SRC
+* <2019-11-11 Mon> magit ediff colors in doom-molokai
+
+   '(ediff-current-diff-A ((t (:background "#8b0000" :foreground "#CCC"))))
+ '(ediff-current-diff-B ((t (:background "#008b00" :foreground "#CCC"))))
+ '(ediff-current-diff-C ((t (:inherit ediff-current-diff-A :background "#8b5a00" :foreground "#CCC"))))
+
+ '(rainbow-delimiters-depth-1-face ((t (:foreground "#e91e63"))))
+ '(rainbow-delimiters-depth-2-face ((t (:foreground "#2196F3"))))
+
+
+
+  ;; A head (last commit)
+  (set-face-attribute 'ediff-current-diff-A nil
+		      :background "#8b0000"
+		      :foreground "#CCC")
+  ;; B index (stage)
+  (set-face-attribute 'ediff-current-diff-B nil
+		      :background "#008b00"
+		      :foreground "#CCC")
+  ;; C working tree
+  (set-face-attribute 'ediff-current-diff-C nil
+		      :background "#8b5a00"
+		      :foreground "#CCC")
+* <2019-11-11 Mon> rainbow-delimitires colors
+   '(rainbow-delimiters-depth-1-face ((t (:foreground "#e91e63"))))
+ '(rainbow-delimiters-depth-2-face ((t (:foreground "#2196F3"))))
+ '(rainbow-delimiters-depth-3-face ((t (:foreground "#EF6C00"))))
+ '(rainbow-delimiters-depth-4-face ((t (:foreground "#B388FF"))))
+ '(rainbow-delimiters-depth-5-face ((t (:foreground "#76ff03"))))
+ '(rainbow-delimiters-depth-6-face ((t (:foreground "#26A69A"))))
+ '(rainbow-delimiters-depth-7-face ((t (:foreground "#FFCDD2"))))
+ '(rainbow-delimiters-depth-8-face ((t (:foreground "#795548"))))
+ '(rainbow-delimiters-depth-9-face ((t (:foreground "#DCE775")))))

@@ -67,27 +67,6 @@
 (setq use-package-always-defer t)
 (setq use-package-verbose 'verbose)
    #+END_SRC
-** COMMENT quelpa (for github sources)
-   #+BEGIN_SRC emacs-lisp
-     (setq quelpa-update-melpa-p nil)
-
-     ;; (use-package quelpa) didn't work..
-     ;; Bootstrap quelpa
-     '(if (require 'quelpa nil t)
-	 (quelpa-self-upgrade)
-       (with-temp-buffer
-	 (url-insert-file-contents
-	  "https://framagit.org/steckerhalter/quelpa/raw/master/bootstrap.el")
-	 (eval-buffer)))
-
-
-     (quelpa
-      '(quelpa-use-package
-	:fetcher git
-	:url "https://framagit.org/steckerhalter/quelpa-use-package.git"))
-     (require 'quelpa-use-package)
-
-   #+END_SRC
 
 ** straight.el
    see
@@ -156,71 +135,20 @@
    #+END_SRC
 
 ** org-babel-eval-in-repl
-   Making use of straight.el to use my forks
    #+BEGIN_SRC emacs-lisp
-;; (use-package eval-in-repl
- ;;  :straight
- ;;  (eval-in-repl
- ;;   ;; :depth 'full
- ;;   :type git :host github :repo "kaz-yos/eval-in-repl"
- ;;   :fork (:host github :repo "actondev/eval-in-repl" :branch "feature/multiple_sh_sessions"))
- ;;  )
-
 (use-package eval-in-repl
   ;; :ensure t
+  ;; uhm.. use-package fail? i have default ensure set to true,
+  ;; yet without the custom :ensure t it didn't work
   )
-
-;; (use-package org-babel-eval-in-repl
- ;;  :straight
- ;;  (org-babel-eval-in-repl
- ;;   ;; :depth 'full
- ;;   :type git :host github :repo "diadochos/org-babel-eval-in-repl"
- ;;   :fork (:host github :repo "actondev/org-babel-eval-in-repl" :branch "feature/multiple_sh_sessions"))
- ;;  :bind
- ;;  (:map org-mode-map
- ;; 	("C-<return>" . ober-eval-in-repl)))
 
 (use-package org-babel-eval-in-repl
   ;;  :ensure t
-  
-  ;; straight.. until the PR gets merged
-  :straight
-  (org-babel-eval-in-repl
-   ;; :depth 'full
-   :type git :host github :repo "diadochos/org-babel-eval-in-repl"
-   :fork (:host github :repo "actondev/org-babel-eval-in-repl" :branch "feature/multiple_sh_sessions"))
-  ;; straight end
   :bind
   (:map org-mode-map
 	("C-<return>" . ober-eval-in-repl)))
    #+END_SRC
 
-** COMMENT quelpa:  eval-in-repl - github forks
-   #+BEGIN_SRC emacs-lisp
-     (use-package eval-in-repl
-       :quelpa (eval-in-repl
-		:fetcher git
-		:url "https://github.com/actonDev/eval-in-repl.git"
-		:branch "feature/multiple_sh_sessions"))
-
-     ;; '(use-package
-     ;;   :quelpa '(org-babel-eval-in-repl
-     ;; 	   :fetcher github
-     ;; 	   :repo "actondev/org-babel-eval-in-repl"
-     ;; 	   :branch "feature/multiple_sh_sessions")
-     ;;   :bind
-     ;;   (:map org-mode-map
-     ;; 	("C-<return>" . ober-eval-in-repl)))
-
-     ;; ;; (use-package e
-;;     val-in-repl)
-
-     ;; (use-package org-babel-eval-in-repl
-     ;;   :bind
-     ;;   (:map org-mode-map
-     ;; 	("C-<return>" . ober-eval-in-repl) ))
-   #+END_SRC
-    
 * Helm
   #+BEGIN_SRC emacs-lisp
 (use-package helm
@@ -245,7 +173,7 @@
   
   (setq helm-swoop-pre-input-function
 	(lambda () nil))
-  ;;(helm-mode 1)
+  (helm-mode 1)
 )
 
 (use-package helm-swoop
@@ -289,6 +217,7 @@ sudo apt-get install silversearcher-ag
    + =A= : stretch toggle
    + =U= : go up to parent
    + =C-c C-a= : collapse all
+     + [ ] set <S-tab> for collapse all?
 
    #+BEGIN_SRC emacs-lisp
 (use-package projectile
@@ -530,28 +459,39 @@ paredit        ; Introduce some paredit commands.
 (use-package ace-jump-mode)
    #+END_SRC
 ** Rainbow
-   rainbow-delimiters help everytime :)
+   Rainbow-mode is for previewing hex color strings in any buffer! :)
+   #+BEGIN_SRC emacs-lisp
+(use-package rainbow-mode)
+   #+END_SRC
+
+   Rainbow-delimiters are here to save the day for lisps! (and not only)
+   Highlighting matching pairs with different colors
    #+BEGIN_SRC emacs-lisp
 ;; cause in the default colors there was some white cursors, not really apparent
 '(((((((((())))))))))
-(defun my-rainbow-custom-colors ()
-  (custom-set-faces
-   `(rainbow-delimiters-depth-1-face ((t (:foreground ,"#e91e63"))))
-   `(rainbow-delimiters-depth-2-face ((t (:foreground ,"#2196F3"))))
-   `(rainbow-delimiters-depth-3-face ((t (:foreground ,"#EF6C00"))))
-   `(rainbow-delimiters-depth-4-face ((t (:foreground ,"#B388FF"))))
-   `(rainbow-delimiters-depth-5-face ((t (:foreground ,"#76ff03"))))
-   `(rainbow-delimiters-depth-6-face ((t (:foreground ,"#26A69A"))))
-   `(rainbow-delimiters-depth-7-face ((t (:foreground ,"#FFCDD2"))))
-   `(rainbow-delimiters-depth-8-face ((t (:foreground ,"#795548"))))
-   `(rainbow-delimiters-depth-9-face ((t (:foreground ,"#DCE775"))))
-   )
-  )
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
   :config
-  (my-rainbow-custom-colors)
+  ;; (my-rainbow-custom-colors)
+  (set-face-attribute 'rainbow-delimiters-depth-1-face nil
+		      :foreground "#e91e63")
+  (set-face-attribute 'rainbow-delimiters-depth-2-face nil
+		      :foreground "#2196F3")
+  (set-face-attribute 'rainbow-delimiters-depth-3-face nil
+		      :foreground "#EF6C00")
+  (set-face-attribute 'rainbow-delimiters-depth-4-face nil
+		      :foreground "#B388FF")
+  (set-face-attribute 'rainbow-delimiters-depth-5-face nil
+		      :foreground "#76ff03")
+  (set-face-attribute 'rainbow-delimiters-depth-6-face nil
+		      :foreground "#26A69A")
+  (set-face-attribute 'rainbow-delimiters-depth-7-face nil
+		      :foreground "#FFCDD2")
+  (set-face-attribute 'rainbow-delimiters-depth-8-face nil
+		      :foreground "#795548")
+  (set-face-attribute 'rainbow-delimiters-depth-9-face nil
+		      :foreground "#DCE775")
   )
    #+END_SRC
 
@@ -581,17 +521,40 @@ paredit        ; Introduce some paredit commands.
   )
    #+END_SRC
 ** HEX colors
-   #+BEGIN_SRC emacs-lisp
-   ;;(load-file (relative-from-init "elisp/xah.el"))
+   an alternative to rainbow-mode? 
+   #+BEGIN_SRC emacs-lisp :tangle no
+   (load-file (relative-from-init "elisp/xah.el"))
    #+END_SRC
    And now you can call the =xah-syntax-color-hex= function in any buffer :)
    Found at http://ergoemacs.org/emacs/xah-css-mode.html
 * (Ma)git
   #+BEGIN_SRC emacs-lisp
 (use-package magit
+  ;; show-all is meant for org-mode. ediff would show org-mode files folded
+  :hook (ediff-prepare-buffer . show-all)
   :config
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  )
+  #+END_SRC
+
+  Ediff: great diff tool that can be used in magit :)
+  Customizing colors cause in doom-molokai theme you could't notice anything
+  #+BEGIN_SRC emacs-lisp
+(use-package ediff
+  :config
+  ;; A head (last commit)
+  (set-face-attribute 'ediff-current-diff-A nil
+		      :background "#8b0000"
+		      :foreground "#CCC")
+  ;; B index (stage)
+  (set-face-attribute 'ediff-current-diff-B nil
+		      :background "#008b00"
+		      :foreground "#CCC")
+  ;; C working tree
+  (set-face-attribute 'ediff-current-diff-C nil
+		      :background "#8b5a00"
+		      :foreground "#CCC")
   )
   #+END_SRC
 * Languages
@@ -707,6 +670,7 @@ paredit        ; Introduce some paredit commands.
    #+END_SRC
 
 ** paths: msys2
+   Really useful for stuff like =ediff= etc..
    #+BEGIN_SRC emacs-lisp
 (when (eq system-type 'windows-nt)
   (let (
