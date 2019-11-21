@@ -29,3 +29,5 @@ server/
 recentf
 auto-save-list
 
+# restclient?
+/url

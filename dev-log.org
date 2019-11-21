@@ -74,3 +74,5 @@
  '(rainbow-delimiters-depth-7-face ((t (:foreground "#FFCDD2"))))
  '(rainbow-delimiters-depth-8-face ((t (:foreground "#795548"))))
  '(rainbow-delimiters-depth-9-face ((t (:foreground "#DCE775")))))
+* <2019-11-20 Wed> restclient once more :)
+  while working on the eval-ritmos app, i realised it's necessary once more!

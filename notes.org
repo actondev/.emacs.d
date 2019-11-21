@@ -55,3 +55,22 @@ time is displayed."
 (use-package helm)
 (macroexpand-all '(with-timer "test " (+ 1 2)))
 #+END_SRC
+* Highlighting thing under cursor etc..
+  + M-x highlight-symbol-at-point
+    or add C-u prefix to select what color shall be used
+  + M-x unhighlight-regexp
+    to remove highlights.. gives you a list of what is already highlighted. nice!
+* listing edited buffers
+  see https://www.reddit.com/r/emacs/comments/6w1kqi/listing_unsaved_buffers/dm4sizy/
+  + run =ibuffer=
+  + run =ibuffer-filter-by-modified=
+    would be nice here to only show actual files (and no \*minibuffer\* etc)
+* TODO about emacs 27.1
+  + tab bar (per window and per frame)
+    https://www.emacswiki.org/emacs/TabBarMode
+    could add button in specific buffers (per window) for certain actions?
+    eg
+    + in cider : addbutton for clear cider buffer
+  + so-long
+    https://www.emacswiki.org/emacs/SoLong
+    optimization for long lines bringing emacs to its knees

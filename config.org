@@ -207,6 +207,8 @@ sudo apt-get install silversearcher-ag
    #+BEGIN_SRC emacs-lisp
 (use-package ace-window
   :bind (("M-o" . ace-window))
+  :config
+  (setq-default aw-scope 'frame) ; switching windows only i current frame
   )
    #+END_SRC
 
@@ -456,7 +458,10 @@ paredit        ; Introduce some paredit commands.
 ** jumping around (ace jump)
 
    #+BEGIN_SRC emacs-lisp
-(use-package ace-jump-mode)
+(use-package ace-jump-mode
+  :config
+  (setq-default ace-jump-mode-scope 'frame) ; jumping only in current frame
+  )
    #+END_SRC
 ** Rainbow
    Rainbow-mode is for previewing hex color strings in any buffer! :)
@@ -579,9 +584,11 @@ paredit        ; Introduce some paredit commands.
 
 (use-package flycheck-clj-kondo
   ;; TODO :hook flycheck-mode ??
-  :config
-  (dolist (hook '(clojure-mode-hook clojurec-mode-hook))
-    (add-hook hook 'my-clj-kondo-hook))
+  ;; not working?
+  :hook (flycheck-mode-hoook . (lambda () (require 'flycheck-clj-kondo)))
+  ;; :config
+  ;; (dolist (hook '(clojure-mode-hook clojurec-mode-hook))
+  ;;   (add-hook hook 'my-clj-kondo-hook))
   )
     #+END_SRC
 
@@ -590,6 +597,27 @@ paredit        ; Introduce some paredit commands.
 (use-package yaml-mode)
    #+END_SRC
   
+* Web
+** restclient
+   Associating with =.http= files
+   #+BEGIN_SRC emacs-lisp
+(use-package restclient
+  :ensure t
+  :mode ("\\.http\\'" . restclient-mode)
+  )
+   #+END_SRC
+
+   Allowing restclient snippets in org-mode
+   + [ ] how can i load this? 
+   #+BEGIN_SRC emacs-lisp
+(use-package ob-restclient
+  :init ; init is ran before a package is loaded
+  (with-eval-after-load 'org
+    (require 'ob-restclient))
+  :config
+  (org-babel-do-load-languages 'org-babel-load-languages
+			       '((restclient . t))))
+   #+END_SRC
 * Key-chord
   #+BEGIN_SRC emacs-lisp
 (defun key-chord-helm ()
@@ -708,7 +736,6 @@ paredit        ; Introduce some paredit commands.
    #+BEGIN_SRC emacs-lisp
 (load-file (relative-from-init "elisp/dired-fix.el"))
    #+END_SRC
-
 
 * COMMENT Troubleshooting etc
 ** checking executables
