@@ -577,18 +577,10 @@ paredit        ; Introduce some paredit commands.
 *** Linting
     Note: have to install =clj-kondo= with =npm install -g clj-kondo=
     #+BEGIN_SRC emacs-lisp
-
-(defun my-clj-kondo-hook ()
-  (require 'flycheck-clj-kondo)
-  (flycheck-mode))
-
 (use-package flycheck-clj-kondo
-  ;; TODO :hook flycheck-mode ??
-  ;; not working?
-  :hook (flycheck-mode-hoook . (lambda () (require 'flycheck-clj-kondo)))
-  ;; :config
-  ;; (dolist (hook '(clojure-mode-hook clojurec-mode-hook))
-  ;;   (add-hook hook 'my-clj-kondo-hook))
+  :init
+  (with-eval-after-load 'flycheck
+    (require 'flycheck-clj-kondo))
   )
     #+END_SRC
 

@@ -1,0 +1,46 @@
+* TODO modeline customization
+  I was using doom-modeline but thought that I should probably make my own. I would like certain things:
+** custom buttons per buffer
+   + in cider-repl-mode I would like buttons to
+     + cider-repl-clear-buffer
+   + in clojure-mode
+     + cider-load-file
+     + set-ns
+     + 
+
+
+   could do that with a minor mode??
+
+** flycheck
+   doom-modeline has out of the box support for flycheck.. should add something like this as well
+   reading:
+   + [[https://www.reddit.com/r/emacs/comments/701pzr/flycheck_error_tally_in_custom_mode_line/][reddit]]
+
+   aha! in the minor mode i can see the flycheck status
+   had to disable minions mode
+
+** minor modes stuff
+   speaking of flycheck, have to deal with minor modes in a way
+   + https://www.emacswiki.org/emacs/DelightedModes
+   + https://nullprogram.com/blog/2013/02/06/
+
+   I can customize the minions to enable certain minor modes to display directly
+   + (defcustom minions-direct nil
+  "List of minor-modes that are shown directly in the mode line."
+
+     https://github.com/tarsius/minions/blob/master/minions.el#L86
+     #+BEGIN_SRC emacs-lisp
+
+(use-package minions
+  :demand t
+  :config
+  (minions-mode 1)
+  (add-to-list 'minions-direct 'flycheck-mode) ;; enabling flycheck-mode to be displayed
+  (setq doom-modeline-minor-modes (featurep 'minions)))
+     #+END_SRC
+
+** narrow/widen
+   If I have narrowed down to something i should display a clickable icon. when clicked it should widen
+   see
+   + https://nullprogram.com/blog/2013/01/22/
+   + 
