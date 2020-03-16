@@ -37,3 +37,28 @@
       (message "Saving new checksum for %s" path)
       ;; after all went good, store the checksum
       (customize-save-variable symbol checksum))))
+
+(defun aod.org/insert-src (mode)
+  "Insert a new source block and start editing it in its own editor
+  TODO
+  - see auto-mode-alist : would be nice to have completion for the mode"
+  (interactive "sMode:")
+  (message (format "selected mode %s" mode))
+  (indent-according-to-mode)
+  (insert (format "#+BEGIN_SRC %s" mode))
+  (newline)
+  (save-excursion
+    (newline-and-indent)
+    (insert "#+END_SRC"))
+  (org-edit-special))
+
+(defun save-as (new-filename)
+  "Save current buffer to a new file.
+  Credits https://stackoverflow.com/questions/5168262/emacs-write-buffer-to-new-file-but-keep-this-file-open"
+  (interactive "FFilename:")
+  (save-restriction
+    (widen)
+    (write-region (point-min) (point-max) new-filename))
+  (find-file-noselect new-filename)
+  )
+

@@ -1,7 +1,9 @@
 #+PROPERTY: header-args :results silent :tangle yes
 
 * Some defaults
-  #+BEGIN_SRC emacs-lisp
+
+** general
+   #+BEGIN_SRC emacs-lisp
 (menu-bar-mode 1) ;; show menu: useful things there some times!
 (tool-bar-mode 0) ;; toolbar definetly not
 (scroll-bar-mode 0) ;; hide system scrollbars
@@ -23,7 +25,7 @@
 
 ;; Keeping clipboard data before replacing it with emacs copy/kill etc
 (setq save-interprogram-paste-before-kill t)
-  #+END_SRC
+   #+END_SRC
 
 ** functions
    #+BEGIN_SRC emacs-lisp
@@ -46,7 +48,33 @@
 (global-set-key (kbd "M-n") 'outline-next-visible-heading)
 (global-set-key (kbd "M-p") 'outline-previous-visible-heading)
    #+END_SRC
+** backups
+   - https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
+   - https://www.emacswiki.org/emacs/BackupDirectory
 
+   apparently the folder name needs a trailing slash, if not emacs continued to loitter the file directory (see https://emacs.stackexchange.com/questions/17210/how-to-place-all-auto-save-files-in-a-directory)
+   
+   #+BEGIN_SRC emacs-lisp
+(defvar --backup-directory (concat user-emacs-directory "backups/"))
+(if (not (file-exists-p --backup-directory))
+    (make-directory --backup-directory t))
+(setq backup-directory-alist `((".*" . ,--backup-directory)))
+
+(setq auto-save-file-name-transforms
+          `((".*" ,--backup-directory t)))
+
+(setq make-backup-files t               ; backup of a file the first time it is saved.
+      backup-by-copying t               ; don't clobber symlinks
+      version-control t                 ; version numbers for backup files
+      delete-old-versions t             ; delete excess backup files silently
+      delete-by-moving-to-trash t
+      kept-old-versions 6               ; oldest versions to keep when a new numbered backup is made (default: 2)
+      kept-new-versions 9               ; newest versions to keep when a new numbered backup is made (default: 2)
+      auto-save-default t               ; auto-save every buffer that visits a file
+      auto-save-timeout 20              ; number of seconds idle time before auto-save (default: 30)
+      auto-save-interval 200            ; number of keystrokes between auto-saves (default: 300)
+      )   
+   #+END_SRC
 * Package source, use-package etc
   #+BEGIN_SRC emacs-lisp
 (setq package-enable-at-startup nil)
@@ -149,6 +177,72 @@
 	("C-<return>" . ober-eval-in-repl)))
    #+END_SRC
 
+** exporting to html
+   #+BEGIN_SRC emacs-lisp
+(use-package htmlize)
+   #+END_SRC
+** wrap blocks of text
+   http://pragmaticemacs.com/emacs/wrap-text-in-an-org-mode-block/
+   - [X] indent properly the inserted text
+     - (indent-for-tab-command)
+     - (newline-and-indent)
+     - (indent-new-comment-line)
+   
+   #+BEGIN_SRC emacs-lisp
+(defun aod.org/wrap-region ()
+  "Make a template at point."
+  (interactive)
+  (if (org-at-table-p)
+      (call-interactively 'org-table-rotate-recalc-marks)
+    (let* ((choices '(("s" . "SRC")
+                      ("e" . "EXAMPLE")
+                      ("q" . "QUOTE")
+                      ("v" . "VERSE")
+                      ("c" . "CENTER")
+		      ("C" . "COMMENT")
+                      ("l" . "LaTeX")
+                      ("h" . "HTML")
+                      ("a" . "ASCII")))
+           (key
+            (key-description
+             (vector
+              (read-key
+               (concat (propertize "Template type: " 'face 'minibuffer-prompt)
+                       (mapconcat (lambda (choice)
+                                    (concat (propertize (car choice) 'face 'font-lock-type-face)
+                                            ": "
+                                            (cdr choice)))
+                                  choices
+                                  ", ")))))))
+      (let ((result (assoc key choices)))
+        (when result
+          (let ((choice (cdr result)))
+            (cond
+             ((region-active-p)
+              (let ((start (region-beginning))
+                    (end (region-end)))
+                (goto-char end)
+		(newline-and-indent)
+                (insert "#+END_" choice)
+		(newline-and-indent)
+                (goto-char start)
+		;; (newline)
+		
+		(previous-line)
+		(indent-new-comment-line)
+                (insert "#+BEGIN_" choice)
+		))
+             (t
+	      (indent-new-comment-line)
+              (insert "#+BEGIN_" choice)
+	      (newline-and-indent)
+              (save-excursion
+		(newline-and-indent)
+		(insert "#+END_" choice))
+	      (indent-for-tab-command)
+	      ))))))))
+
+   #+END_SRC
 * Helm
   #+BEGIN_SRC emacs-lisp
 (use-package helm
@@ -213,7 +307,6 @@ sudo apt-get install silversearcher-ag
    #+END_SRC
 
 * Project management
-
 ** Projectile & neotree
    Useful neotree shortcuts
    + =A= : stretch toggle
@@ -248,6 +341,19 @@ sudo apt-get install silversearcher-ag
   :bind(
 	("<f8>" . neotree-toggle)
 	)
+  )
+   #+END_SRC
+* Buffer management
+** ibuffer : grouping by project
+   #+BEGIN_SRC emacs-lisp
+(use-package ibuffer-projectile
+  :ensure t
+  :hook
+  (ibuffer .
+	   (lambda ()
+	     (ibuffer-projectile-set-filter-groups)
+	     (unless (eq ibuffer-sorting-mode 'alphabetic)
+	       (ibuffer-do-sort-by-alphabetic))))
   )
    #+END_SRC
 * Appearance
@@ -362,13 +468,13 @@ sudo apt-get install silversearcher-ag
      adds functionality similar to org-mode: toggle code block hide/show by pressing tab
    #+BEGIN_SRC emacs-lisp
 (use-package hideshow-org
+  ;; https://github.com/shanecelis/hideshow-org
   :load-path "elisp/"
-  ;; :demand t
   :hook (prog-mode . hs-org/minor-mode))
 
 (use-package hideshowvis
+  ;; https://www.emacswiki.org/emacs/hideshowvis.el
   :load-path "elisp/"
-  ;; :demand t
   :hook (prog-mode . hideshowvis-minor-mode))
    #+END_SRC
 
@@ -532,6 +638,30 @@ paredit        ; Introduce some paredit commands.
    #+END_SRC
    And now you can call the =xah-syntax-color-hex= function in any buffer :)
    Found at http://ergoemacs.org/emacs/xah-css-mode.html
+** Writing - center text
+   When writing a post, article or whatever, I don't want lines to extend all across the screen.
+   
+   credits: https://bzg.fr/en/emacs-strip-tease.html/
+   
+   #+BEGIN_SRC emacs-lisp
+;; A small minor mode to use a big fringe
+(defvar bzg-big-fringe-mode nil)
+(define-minor-mode bzg-big-fringe-mode
+  "Minor mode to use big fringe in the current buffer."
+  :init-value nil
+  :global t
+  :variable bzg-big-fringe-mode
+  :group 'editing-basics
+  (if (not bzg-big-fringe-mode)
+      (set-fringe-style nil)
+    (set-fringe-mode
+     (/ (- (frame-pixel-width)
+           (* 100 (frame-char-width)))
+        2))))
+
+   #+END_SRC
+** TODO Writing - spelling
+   TBD
 * (Ma)git
   #+BEGIN_SRC emacs-lisp
 (use-package magit
@@ -572,8 +702,17 @@ paredit        ; Introduce some paredit commands.
 	("M-<return>" . cider-eval-last-sexp)
 	)
   )
-(use-package cider)
    #+END_SRC
+
+*** repl (cider etc)
+    Cider is amazing :)
+    #+BEGIN_SRC emacs-lisp
+(use-package cider)
+
+(use-package clj-refactor
+  ;; WIP
+  :commands (clj-refactor-mode))
+    #+END_SRC
 *** Linting
     Note: have to install =clj-kondo= with =npm install -g clj-kondo=
     #+BEGIN_SRC emacs-lisp
@@ -718,6 +857,32 @@ paredit        ; Introduce some paredit commands.
 
    #+END_SRC
 
+** Spellcheck (flyspell & hunspell)
+   See [[https://emacs.stackexchange.com/questions/14952/how-do-i-set-up-hunspell-on-a-windows-pc][this discussion]] for details. Long story short, I was getting the following error
+     #+BEGIN_SRC text
+Error enabling Flyspell mode:
+(Can’t find Hunspell dictionary with a .aff affix file)  
+  #+END_SRC
+
+  The problem was that upon running the following code
+  #+BEGIN_EXAMPLE emacs-lisp
+  (call-process ispell-program-name
+	      null-device
+	      t
+	      nil
+	      "-D"
+	      "-a"
+	      null-device
+	      )
+  #+END_EXAMPLE
+  I should get at least one line with the files =.dic= and =.aff=. But it wasn't happening (yet in ubuntu yeah)
+
+  The solution was the following
+
+  #+BEGIN_SRC emacs-lisp
+(setenv "DICTIONARY" "en_US")
+  #+END_SRC
+  
 ** TODO COMMENT dired fix?
    Update: apparently it didn't work. it says that filed moved but.. nope!
 
