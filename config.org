@@ -25,6 +25,9 @@
 
 ;; Keeping clipboard data before replacing it with emacs copy/kill etc
 (setq save-interprogram-paste-before-kill t)
+
+;; fixing fucking encoding things?
+(prefer-coding-system 'utf-8)
    #+END_SRC
 
 ** functions
@@ -132,26 +135,27 @@
 (setq org-src-preserve-indentation t)
   #+END_SRC   
 ** habits
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'org
   (add-to-list 'org-modules 'org-habit t))
-  #+END_SRC 
+   #+END_SRC 
 
-  And add org-file to the list of agenda files.
-  =(org-agenda-file-to-front)=
-  see
-  + https://orgmode.org/manual/Tracking-your-habits.html
-  + https://www.youtube.com/watch?v=acj3NhXlnnk
+   And add org-file to the list of agenda files.
+   =(org-agenda-file-to-front)=
+   see
+   + https://orgmode.org/manual/Tracking-your-habits.html
+   + https://www.youtube.com/watch?v=acj3NhXlnnk
 
-  useful command
-  + org-agenda-file-to-front
-  + (setq org-log-done 'time)
+   useful command
+   + org-agenda-file-to-front
+   + (setq org-log-done 'time)
 ** babel languages
    #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'org
   (org-babel-do-load-languages 'org-babel-load-languages
 			       '(
 				 (shell . t)
+				 (scheme . t)
 				 ;;	  (python . t)
 				 ;;	  (sql . t)
 				 ;;	  (python . t)
@@ -723,6 +727,45 @@ paredit        ; Introduce some paredit commands.
   )
     #+END_SRC
 
+** Scheme
+   #+BEGIN_SRC emacs-lisp
+(use-package geiser
+  :config
+  (setq geiser-chez-binary "scheme.exe")
+  (setq geiser-scheme-implementation "chez")
+  ;; need to reopen the file for that.. heh
+  (setq geiser-implementations-alist '	
+	(((regexp "\\.scm$") guile)
+	 ((regexp "\\.ss$") chez)
+	 ((regexp "\\.rkt$") racket)))
+  :init (add-hook 'scheme-mode-hook 'geiser-mode)
+  ;; :bind(
+  ;; 	:map geiser-mode-map
+  ;; 	("C-<return>" . geiser-eval-defition)
+  ;; 	("M-<return>" . geiser-eval-last-sexp)
+  ;; 	)
+  )
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+(use-package cmuscheme
+  :load-path "elisp/"
+  :bind(
+	:map scheme-mode-map
+	("C-<return>" . scheme-send-definition)
+	("M-<return>" . scheme-send-last-sexp)
+	)
+  )
+   #+END_SRC
+   
+*** windows path
+    #+BEGIN_SRC emacs-lisp :tangle (when (eq system-type 'windows-nt) "yes")
+(add-to-list 'exec-path "c:/Program Files/Chez Scheme 9.5.2/bin/ta6nt/")
+    #+END_SRC
+** Rust
+   #+BEGIN_SRC emacs-lisp
+(use-package rust-mode)   
+   #+END_SRC
 ** etc (yaml..)
    #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode)
@@ -819,9 +862,9 @@ paredit        ; Introduce some paredit commands.
   - global-command-log-mode
   - clm/open-command-log-buffer
 * Windows
-:PROPERTIES:
-:header-args: :tangle (when (eq system-type 'windows-nt) "yes")
-:END:
+  :PROPERTIES:
+  :header-args: :tangle (when (eq system-type 'windows-nt) "yes")
+  :END:
 
 ** lsp clojure fix
    #+BEGIN_SRC emacs-lisp
@@ -848,6 +891,8 @@ paredit        ; Introduce some paredit commands.
     (setenv "PATH" (concat
                     (getenv "PATH")
 		    ";"
+		    "c:/Program Files/Chez Scheme 9.5.2/bin/ta6nt"
+		    ";"
 		    (mapconcat 'identity mypaths ";")
 		    ))
 
@@ -857,16 +902,19 @@ paredit        ; Introduce some paredit commands.
 
    #+END_SRC
 
+   #+RESULTS:
+   | c:/Program Files/Broadcom/Broadcom 802.11 Network Adapter | C:/Python37/Scripts/ | C:/Python37/ | C:/Program Files (x86)/Common Files/Oracle/Java/javapath | C:/WINDOWS/system32 | C:/WINDOWS | C:/WINDOWS/System32/Wbem | C:/WINDOWS/System32/WindowsPowerShell/v1.0/ | C:/WINDOWS/System32/OpenSSH/ | C:/ProgramData/chocolatey/bin | c:/Program Files/Intel/WiFi/bin/ | c:/Program Files/Common Files/Intel/WirelessCommon/ | C:/Program Files/Microsoft VS Code | C:/Program Files/MiKTeX 2.9/miktex/bin/x64/ | C:/Program Files/Microsoft VS Code/bin | C:/Program Files/nodejs/ | C:/Users/actondev/AppData/Local/Android/Sdk/platform-tools/ | C:/Program Files/gnuplot/bin | C:/ProgramData/chocolatey/lib/lua53/tools | C:/Program Files/Mullvad VPN/resources | C:/tools/php74 | C:/ProgramData/ComposerSetup/bin | C:/Program Files/Git/cmd | C:/Users/actondev/.cargo/bin | C:/Users/actondev/AppData/Local/Microsoft/WindowsApps | C:/Users/actondev/bin | c:/Program Files/Intel/WiFi/bin/ | c:/Program Files/Common Files/Intel/WirelessCommon/ | C:/Users/actondev/AppData/Roaming/npm | C:/gradle/gradle-2.2/bin | C:/Users/actondev/watchman | C:/Program Files/VideoLAN/VLC | C:/Program Files/Java/jdk-11.0.5/bin | C:/Users/actondev/AppData/Roaming/Composer/vendor/bin | C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin | C:/Program Files/CMake/bin | W:/dev/_sdk/sciter/bin.win/x64 | C:/Users/actondev/bin/zig-windows-x86_64-0.6.0 | . | w:/portables/emacs-27.0.50-snapshot-2019-09-18-x86_64/libexec/emacs/27.0.50/x86_64-w64-mingw32 | C:/msys64/mingw64/bin | C:/msys64/usr/local/bin | C:/msys64/usr/bin | C:/msys64/usr/bin | C:/msys64/usr/bin/site_perl | C:/msys64/usr/bin/vendor_perl | C:/msys64/usr/bin/core_perl | w:/portables/emacs-27.0.50-snapshot-2019-09-18-x86_64/libexec/emacs/27.0.50/x86_64-w64-mingw32/ | C:/msys64/mingw64/bin | C:/msys64/usr/local/bin | C:/msys64/usr/bin | C:/msys64/usr/bin | C:/msys64/usr/bin/site_perl | C:/msys64/usr/bin/vendor_perl | C:/msys64/usr/bin/core_perl | w:/portables/emacs-27.0.50-snapshot-2019-09-18-x86_64/libexec/emacs/27.0.50/x86_64-w64-mingw32/ | C:/msys64/mingw64/bin | C:/msys64/usr/local/bin | C:/msys64/usr/bin | C:/msys64/usr/bin | C:/msys64/usr/bin/site_perl | C:/msys64/usr/bin/vendor_perl | C:/msys64/usr/bin/core_perl | w:/portables/emacs-27.0.50-snapshot-2019-09-18-x86_64/libexec/emacs/27.0.50/x86_64-w64-mingw32/ | C:/msys64/mingw64/bin | C:/msys64/usr/local/bin | C:/msys64/usr/bin | C:/msys64/usr/bin | C:/msys64/usr/bin/site_perl | C:/msys64/usr/bin/vendor_perl | C:/msys64/usr/bin/core_perl | w:/portables/emacs-27.0.50-snapshot-2019-09-18-x86_64/libexec/emacs/27.0.50/x86_64-w64-mingw32/ |
+
 ** Spellcheck (flyspell & hunspell)
    See [[https://emacs.stackexchange.com/questions/14952/how-do-i-set-up-hunspell-on-a-windows-pc][this discussion]] for details. Long story short, I was getting the following error
-     #+BEGIN_SRC text
+   #+BEGIN_SRC text
 Error enabling Flyspell mode:
 (Can’t find Hunspell dictionary with a .aff affix file)  
-  #+END_SRC
+   #+END_SRC
 
-  The problem was that upon running the following code
-  #+BEGIN_EXAMPLE emacs-lisp
-  (call-process ispell-program-name
+   The problem was that upon running the following code
+   #+BEGIN_EXAMPLE emacs-lisp
+  '(call-process ispell-program-name
 	      null-device
 	      t
 	      nil
@@ -874,14 +922,59 @@ Error enabling Flyspell mode:
 	      "-a"
 	      null-device
 	      )
-  #+END_EXAMPLE
-  I should get at least one line with the files =.dic= and =.aff=. But it wasn't happening (yet in ubuntu yeah)
+   #+END_EXAMPLE
+   I should get at least one line with the files =.dic= and =.aff=. But it wasn't happening (yet in ubuntu yeah)
 
-  The solution was the following
+   The solution was the following
 
-  #+BEGIN_SRC emacs-lisp
-(setenv "DICTIONARY" "en_US")
-  #+END_SRC
+   #+BEGIN_SRC emacs-lisp
+'(setenv "DICTIONARY" "en_US")
+   #+END_SRC
+
+   Add greek dictionary
+
+   #+BEGIN_SRC emacs-lisp
+(require 'ispell)
+(add-to-list 'ispell-local-dictionary-alist '("el"
+                                              "[[:alpha:]]"
+                                              "[^[:alpha:]]"
+                                              "[']"
+                                              t
+                                              ("-d" "el"); Dictionary file name
+                                              nil
+					      ;; nil
+					      utf-8
+                                              ;;    iso-8859-1
+					      ))
+
+(add-to-list 'ispell-local-dictionary-alist '("el,en,es"
+                                              "[[:alpha:]]"
+                                              "[^[:alpha:]]"
+                                              "[']"
+                                              t
+                                              ("-d" "el"); Dictionary file name
+                                              nil
+					      ;; nil
+					      utf-8
+                                              ;;    iso-8859-1
+					      ))
+   #+END_SRC
+
+   #+RESULTS:
+   | el    | [[:alpha:]] | [^[:alpha:]] | ['] | t | (-d el) | nil | utf-8      |       |
+   | el    | [[:alpha:]] | [^[:alpha:]] | ['] | t | nil     | nil | nil        | utf-8 |
+   | greek | [[:alpha:]] | [^[:alpha:]] | ['] | t | nil     | nil | nil        | utf-8 |
+   | greek | [[:alpha:]] | [^[:alpha:]] | ['] | t | (-d el) | nil | iso-8859-1 |       |
+
+   Multiple languages
+   #+BEGIN_SRC emacs-lisp
+'(setq ispell-dictionary nil)
+'(setq ispell-dictionary "el,en,es")
+   #+END_SRC
+
+   #+RESULTS:
+   : el,en,es
+
   
 ** TODO COMMENT dired fix?
    Update: apparently it didn't work. it says that filed moved but.. nope!
@@ -948,3 +1041,112 @@ echo "hi from default"
   + org mode : linking to certain line (can do already but, to point to the line where a function is declared?)
     https://endlessparentheses.com/use-org-mode-links-for-absolutely-anything.html
     
+* COMMENT spelling notes
+  :PROPERTIES:
+  :header-args: :results output replace
+  :END:
+
+  listing dictionaries
+  #+BEGIN_SRC sh :results output replace
+hunspell -D 2>&1
+  #+END_SRC
+
+  #+RESULTS:
+  #+begin_example
+  SEARCH PATH:
+  .;C:/msys64/mingw64/bin/;C:/msys64/mingw64/share/hunspell;C:/msys64/mingw64/share/myspell;C:/msys64/mingw64/share/myspell/dicts;C:/msys64;%USERPROFILE%/Application Data/OpenOffice.org 2/user/wordbook;C:/msys64/mingw64/share/dict/ooo;
+  AVAILABLE DICTIONARIES (path is not mandatory for -d option):
+  C:/msys64/mingw64/share/hunspell/el_GR
+  C:/msys64/mingw64/share/hunspell/en_AG
+  C:/msys64/mingw64/share/hunspell/en_AU-large
+  C:/msys64/mingw64/share/hunspell/en_AU
+  C:/msys64/mingw64/share/hunspell/en_BS
+  C:/msys64/mingw64/share/hunspell/en_BW
+  C:/msys64/mingw64/share/hunspell/en_BZ
+  C:/msys64/mingw64/share/hunspell/en_CA
+  C:/msys64/mingw64/share/hunspell/en_DK
+  C:/msys64/mingw64/share/hunspell/en_GB
+  C:/msys64/mingw64/share/hunspell/en_GH
+  C:/msys64/mingw64/share/hunspell/en_HK
+  C:/msys64/mingw64/share/hunspell/en_IE
+  C:/msys64/mingw64/share/hunspell/en_IN
+  C:/msys64/mingw64/share/hunspell/en_JM
+  C:/msys64/mingw64/share/hunspell/en_NA
+  C:/msys64/mingw64/share/hunspell/en_NG
+  C:/msys64/mingw64/share/hunspell/en_NZ
+  C:/msys64/mingw64/share/hunspell/en_PH
+  C:/msys64/mingw64/share/hunspell/en_SG
+  C:/msys64/mingw64/share/hunspell/en_TT
+  C:/msys64/mingw64/share/hunspell/en_US-large
+  C:/msys64/mingw64/share/hunspell/en_US
+  C:/msys64/mingw64/share/hunspell/en_ZA
+  C:/msys64/mingw64/share/hunspell/en_ZW
+  #+end_example
+
+**  <2020-04-21 Tue> aspell 
+   <2020-04-21 Tue> trying aspell
+   pacman -S mingw64/mingw-w64-x86_64-aspell mingw64/mingw-w64-x86_64-aspell-en mingw64/mingw-w64-x86_64-aspell-es
+
+
+   #+BEGIN_SRC sh
+aspell dicts
+   #+END_SRC
+
+   #+RESULTS:
+   #+begin_example
+   el
+   en
+   en-variant_0
+   en-variant_1
+   en-variant_2
+   en-w_accents
+   en-wo_accents
+   en_AU
+   en_AU-variant_0
+   en_AU-variant_1
+   en_AU-w_accents
+   en_AU-wo_accents
+   en_CA
+   en_CA-variant_0
+   en_CA-variant_1
+   en_CA-w_accents
+   en_CA-wo_accents
+   en_GB
+   en_GB-ise
+   en_GB-ise-w_accents
+   en_GB-ise-wo_accents
+   en_GB-ize
+   en_GB-ize-w_accents
+   en_GB-ize-wo_accents
+   en_GB-variant_0
+   en_GB-variant_1
+   en_GB-w_accents
+   en_GB-wo_accents
+   en_US
+   en_US-variant_0
+   en_US-variant_1
+   en_US-w_accents
+   en_US-wo_accents
+   es
+   gr
+   #+end_example
+
+   #+BEGIN_SRC sh :results replace pp
+echo dont | aspell -a
+echo habia | aspell -l es -a
+echo "γεια" | aspell -a -l el
+   #+END_SRC
+
+   #+RESULTS:
+
+** Installing greek
+   - from https://ftp.gnu.org/gnu/aspell/dict/0index.html get the greek
+   - extract
+   - (now with msys2 terminal)
+   - cd into the extracted
+   - edit the makefil
+     - add quotes around all the "cd" instructions
+   - ./configure
+   - make
+   - make install
+   - =aspell dicts= now should list greek
