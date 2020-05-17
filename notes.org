@@ -74,3 +74,6 @@ time is displayed."
   + so-long
     https://www.emacswiki.org/emacs/SoLong
     optimization for long lines bringing emacs to its knees
+* Spelling
+** Windows setup
+   

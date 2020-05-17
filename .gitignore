@@ -1,6 +1,7 @@
 # ignore .el files: tangled from .org files
 *.el
-
+session.*
+eshell/
 # .el files we want to keep
 !init.el
 !functions.el

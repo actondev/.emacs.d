@@ -2,10 +2,14 @@
 
 (defun get-string-from-file (filePath)
   "Return filePath's file content.
-  Credit: http://ergoemacs.org/emacs/elisp_read_file_content.html"
-  (with-temp-buffer
-    (insert-file-contents filePath)
-    (buffer-string)))
+  Credit: http://ergoemacs.org/emacs/elisp_read_file_content.html
+  Note: (file-readable-p \".\") returns t so.. wtf
+"
+  (condition-case nil
+      (with-temp-buffer
+	(insert-file-contents filePath)
+	(buffer-string))
+    ((message error) "")))
 (defun md5-file (filePath)
   (md5 (get-string-from-file filePath)))
 
@@ -61,4 +65,3 @@
     (write-region (point-min) (point-max) new-filename))
   (find-file-noselect new-filename)
   )
-
