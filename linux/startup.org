@@ -1,0 +1,75 @@
+* Linux (ubuntu) start up iterate script
+  Add this file into the start up script and voila
+* Synaptic
+** COMMENT info
+   #+BEGIN_SRC sh
+synclient -l
+   #+END_SRC
+
+   #+RESULTS:
+   | Parameter               | settings: |           |
+   | LeftEdge                | =         |      1632 |
+   | RightEdge               | =         |      5350 |
+   | TopEdge                 | =         |      1356 |
+   | BottomEdge              | =         |      4584 |
+   | FingerLow               | =         |        25 |
+   | FingerHigh              | =         |        30 |
+   | MaxTapTime              | =         |       180 |
+   | MaxTapMove              | =         |       251 |
+   | MaxDoubleTapTime        | =         |       180 |
+   | SingleTapTimeout        | =         |       180 |
+   | ClickTime               | =         |       100 |
+   | EmulateMidButtonTime    | =         |        75 |
+   | EmulateTwoFingerMinZ    | =         |       282 |
+   | EmulateTwoFingerMinW    | =         |         7 |
+   | VertScrollDelta         | =         |       114 |
+   | HorizScrollDelta        | =         |       114 |
+   | VertEdgeScroll          | =         |         1 |
+   | HorizEdgeScroll         | =         |         0 |
+   | CornerCoasting          | =         |         0 |
+   | VertTwoFingerScroll     | =         |         1 |
+   | HorizTwoFingerScroll    | =         |         0 |
+   | MinSpeed                | =         |         1 |
+   | MaxSpeed                | =         |      1.75 |
+   | AccelFactor             | =         | 0.0349467 |
+   | TouchpadOff             | =         |         1 |
+   | LockedDrags             | =         |         0 |
+   | LockedDragTimeout       | =         |      5000 |
+   | RTCornerButton          | =         |         2 |
+   | RBCornerButton          | =         |         3 |
+   | LTCornerButton          | =         |         0 |
+   | LBCornerButton          | =         |         0 |
+   | TapButton1              | =         |         1 |
+   | TapButton2              | =         |         3 |
+   | TapButton3              | =         |         0 |
+   | ClickFinger1            | =         |         1 |
+   | ClickFinger2            | =         |         1 |
+   | ClickFinger3            | =         |         0 |
+   | CircularScrolling       | =         |         0 |
+   | CircScrollDelta         | =         |       0.1 |
+   | CircScrollTrigger       | =         |         0 |
+   | CircularPad             | =         |         0 |
+   | PalmDetect              | =         |         1 |
+   | PalmMinWidth            | =         |         3 |
+   | PalmMinZ                | =         |         3 |
+   | CoastingSpeed           | =         |        20 |
+   | CoastingFriction        | =         |        50 |
+   | PressureMotionMinZ      | =         |        30 |
+   | PressureMotionMaxZ      | =         |       160 |
+   | PressureMotionMinFactor | =         |         1 |
+   | PressureMotionMaxFactor | =         |         1 |
+   | ResolutionDetect        | =         |         1 |
+   | GrabEventDevice         | =         |         0 |
+   | TapAndDragGesture       | =         |         1 |
+   | AreaLeftEdge            | =         |         0 |
+   | AreaRightEdge           | =         |         0 |
+   | AreaTopEdge             | =         |         0 |
+   | AreaBottomEdge          | =         |         0 |
+   | HorizHysteresis         | =         |        28 |
+   | VertHysteresis          | =         |        28 |
+   | ClickPad                | =         |         0 |
+
+** Two finger tap: middle click
+    #+BEGIN_SRC sh :tangle yes :shebang "#!/bin/bash"
+synclient TapButton2=2
+    #+END_SRC
