@@ -1,5 +1,8 @@
 * Linux (ubuntu) start up iterate script
   Add this file into the start up script and voila
+
+  Note the =:tangle yes :shebang "#!/bin/bash"= in the first block
+  the :shebang is needed to make the file executable
 * Synaptic
 ** COMMENT info
    #+BEGIN_SRC sh
@@ -73,3 +76,9 @@ synclient -l
     #+BEGIN_SRC sh :tangle yes :shebang "#!/bin/bash"
 synclient TapButton2=2
     #+END_SRC
+
+** Palm detect
+   ..not sue if its actually working though
+   #+BEGIN_SRC sh :tangle yes
+synclient PalmDetect=1
+   #+END_SRC 
