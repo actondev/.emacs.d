@@ -56,6 +56,11 @@
     (insert "#+END_SRC"))
   (org-edit-special))
 
+(defun aod.org/goto-end-of-src-block ()
+  (interactive)
+  (search-forward "#+END_SRC")
+  (indent-new-comment-line))
+
 (defun save-as (new-filename)
   "Save current buffer to a new file.
   Credits https://stackoverflow.com/questions/5168262/emacs-write-buffer-to-new-file-but-keep-this-file-open"

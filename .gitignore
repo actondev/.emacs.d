@@ -2,6 +2,8 @@
 *.el
 session.*
 eshell/
+# some files about unicode fonts end up being there
+var/
 # .el files we want to keep
 !init.el
 !functions.el

@@ -247,6 +247,10 @@
 	      ))))))))
 
    #+END_SRC
+** new moon calendar
+   #+BEGIN_SRC emacs-lisp
+(load-file (relative-from-init "elisp/aod-new-moon.el"))   
+   #+END_SRC
 * Helm
   #+BEGIN_SRC emacs-lisp
 (use-package helm
@@ -456,6 +460,10 @@ sudo apt-get install silversearcher-ag
 		      :weight 'normal))
    #+END_SRC
 * editing etc
+** linear ranges (tiny)
+   #+BEGIN_SRC emacs-lisp
+(use-package tiny)
+   #+END_SRC
 ** auto completion
    #+BEGIN_SRC emacs-lisp
 (use-package company
@@ -1032,7 +1040,10 @@ Error enabling Flyspell mode:
    : el,en,es
 
 ** Perfromance on windows
-   https://www.reddit.com/r/emacs/comments/bii2xl/hot_tip_for_windows_10_users/
+   [[file:w:/portables/emacs-26.3-x86_64/bin/runemacs.exe]]
+   w:/portables/emacs-26.3-x86_64/bin/runemacs.exe
+   
+https://www.reddit.com/r/emacs/comments/bii2xl/hot_tip_for_windows_10_users/
    http://code.kliu.org/misc/elevate/
    #+BEGIN_SRC sh :tangle no
    # getting the shell executable
