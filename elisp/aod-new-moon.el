@@ -9,7 +9,7 @@
   (let ((separator "|---|\n")
 	(separator2 "\n|---|"))
     (insert
-     "| # | 🌙 | Date | Notes | \n"
+     "| # | 🌙 | Date | Notes |\n"
      "|---|\n"
      (mapconcat
       ;; x 0: will be for the new moon (ένη και νέα: old and new day)
@@ -27,12 +27,11 @@
 	  (format "%s | %s | %s | <%s> |"
 		  (cond
 		   ((= 0 x) "")
-		   ;; the work rest strings are ignored upon pressing tabs
-		   ;; and they are converted to horizontal delimiters
-		   ;; they're here for debugging purposes
+		   ;; the "work" & "rest" strings are converted to horizontal delimiters upon pressing tab
+		   ;; since they don't get in the way they stay for verbosity & debugging
 		   (is-first-work-day "|---work|\n")
 		   (is-first-rest-day "|---rest|\n")
-		   (t ""))
+		   ('else ""))
 		  x
 		  moon-phase
 		  (tiny-date new-moon-date x))))

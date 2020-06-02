@@ -132,7 +132,8 @@
 * Org customizations
   #+BEGIN_SRC emacs-lisp
 ;; org-src-fontify-natively t
-(setq org-src-preserve-indentation t)
+(setq org-src-preserve-indentation t
+      org-log-note-clock-out t)
   #+END_SRC   
 ** habits
    #+BEGIN_SRC emacs-lisp
