@@ -130,11 +130,18 @@
    #+END_SRC
 
 * Org customizations
-  #+BEGIN_SRC emacs-lisp
-;; org-src-fontify-natively t
-(setq org-src-preserve-indentation t
-      org-log-note-clock-out t)
-  #+END_SRC   
+** Src block customizations
+   #+BEGIN_SRC emacs-lisp
+(setq org-src-preserve-indentation t)
+   #+END_SRC
+** Log, scheduling etc
+   #+BEGIN_SRC emacs-lisp
+(setq org-log-note-clock-out t)
+   #+END_SRC
+** Images customizations
+   #+BEGIN_SRC sh
+(setq org-image-actual-width 400)
+   #+END_SRC
 ** habits
    #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'org
