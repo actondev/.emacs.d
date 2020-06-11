@@ -1,0 +1,155 @@
+Provisional packages which might end up in =config.org=
+* Hydra
+  https://github.com/abo-abo/hydra
+  #+BEGIN_SRC emacs-lisp
+(use-package hydra)
+  #+END_SRC
+
+** Test hydra
+   #+BEGIN_SRC emacs-lisp
+(defhydra hydra-zoom ()
+  "zoom"
+  ("g" text-scale-increase "in")
+  ("l" text-scale-decrease "out"))
+   #+END_SRC
+   
+* Modalka
+  Nah.. I think ryo-modal is better
+  https://github.com/mrkkrp/modalka
+  
+  Modal editing
+
+  also see https://github.com/Kungsgeten/ryo-modal
+  #+BEGIN_SRC emacs-lisp
+(use-package modalka
+  :config
+  ;; (define-key modalka-mode-map (kbd "h") #'hydra-zoom/body)
+  ;; (global-set-key (kbd ";") #'modalka-mode)
+  (modalka-define-kbd ";" "C-;")
+  (add-to-list 'minions-whitelist 'modalka-mode)
+  (setq modalka-cursor-type 'hollow)
+  )
+  #+END_SRC
+
+  #+BEGIN_SRC emacs-lisp
+;; (gobal-set-k [C-return] nil)
+(global-set-key (kbd "C-; =") 'text-scale-increase) ; Ctrl+c t
+  #+END_SRC
+
+* Ryo-modal
+  #+BEGIN_SRC emacs-lisp
+(use-package ryo-modal
+  :commands ryo-modal-mode
+  :bind ("M-`" . ryo-modal-mode)
+  :config
+  ;; (push '((nil . "ryo:.*:") . (nil . "")) which-key-replacement-alist)
+  (ryo-modal-keys
+   ;; (";"					;
+   ;;  (("a" windmove-left :name "Window left")
+   ;;   ("d" windmove-right )))
+   ("9" :hydra
+    '(aod/hydra-9 (:exit t)
+		  "Navigation"
+		  ("9" nil "cancel" :color "blue")
+		  ;;
+		  ("a" windmove-left "left" :column "awsd: window movement")
+		  ("w" windmove-up "up")
+		  ("s" windmove-down "down")
+		  ("d" windmove-right "right")
+		  ;;
+		  ("A" delete-other-windows "Delete other windows" :column "AWSD: window splitting")
+		  ("W" delete-window "Delete window")
+		  ("S" split-window-below "Split below")
+		  ("D" split-window-right "Split right")
+		  ("C-d" ace-delete-window "Ace delete window")
+		  ("d" windmove-right "right")
+		  ;; find stuff
+		  ("c" ace-jump-mode "ace" :column "Jumping around")
+		  ("l" ace-jump-line-mode "ace line")
+		  ("L" goto-line "goto line")
+		  ("h" helm-swoop "Helm swoop")
+		  )
+    )
+   )
+  (ryo-modal-major-mode-keys
+   'shell-mode
+   ("0" :hydra
+    '(aod/hydra-0-shell (
+			 :foreign-keys run
+			 ;; the default key-map has '-', 0-9, and C-u mapped			 
+			 :base-map (make-sparse-keymap)
+			 )
+			"Shell utils"
+			("0" nil "cancel" :color "blue")
+			("<up>" comint-previous-prompt "Previous prompt")
+			("<down>" comint-next-prompt "Next prompt")
+			("C-r" comint-clear-buffer "clear"))
+    )
+   ))
+
+  #+END_SRC
+
+  #+RESULTS:
+  : ryo-modal-mode
+** ryo Troubleshooting
+   - [ ] it seems that with =foreign-keys run=, after having something from hydra itself, key-chords no longer work
+** Ryo & hydra tricks
+   About base-map:
+   https://github.com/abo-abo/hydra/blob/master/hydra.el#L344
+* Org-mode presentation
+  #+BEGIN_SRC emacs-lisp
+(setq org-hide-emphasis-markers t)
+  #+END_SRC
+
+  see 
+  - https://www.emacswiki.org/emacs/ResizeMinibuffer
+  - https://www.emacswiki.org/emacs/EchoArea
+  
+  #+BEGIN_SRC emacs-lisp
+;; WIP
+(defun aod.org/present-home ()
+  (interactive)
+  (widen)
+  (beginning-of-buffer)
+  (when (not (org-at-heading-p))
+    (set-mark-command)
+    (call-interactively #'org-next-visible-heading)
+    (set-mark-command)
+    (narrow-to-region)
+    ))
+
+(defun aod.org/present-prev ()
+  (interactive)
+  (widen)
+  (org-shifttab 2)
+  (call-interactively #'org-previous-visible-heading)
+  (org-show-entry)
+  (org-narrow-to-subtree))
+
+(defun aod.org/present-next ()
+  (interactive)
+  (message "next")
+  (widen)
+  (org-shifttab 2)
+  (call-interactively #'org-next-visible-heading)
+  (org-show-entry)
+  (org-narrow-to-subtree)
+  )
+
+(defhydra aod.hydra/org-present
+  (
+   :pre ()
+   :post (widen)
+   :foreign-keys run)
+  "Org present"
+  ("q" nil "quit")
+  ("S-SPC" aod.org/present-prev "Prev")
+  ("<mouse-3>" aod.org/present-prev)
+  ("SPC" aod.org/present-next "Next")
+  ("<mouse-1>" aod.org/present-next)
+  )
+  #+END_SRC
+
+  #+RESULTS:
+  : aod\\\.hydra/org-present/body
+  
