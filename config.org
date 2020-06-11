@@ -28,6 +28,8 @@
 
 ;; fixing fucking encoding things?
 (prefer-coding-system 'utf-8)
+
+(put 'narrow-to-region 'disabled nil)
    #+END_SRC
 
 ** functions
@@ -182,8 +184,14 @@
   ;; yet without the custom :ensure t it didn't work
   )
 
+
 (use-package org-babel-eval-in-repl
-  ;;  :ensure t
+  ;; For the C-return command to work, we either have to "demand" or
+  ;; require the package after org is loaded
+  :init
+  (with-eval-after-load 'org
+    (require 'org-babel-eval-in-repl))
+  :commands (ober-eval-in-repl)
   :bind
   (:map org-mode-map
 	("C-<return>" . ober-eval-in-repl)))
@@ -344,7 +352,10 @@ sudo apt-get install silversearcher-ag
   ;; oor install tr with "choco install tr"
   ;; oor msys2 paths (see heading)
   )
-(use-package helm-projectile)
+(use-package helm-projectile
+  :commands (helm-projectile-find-file
+	     helm-projectile-ag)
+  )
 
 (defun display-line-numbers-disable-hook (_)
   "Disable display-line-numbers locally."
@@ -394,7 +405,9 @@ sudo apt-get install silversearcher-ag
   (dashboard-setup-startup-hook)
   ;; fixing emacs client starting with scratch
   ;; https://www.reddit.com/r/emacs/comments/8i2ip7/emacs_dashboard_emacsclient/
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  (if (= 1 (length command-line-args))
+      ;; going to dashboard only if we didn't pass a file
+      (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
   )
    #+END_SRC
 ** frame title
@@ -443,6 +456,9 @@ sudo apt-get install silversearcher-ag
 
    Note: after you have to run =all-the-icons-install-fonts= with M-x.
 *** minions: showing minor modes
+    https://github.com/tarsius/minions
+    A minor-mode menu for the mode line
+
     #+BEGIN_SRC emacs-lisp
 (use-package minions
   :demand t
@@ -814,8 +830,9 @@ paredit        ; Introduce some paredit commands.
   (org-babel-do-load-languages 'org-babel-load-languages
 			       '((restclient . t))))
    #+END_SRC
-* Key-chord
-  #+BEGIN_SRC emacs-lisp
+* Interface enhancmenets, key bindings
+** Key-chord
+   #+BEGIN_SRC emacs-lisp
 (defun key-chord-helm ()
   ;; helm: , (right hand middle finger)
   (key-chord-define-global ",r" 'helm-all-mark-rings) ;; Rings
@@ -874,7 +891,19 @@ paredit        ; Introduce some paredit commands.
   (key-chord-editing)
   (key-chord-ace-jump)
   )
-  #+END_SRC
+   #+END_SRC
+
+** Which key
+   https://github.com/justbur/emacs-which-key
+   Get a feedback about the current key sequences, what can i press afterwards?
+   #+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :demand t
+  :config
+  (which-key-mode)
+  (setq which-key-idle-delay 0.5) ;; default: 1
+  )
+   #+END_SRC
 
 * Presentation? (command-log)
   #+BEGIN_SRC emacs-lisp
