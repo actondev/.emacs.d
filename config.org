@@ -141,8 +141,9 @@
 (setq org-log-note-clock-out t)
    #+END_SRC
 ** Images customizations
-   #+BEGIN_SRC sh
-(setq org-image-actual-width 400)
+   #+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'org
+  (setq org-image-actual-width 400))
    #+END_SRC
 ** habits
    #+BEGIN_SRC emacs-lisp
@@ -267,6 +268,28 @@
    #+BEGIN_SRC emacs-lisp
 (load-file (relative-from-init "elisp/aod-new-moon.el"))   
    #+END_SRC
+** opening links
+   #+BEGIN_SRC emacs-lisp
+(setq browse-url-browser-function 'aod.web/browse-function)
+(setq aod.web/browse-private-p nil)
+
+(defun aod.web/toggle-browse-private ()
+  (interactive)
+  (setq aod.web/browse-private-p (not aod.web/browse-private-p))
+  (message "openining in private? %s" aod.web/browse-private-p))
+
+(defun aod.web/browse-function (url &rest ignore)
+  "Browse URLs in either normal mode or in a firefox private window"
+  ;; (interactive "sURL: ")
+  (if aod.web/browse-private-p
+      (progn
+	(message "opening in private firefox window")
+	(shell-command (concat "firefox --private-window " url)))
+    (progn
+      (message "openining in normal browser window")
+      (browse-url-default-browser url))
+    ))   
+   #+END_SRC
 * Helm
   #+BEGIN_SRC emacs-lisp
 (use-package helm
@@ -279,6 +302,10 @@
 	("<tab>" . helm-execute-persistent-action)
 	("<left>" . left-char)
 	("<right>" . right-char)
+	:map helm-find-files-map ;; to be able to select/copy filenames
+	("<left>" . left-char)
+	("<right>" . right-char)
+	("C-SPC" . set-mark-command)
 	)
   :config
   (setq helm-M-x-fuzzy-match t
@@ -287,12 +314,18 @@
 	helm-buffers-fuzzy-matching t
 	helm-completion-in-region-fuzzy-match t
 	helm-mode-fuzzy-match t)
-  ;; disable auto input
   
   (setq helm-swoop-pre-input-function
-	(lambda () nil))
+	(lambda ()
+	  ;; the default: thing-at-point
+	  ;;(thing-at-point 'symbol)
+	  (if mark-active
+	      (buffer-substring-no-properties (region-beginning) (region-end))
+	    nil)
+	  ))
+  
   (helm-mode 1)
-)
+  )
 
 (use-package helm-swoop
   :config
@@ -416,6 +449,10 @@ sudo apt-get install silversearcher-ag
 ;; note: can't use for some reason directy the system-type
 (setq system-type-name (symbol-name system-type))
 (setq frame-title-format '("%f  -- " system-type-name))
+(defun aod/name-frame (name)
+  (interactive "Mname:")
+  (setq frame-title-format `(,name " -- %f  -- " system-type-name))
+  )
    #+END_SRC
 ** COMMENT monokai
    #+BEGIN_SRC emacs-lisp
@@ -1123,8 +1160,23 @@ powershell -Command Add-MpPreference -ExclusionExtension ".elc"
 
 * Linux
   :PROPERTIES:
-  :header-args: :tangle (when (eq system-type 'gnu/linux) "yes")
+  :header-args: :tangle (when (eq system-type 'gnu/linux) "yes") :results silent
   :END:
+** Open as sudo
+   https://emacsredux.com/blog/2013/04/21/edit-files-as-root/
+   #+BEGIN_SRC emacs-lisp
+(defun er-sudo-edit (&optional arg)
+  "Edit currently visited file as root.
+
+With a prefix ARG prompt for a file to visit.
+Will also prompt for a file to visit if current
+buffer is not visiting a file."
+  (interactive "P")
+  (if (or arg (not buffer-file-name))
+      (find-file (concat "/sudo:root@localhost:"
+                         (read-file-name "Find file(as root): ")))
+    (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
+   #+END_SRC
 
 ** COMMENT sudo save
    #+BEGIN_SRC emacs-lisp
