@@ -378,7 +378,7 @@ sudo apt-get install silversearcher-ag
   (projectile-mode 1)
   ;; speed!
   (setq projectile-indexing-method 'hybrid)
-  
+  (setq projectile-completion-system 'helm)
   ;; https://github.com/bbatsov/projectile/issues/1302#issuecomment-433894379
   ;; windows fix
   ;; (setq projectile-git-submodule-command nil)

@@ -76,4 +76,54 @@ time is displayed."
     optimization for long lines bringing emacs to its knees
 * Spelling
 ** Windows setup
-   
+* ober eval in repl & vars
+  :PROPERTIES:
+  :header-args: :session *test* :var test="abc" test2="def" :dir ~/dev
+  :END:
+
+  #+BEGIN_SRC sh :dir ~/dev
+pwd
+  #+END_SRC
+
+  #+RESULTS:
+  |                        |
+  | $ $ /home/actondev/dev |
+
+  The problem is that upon initializing the session, $test is not defined
+
+  This is how we can get the assignments
+  #+BEGIN_SRC emacs-lisp
+
+(org-babel-expand-body:generic
+ nil
+ nil
+ (org-babel-variable-assignments:shell (nth 2 (org-babel-get-src-block-info))))
+
+(org-babel-variable-assignments:shell (nth 2 (org-babel-get-src-block-info)))
+  #+END_SRC
+
+
+** dir
+   [[file:/usr/share/emacs/26.3/lisp/org/ob-core.el.gz::(default-directory]]
+   in org-babel-execute-src-block
+
+
+* Header args
+  https://orgmode.org/manual/Using-Header-Arguments.html
+
+  For a subheading add
+  #+BEGIN_EXAMPLE
+    :PROPERTIES:
+  :header-args: :session *test* :var test="abc" test2="def" :dir ~/dev
+  :END:
+  #+END_EXAMPLE
+
+  for all the document
+
+  #+BEGIN_EXAMPLE
+#+PROPERTY: header-args:R  :session *R*
+  #+END_EXAMPLE
+
+  results:
+  - silent
+  - replace (default)
