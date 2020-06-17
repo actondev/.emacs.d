@@ -77,6 +77,18 @@ debug() {
     echo "$1" >&2
 }
 
+abs() { 
+    [[ $[ $@ ] -lt 0 ]] && echo "$[ ($@) * -1 ]" || echo "$[ $@ ]"
+}
+
+max () {
+    if [ $1 -gt $2 ] ; then
+	echo $1
+    else
+	echo $2
+    fi
+}
+
 real_monitors_all() {
     OFFSET_RE="([0-9]+)\+([0-9]+)"
 
@@ -203,8 +215,8 @@ window_compute_move() {
     local y=$((${pos[1]} - syoff1))
     
     debug "swidth1 is $swidth1"
-    local xratio=$((x * mul_factor / swidth1))
-    local yratio=$((y * mul_factor / sheight1))
+    local xratio=$(abs $((x * mul_factor / swidth1)))
+    local yratio=$(abs $((y * mul_factor / sheight1)))
 
     debug "xratio is $xratio"
     debug "yratio is $yratio"
@@ -230,27 +242,27 @@ window_compute_move() {
     local maxx=$(($sxoff2 + $swidth2))
     if [[ $(($new_x + ${pos[2]})) -gt $maxx ]] ; then
 	debug "too far on the right"
-	new_x=$((maxx - ${pos[2]} - padding_x))
+	new_x=$(max $sxoff2 $((maxx - ${pos[2]} - padding_x)))
     fi
 
     # too far on bottom
     local maxy=$((syoff2 + sheight2))
     if [[ $((new_y + ${pos[3]})) -gt $maxy ]] ; then
-	debug "too for on the bottom"
-	new_y=$((maxy - ${pos[3]} - padding_y))
+	debug "too far on the bottom"
+	new_y=$(max 0 $((maxy - ${pos[3]} - padding_y)))
     fi
 
     # off the screen coorection
     # @actondev: actually I don't know what this is for but well..
-    if [[ $new_x -lt $sxoff ]] ; then
-	debug "off the screen in x"
-	new_x=$(($padding + $sxoff))
-    fi
+    # if [[ $new_x -lt $sxoff ]] ; then
+    # 	debug "off the screen in x"
+    # 	new_x=$(($padding + $sxoff))
+    # fi
 
-    if [[ $new_y -lt $syoff ]] ; then
-	debug "off the screen in y"
-	new_y=$(($padding + $syoff))
-    fi
+    # if [[ $new_y -lt $syoff ]] ; then
+    # 	debug "off the screen in y"
+    # 	new_y=$(($padding + $syoff))
+    # fi
 
     echo $new_x $new_y
 }
@@ -299,6 +311,7 @@ main() {
     | grep '_NET_WM_STATE_MAXIMIZED_VERT'`
 
     read newx newy <<< $(window_compute_move $window_id)
+    debug "newx $newx newy $newy"
 
     # Un-maximize current window so that we can move it
     wmctrl -ir $window_id -b remove,maximized_vert,maximized_horz
@@ -308,11 +321,14 @@ main() {
 
     # Maximize window again, if it was before
     if [ -n "${WINDOW_HORZ_MAXED}" -a -n "${WINDOW_VERT_MAXED}" ]; then
-	wmctrl -ir $window_id -b add,maximized_vert,maximized_horz
+	debug "here1"
+    	wmctrl -ir $window_id -b add,maximized_vert,maximized_horz
     elif [ -n  "${WINDOW_HORZ_MAXED}" ]; then
-	wmctrl -ir $window_id -b add,maximized_horz
+	debug "here2"
+    	wmctrl -ir $window_id -b add,maximized_horz
     elif [ -n  "${WINDOW_VERT_MAXED}" ]; then
-	wmctrl -ir $window_id -b add,maximized_vert
+	debug "here 3"
+    	wmctrl -ir $window_id -b add,maximized_vert
     fi
 }
 
@@ -323,6 +339,39 @@ fi
    #+END_SRC
 
    #+RESULTS:
+** debug
+   #+BEGIN_SRC sh :results output
+get_current_window() {
+    # current window_id
+    xdotool getactivewindow
+}
+window_id=$(get_current_window)
+wmctrl -ir $window_id -b remove,maximized_vert,maximized_horz
+   #+END_SRC
+
+   #+BEGIN_SRC sh :results output
+min () {
+    if [ $1 -lt $2 ] ; then
+	echo $1
+    else
+	echo $2
+    fi
+}
+
+max () {
+echo "a $1 b $2"
+    if [ $1 -gt $2 ] ; then
+    echo "if"
+	echo $1
+    else
+    echo "else"
+	echo $2
+    fi
+}
+   #+END_SRC
+
+   #+RESULTS:
+   : 0
 
 ** notes
 
