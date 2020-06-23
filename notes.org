@@ -107,7 +107,6 @@ pwd
    [[file:/usr/share/emacs/26.3/lisp/org/ob-core.el.gz::(default-directory]]
    in org-babel-execute-src-block
 
-
 * Header args
   https://orgmode.org/manual/Using-Header-Arguments.html
 
@@ -127,3 +126,24 @@ pwd
   results:
   - silent
   - replace (default)
+* Advices (example for org-babel-get-serc-block-info)
+  For my work on https://github.com/diadochos/org-babel-eval-in-repl/issues/31
+  #+BEGIN_SRC emacs-lisp
+(defun aod.org/src-info-light ()
+  "Returns the src-block-info without evaluating anything.
+   While passing 'light to org-babel-get-src-block-info makes the
+   :var definitions not evaluate any lisp expressions, other
+   things (like :dir for example) get evaluated.
+
+   For example, the following org src header would cause the
+   elisp to be evaluated everytime upon calling
+   org-babel-get-src-block-info
+
+   :dir (read-directory-name \"dir name:\")"
+  (cl-flet ((read-advice (read-orig in &rest _)
+			 (funcall read-orig in 'inhibit-lisp-eval)))
+    (advice-add 'org-babel-read :around #'read-advice)
+    (let ((info (org-babel-get-src-block-info 'light)))
+      (advice-remove 'org-babel-read #'read-advice)
+      info)))  
+  #+END_SRC

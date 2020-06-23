@@ -414,3 +414,26 @@ xrandr | grep '*' | awk {'print $1'}
     #+RESULTS:
     |  1366x768 |
     | 1920x1080 |
+* creating symlinks
+  #+BEGIN_SRC sh
+# ln -s target link_name
+ln --help
+# ln only works with absolute paths, so
+
+# if I want a link to a directory one level up
+ln -s `pwd`/../ one_level_up
+ls -alh # one_level_up -> /home/actondev/.emacs.d/linux/../
+rm one_level_up
+
+# the link then (when doing ls -alh) will actually show the .. but it's ok
+# if I don't want this though..
+
+echo `readlink -f ../`
+# that will give me the resolved absolute path
+# (take care to actually check with an echo if it's correct)
+
+ln -s `readlink -f ../` one_level_up
+ls -alh # one_level_up -> /home/actondev/.emacs.d
+rm one_level_up
+
+  #+END_SRC
