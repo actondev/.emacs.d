@@ -58,6 +58,7 @@
 
 (define-key aod-org/present-mode-map (kbd "SPC") 'aod.org/present-next)
 (define-key aod-org/present-mode-map (kbd "S-SPC") 'aod.org/present-prev)
+(define-key aod-org/present-mode-map (kbd "M-<") 'aod.org/present-home)
 
 (defun aod.org/present-next ()
   (interactive)

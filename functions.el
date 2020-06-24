@@ -61,6 +61,14 @@
   (search-forward "#+END_SRC")
   (indent-new-comment-line))
 
+(defun aod-org/execute-elisp ()
+  "Executes current org-babel src block without asking.
+  Plus, it doesn't use the save-window-excursion that C-c C-c does"
+  (interactive)
+  (let* ((info (org-babel-get-src-block-info))
+	 (body (nth 1 info)))
+    (eval (read body))))
+
 (defun save-as (new-filename)
   "Save current buffer to a new file.
   Credits https://stackoverflow.com/questions/5168262/emacs-write-buffer-to-new-file-but-keep-this-file-open"

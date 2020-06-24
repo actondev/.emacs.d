@@ -290,6 +290,28 @@
       (browse-url-default-browser url))
     ))   
    #+END_SRC
+** babel: emacs-lisp & window excursion
+   Running emacs-lisp src blocks and being able to change windows configurations
+   #+BEGIN_SRC emacs-lisp
+(defun aod-org/babel-execute:emacs-lisp-advice (orig &rest args)
+  (setf aod-temp/save-window-excursion 'save-window-excursion)
+  (cl-letf (((symbol-function 'set-window-configuration)
+	     (lambda (args)
+	       (message "ignoring changes in window configuration"))))
+    (apply orig args)))
+
+(setq aod-org/babel-elisp-save-window-excursion t)
+
+(defun aod-org/babel-toggle-elisp-window-excursion ()
+  (interactive)
+  (setq aod-org/babel-elisp-save-window-excursion
+	(not aod-org/babel-elisp-save-window-excursion))
+  (if aod-org/babel-elisp-save-window-excursion
+      (advice-remove 'org-babel-execute:emacs-lisp #'aod-org/babel-execute:emacs-lisp-advice)
+    (advice-add 'org-babel-execute:emacs-lisp :around #'aod-org/babel-execute:emacs-lisp-advice))
+  (message (format "Saving window excursion? %s" aod-org/babel-elisp-save-window-excursion)))
+   #+END_SRC
+
 * Helm
   #+BEGIN_SRC emacs-lisp
 (use-package helm
