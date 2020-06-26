@@ -1,0 +1,152 @@
+* <2020-06-27 Sat> button-lock mode notes
+
+    #+BEGIN_SRC emacs-lisp
+(button-lock-clear-all-buttons)
+    #+END_SRC
+
+    #+RESULTS:
+    : 1
+
+    #+BEGIN_SRC emacs-lisp :results pp :results value code :tangle no
+(macroexpand '(aod-button/make-org-babel-button "say-hi"))
+    #+END_SRC
+    
+    #+RESULTS:
+    #+BEGIN_SRC emacs-lisp
+(progn
+  (defun aod-button/--say-hi nil "Auto generated button action"
+	 (interactive)
+	 (aod-org-babel/eval-named-block-in-repl "say-hi"))
+  (button-lock-set-button "\\[say-hi]"
+			  'aod-button/--say-hi
+			  :face 'custom-button
+			  :face-policy 'prepend
+			  :mouse-face 'custom-button-mouse)
+  '("[say-hi]" "some other thing"))
+    #+END_SRC
+
+    #+RESULTS:
+    | [say-hi] | some other thing |
+
+    ^UP: [say-hi] isn't hightlight, but here, in plain text it is!
+
+
+    - :say-hi:
+    - :say-hi2:
+
+    #+NAME: say-hi
+    #+BEGIN_SRC sh :session *say-hi*
+echo "hi there!"
+    #+END_SRC
+
+    #+NAME: say-hi-again
+    #+BEGIN_SRC sh :session *say-hi-again*
+echo "hi there.. again!!"
+    #+END_SRC
+
+    #+NAME: say-blue
+    #+BEGIN_SRC sh :session *say-blue*
+echo "i'm blue!"
+    #+END_SRC
+
+
+    #+BEGIN_SRC emacs-lisp
+(button-lock-mode 1)
+(aod-button/make-org-babel-button "say-hi")
+    #+END_SRC
+
+    #+RESULTS:
+    : [say-hi]
+     [say-hi] 
+
+    #+BEGIN_SRC emacs-lisp
+(aod-button/make-org-babel-button "say-hi" ">>%s<<")
+    #+END_SRC
+
+    #+RESULTS:
+    : >>say-hi<<
+
+    #+BEGIN_SRC emacs-lisp :results raw
+(aod-button/make-org-babel-buttons)
+    #+END_SRC
+
+    #+RESULTS:
+    ([say-blue] [say-hi-again] [say-hi])
+
+    #+BEGIN_SRC emacs-lisp :results value code
+(macroexpand '(aod-button/make-org-babel-button "say-hi"))
+    #+END_SRC
+
+
+    #+RESULTS:
+    #+BEGIN_SRC emacs-lisp
+    (progn
+      (defun aod-button/--say-hi nil "Auto generated button action"
+	     (interactive)
+	     (aod-org-babel/eval-named-block-in-repl "say-hi"))
+      (button-lock-set-button "\\[say-hi]" 'aod-button/--say-hi :face 'custom-button :face-policy 'prepend :mouse-face 'custom-button-mouse)
+      "[say-hi]")
+    #+END_SRC
+
+    #+RESULTS:
+    : [say-hi]
+
+    fixme
+
+ 
+
+
+    say-blue [say-hi]
+
+    #+BEGIN_SRC emacs-lisp
+(highlight-regexp (regexp-quote "[say-hi]") 'custom-button)
+
+;; hmm.. fucks things up
+(font-lock-add-keywords 'org-mode
+			'(((regexp-quote "[say-blue]") . 'custom-buton)))
+    #+END_SRC
+
+    #+RESULTS:
+| t | ((\[say-blue] 1 custom-buton-face) prepend (\[say-blue] . custom-buton-face) (org-font-lock-hook) (^\(\**\)\(\* \)\(.*\) (1 (org-get-level-face 1)) (2 (org-get-level-face 2)) (3 (org-get-level-face 3))) (^[ 	]*\(\( | \ | \+-[-+]\).*\S-\) (1 (quote org-table) t)) (^[ 	]* | \(?:.*? | \)? *\(:?=[^ |
+
+
+    #+BEGIN_SRC emacs-lisp
+(font-lock-add-keywords nil
+			'(
+			 ("\\[demo]" (0 (quote (face custom-button keymap (keymap (mouse-1 . aod-button/--say-hi)) button-lock t mouse-face custom-button-mouse rear-nonsticky t)) prepend))))
+    #+END_SRC
+
+    #+RESULTS:
+    | t | ((\[demo] (0 (quote (face custom-button keymap (keymap (mouse-1 . aod-button/--say-hi)) button-lock t mouse-face custom-button-mouse rear-nonsticky t)) prepend)) (\[say-hi] (0 (quote (face custom-button keymap (keymap (mouse-1 . aod-button/--say-hi)) button-lock t mouse-face custom-button-mouse rear-nonsticky t)) prepend)) (\s<\S>*?\(@@@+\ | \_<\(?:[Tt][Oo][Dd][Oo]+\ | [Ff][Ii][Xx][Mm][Ee]+\ | XXX+\)\)\(?:[/:?!. 	 |
+
+    : [demo]
+    [demo]
+    |      1 |
+    | [demo] |
+    |        |
+
+     #+BEGIN_SRC emacs-lisp
+(font-lock-remove-keywords nil
+'(
+("\\[demo]" (0 (quote (face custom-button keymap (keymap (mouse-1 . aod-button/--say-hi)) button-lock t mouse-face custom-button-mouse rear-nonsticky t)) prepend)
+)
+)
+)
+     #+END_SRC
+
+     #+RESULTS:
+     | t | ((demo 0 (quote custom-button) nil) (demo 0 (quote custom-button) 1) (\[say-hi] (0 (quote (face custom-button keymap (keymap (mouse-1 . aod-button/--say-hi)) button-lock t mouse-face custom-button-mouse rear-nonsticky t)) prepend)) (\s<\S>*?\(@@@+\ | \_<\(?:[Tt][Oo][Dd][Oo]+\ | [Ff][Ii][Xx][Mm][Ee]+\ | XXX+\)\)\(?:[/:?!. 	 |
+
+
+    #+BEGIN_SRC emacs-lisp
+(font-lock-remove-keywords nil
+			   '(
+			     ("demo" 0 'custom-button prepend))
+;; here! if I have true (anything actually) and have prepend as well, it will work
+'
+)
+(font-lock-fontify-buffer)
+;; (font-lock-ensure)
+    #+END_SRC
+
+    #+RESULTS:

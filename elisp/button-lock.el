@@ -1,12 +1,12 @@
 ;;; button-lock.el --- Clickable text defined by regular expression
 ;;
-;; Copyright (c) 2011-12 Roland Walker
+;; Copyright (c) 2011-2015 Roland Walker
 ;;
 ;; Author: Roland Walker <walker@pobox.com>
 ;; Homepage: http://github.com/rolandwalker/button-lock
-;; URL: http://raw.github.com/rolandwalker/button-lock/master/button-lock.el
-;; Version: 1.0.0
-;; Last-Updated: 21 Oct 2013
+;; URL: http://raw.githubusercontent.com/rolandwalker/button-lock/master/button-lock.el
+;; Version: 1.0.2
+;; Last-Updated: 21 Feb 2015
 ;; EmacsWiki: ButtonLockMode
 ;; Keywords: mouse, button, hypermedia, extensions
 ;;
@@ -156,7 +156,8 @@
 ;;
 ;; Compatibility and Requirements
 ;;
-;;     GNU Emacs version 24.4-devel     : yes, at the time of writing
+;;     GNU Emacs version 24.5-devel     : not tested
+;;     GNU Emacs version 24.4           : yes
 ;;     GNU Emacs version 24.3           : yes
 ;;     GNU Emacs version 23.3           : yes
 ;;     GNU Emacs version 22.2           : yes, with some limitations
@@ -178,6 +179,12 @@
 ;;     button-lock-extend-binding, nor are the arguments parsed and
 ;;     checked for validity.  Any errors for global buttons are also
 ;;     deferred until the mode is activated.
+;;
+;;     This package is generally incompatible with interactive modes
+;;     such as `comint-mode' and derivatives, due conflicting uses
+;;     of the rear-nonsticky text property.  To change this, :rear-sticky
+;;     can be set when `calling button-lock-set-button'.  See also
+;;     https://github.com/rolandwalker/fixmee/issues/8#issuecomment-75397467 .
 ;;
 ;; TODO
 ;;
@@ -220,9 +227,6 @@
 ;; License
 ;;
 ;; Simplified BSD License
-;;
-;; Copyright (c) 2011-12, Roland Walker
-;; All rights reserved.
 ;;
 ;; Redistribution and use in source and binary forms, with or
 ;; without modification, are permitted provided that the following
@@ -282,8 +286,8 @@
 
 ;;; requirements
 
-;; for callf, callf2, defun*, union
-(require 'cl)
+;; for cl-callf, cl-callf2, cl-defun, cl-union, cl-intersection
+(require 'cl-lib)
 
 (require 'font-lock)
 
@@ -292,7 +296,7 @@
 ;;;###autoload
 (defgroup button-lock nil
   "Clickable text defined by regular expression."
-  :version "1.0.0"
+  :version "1.0.2"
   :link '(emacs-commentary-link :tag "Commentary" "button-lock")
   :link '(url-link :tag "GitHub" "http://github.com/rolandwalker/button-lock")
   :link '(url-link :tag "EmacsWiki" "http://emacswiki.org/emacs/ButtonLockMode")
@@ -306,13 +310,20 @@
                                        Buffer-menu-mode
                                        bm-show-mode
                                        dired-mode
-                                       eshell-mode
+                                       wdired-mode
                                        gnus-article-mode
                                        mime/viewer-mode
                                        rmail-mode
                                        term-mode
+                                       comint-mode
+                                       shell-mode
+                                       eshell-mode
+                                       inferior-emacs-lisp-mode
                                        )
   "Modes for which global button-lock will not be activated.
+
+A buffer will also be excluded if its major mode is derived from
+a mode in this list.
 
 Modes may be excluded for reasons of security (since buttons can
 execute arbitrary functions), efficiency, or to avoid conflicts
@@ -362,17 +373,17 @@ lighter for `button-lock-mode'."
 ;;; faces
 
 (defface button-lock-button-face
-    '((t nil))
-    "Face used to show active button-lock buttons.
+  '((t nil))
+  "Face used to show active button-lock buttons.
 
 The default is for buttons to inherit whatever properties are
 already provided by font-lock."
-    :group 'button-lock)
+  :group 'button-lock)
 
 (defface button-lock-mouse-face
-   '((t (:inherit highlight)))
-   "Face used to highlight button-lock buttons when the mouse hovers over."
-   :group 'button-lock)
+  '((t (:inherit highlight)))
+  "Face used to highlight button-lock buttons when the mouse hovers over."
+  :group 'button-lock)
 
 ;;; variables
 
@@ -387,6 +398,9 @@ This variable should be set by calling
 
 (defvar button-lock-button-list nil
   "An internal variable used to keep track of button-lock buttons.")
+
+(defvar button-lock-parent-modes-hash (make-hash-table)
+  "A hash for memoizing `button-lock-parent-modes'.")
 
 (defvar button-lock-mode nil
   "Mode variable for `button-lock-mode'.")
@@ -403,14 +417,14 @@ This variable should be set by calling
 Optional KIND is as documented at `called-interactively-p'
 in GNU Emacs 24.1 or higher."
   (cond
-    ((not (fboundp 'called-interactively-p))
-     '(interactive-p))
-    ((condition-case nil
-         (progn (called-interactively-p 'any) t)
-       (error nil))
-     `(called-interactively-p ,kind))
-    (t
-     '(called-interactively-p))))
+   ((not (fboundp 'called-interactively-p))
+    '(interactive-p))
+   ((condition-case nil
+	(progn (called-interactively-p 'any) t)
+      (error nil))
+    `(called-interactively-p ,kind))
+   (t
+    '(called-interactively-p))))
 
 ;;; compatibility functions
 
@@ -423,6 +437,20 @@ in GNU Emacs 24.1 or higher."
 
 ;;; utility functions
 
+;; general functions
+
+(defun button-lock-parent-modes ()
+  "Return all parent modes for the current major mode.
+
+Returns nil if the current major mode is not a derived mode."
+  (let ((this-mode major-mode)
+        (parent-modes nil))
+    (unless (setq parent-modes (gethash major-mode button-lock-parent-modes-hash))
+      (while (setq this-mode (get this-mode 'derived-mode-parent))
+        (push this-mode parent-modes))
+      (puthash major-mode (if parent-modes parent-modes :none) button-lock-parent-modes-hash))
+    (if (eql parent-modes :none) nil parent-modes)))
+
 ;; buffer functions
 
 (defun button-lock-buffer-included-p (buf)
@@ -434,6 +462,7 @@ in GNU Emacs 24.1 or higher."
       (when (and (not (minibufferp buf))
                  (not (eq (aref (buffer-name) 0) ?\s))           ; overlaps with exclude-pattern
                  (not (memq major-mode button-lock-exclude-modes))
+                 (not (cl-intersection (button-lock-parent-modes) button-lock-exclude-modes))
                  (not (string-match-p button-lock-buffer-name-exclude-pattern (buffer-name buf)))
                  (catch 'success
                    (dolist (filt button-lock-buffer-exclude-functions)
@@ -498,8 +527,8 @@ POS defaults to the current point.  PROPERTY defaults to
 
 Returns a cons in the form (START . END), or nil if there
 is no such PROPERTY around POS."
-  (callf or pos (point))
-  (callf or property 'button-lock)
+  (cl-callf or pos (point))
+  (cl-callf or property 'button-lock)
   (when (get-text-property pos property)
     (cons (if (and (> pos (point-min)) (get-text-property (1- pos) property)) (previous-single-property-change pos property) pos)
           (next-single-property-change pos property))))
@@ -517,14 +546,14 @@ keywords with the 'button-lock property."
         (when (eq t (car keywords))
           ;; get uncompiled keywords
           (setq keywords (cadr keywords)))
-        (dolist (kw (union keywords button-lock-button-list))
+        (dolist (kw (cl-union keywords button-lock-button-list))
           (when (button-lock-button-p kw)
             (font-lock-remove-keywords nil (list kw)))))
-  (unless button-lock-mode
-    (error "Button-lock mode is not in effect"))
-  (dolist (button button-lock-button-list)
-    (font-lock-remove-keywords nil (list button))
-    (font-lock-add-keywords nil (list button)))))
+    (unless button-lock-mode
+      (error "Button-lock mode is not in effect"))
+    (dolist (button button-lock-button-list)
+      (font-lock-remove-keywords nil (list button))
+      (font-lock-add-keywords nil (list button) 'how-add-to-end))))
 
 (defun button-lock-do-tell ()
   "Run `button-lock-tell-font-lock' appropriately in hooks."
@@ -541,7 +570,7 @@ keywords with the 'button-lock property."
     (font-lock-remove-keywords nil (list button))
     (button-lock-maybe-unbuttonify-buffer)     ; cperl-mode workaround
     (button-lock-maybe-fontify-buffer))
-  (callf2 delete button button-lock-button-list)
+  (cl-callf2 delete button button-lock-button-list)
   nil)
 
 (defun button-lock-add-to-button-list (button &optional no-replace)
@@ -562,7 +591,7 @@ If NO-REPLACE is set, no replacement is made for a duplicate button."
         (button-lock-remove-from-button-list conflict))
       (add-to-list 'button-lock-button-list button)
       (when button-lock-mode
-        (font-lock-add-keywords nil (list button))
+        (font-lock-add-keywords nil (list button) 'how-add-to-end)
         (button-lock-maybe-fontify-buffer))
       button)))
 
@@ -570,7 +599,7 @@ If NO-REPLACE is set, no replacement is made for a duplicate button."
 
 (defun button-lock-remove-from-global-button-list (button)
   "Remove BUTTON from `button-lock-global-button-list'."
-  (callf2 delete button button-lock-global-button-list))
+  (cl-callf2 delete button button-lock-global-button-list))
 
 (defun button-lock-add-to-global-button-list (button &optional no-replace)
   "Add BUTTON to `button-lock-global-button-list'.
@@ -617,24 +646,26 @@ mode if the argument is omitted or nil, and toggles the mode if
 the argument is 'toggle."
   nil button-lock-mode-lighter nil
   (cond
-    ((and button-lock-mode
-          (or noninteractive                    ; never turn on button-lock where
-              (eq (aref (buffer-name) 0) ?\s))) ; there can be no font-lock
-     (setq button-lock-mode nil))
-    (button-lock-mode
-     (font-lock-mode 1)
-     (button-lock-merge-global-buttons-to-local)
-     (add-hook 'font-lock-mode-hook 'button-lock-do-tell nil t)
-     (button-lock-tell-font-lock)
-     (button-lock-maybe-fontify-buffer)
-     (when (button-lock-called-interactively-p 'interactive)
-       (message "button-lock mode enabled")))
-    (t
-     (button-lock-tell-font-lock 'forget)
-     (button-lock-maybe-unbuttonify-buffer)   ; cperl-mode workaround
-     (button-lock-maybe-fontify-buffer)
-     (when (button-lock-called-interactively-p 'interactive)
-       (message "button-lock mode disabled")))))
+   ((and button-lock-mode
+	 (or noninteractive                    ; never turn on button-lock where
+	     (eq (aref (buffer-name) 0) ?\s))) ; there can be no font-lock
+    (setq button-lock-mode nil))
+   (button-lock-mode
+    (font-lock-mode 1)
+    (make-local-variable 'font-lock-extra-managed-props)
+    (button-lock-merge-global-buttons-to-local)
+    (add-hook 'font-lock-mode-hook 'button-lock-do-tell nil t)
+    (button-lock-tell-font-lock)
+    (button-lock-maybe-fontify-buffer)
+    (when (button-lock-called-interactively-p 'interactive)
+      (message "button-lock mode enabled")))
+   (t
+    (kill-local-variable 'font-lock-extra-managed-props)
+    (button-lock-tell-font-lock 'forget)
+    (button-lock-maybe-unbuttonify-buffer)   ; cperl-mode workaround
+    (button-lock-maybe-fontify-buffer)
+    (when (button-lock-called-interactively-p 'interactive)
+      (message "button-lock mode disabled")))))
 
 ;;; global minor-mode definition
 
@@ -650,7 +681,7 @@ button-lock mode will be activated in every buffer, except
 
 If called with a negative ARG, deactivate button-lock mode in the
 buffer."
-  (callf or arg 1)
+  (cl-callf or arg 1)
   (when (or (< arg 0)
             (button-lock-buffer-included-p (current-buffer)))
     (button-lock-mode arg)))
@@ -662,93 +693,93 @@ buffer."
 ;;; principal external interface
 
 ;;;###autoload
-(defun* button-lock-set-button (pattern action &key
+(cl-defun button-lock-set-button (pattern action &key
 
-                                 (face 'button-lock-face)
-                                 (mouse-face 'button-lock-mouse-face)
-                                 (face-policy 'append)
-                                 help-echo
-                                 help-text
-                                 kbd-help
-                                 kbd-help-multiline
+					  (face 'button-lock-face)
+					  (mouse-face 'button-lock-mouse-face)
+					  (face-policy 'append)
+					  help-echo
+					  help-text
+					  kbd-help
+					  kbd-help-multiline
 
-                                 (grouping 0)
+					  (grouping 0)
 
-                                 (mouse-binding 'mouse-1)
-                                 keyboard-binding
-                                 keyboard-action
-                                 additional-property
-                                 rear-sticky
+					  (mouse-binding 'mouse-1)
+					  keyboard-binding
+					  keyboard-action
+					  additional-property
+					  rear-sticky
 
-                                 remove
-                                 no-replace
+					  remove
+					  no-replace
 
-                                 mouse-2
-                                 mouse-3
-                                 mouse-4
-                                 mouse-5
-                                 wheel-down
-                                 wheel-up
+					  mouse-2
+					  mouse-3
+					  mouse-4
+					  mouse-5
+					  wheel-down
+					  wheel-up
 
-                                 down-mouse-1
-                                 down-mouse-2
-                                 down-mouse-3
-                                 down-mouse-4
-                                 down-mouse-5
+					  down-mouse-1
+					  down-mouse-2
+					  down-mouse-3
+					  down-mouse-4
+					  down-mouse-5
 
-                                 double-mouse-1
-                                 double-mouse-2
-                                 double-mouse-3
-                                 double-mouse-4
-                                 double-mouse-5
+					  double-mouse-1
+					  double-mouse-2
+					  double-mouse-3
+					  double-mouse-4
+					  double-mouse-5
 
-                                 triple-mouse-1
-                                 triple-mouse-2
-                                 triple-mouse-3
-                                 triple-mouse-4
-                                 triple-mouse-5
+					  triple-mouse-1
+					  triple-mouse-2
+					  triple-mouse-3
+					  triple-mouse-4
+					  triple-mouse-5
 
-                                 A-mouse-1
-                                 A-mouse-2
-                                 A-mouse-3
-                                 A-mouse-4
-                                 A-mouse-5
-                                 A-wheel-down
-                                 A-wheel-up
+					  A-mouse-1
+					  A-mouse-2
+					  A-mouse-3
+					  A-mouse-4
+					  A-mouse-5
+					  A-wheel-down
+					  A-wheel-up
 
-                                 C-mouse-1
-                                 C-mouse-2
-                                 C-mouse-3
-                                 C-mouse-4
-                                 C-mouse-5
-                                 C-wheel-down
-                                 C-wheel-up
+					  C-mouse-1
+					  C-mouse-2
+					  C-mouse-3
+					  C-mouse-4
+					  C-mouse-5
+					  C-wheel-down
+					  C-wheel-up
 
-                                 M-mouse-1
-                                 M-mouse-2
-                                 M-mouse-3
-                                 M-mouse-4
-                                 M-mouse-5
-                                 M-wheel-down
-                                 M-wheel-up
+					  M-mouse-1
+					  M-mouse-2
+					  M-mouse-3
+					  M-mouse-4
+					  M-mouse-5
+					  M-wheel-down
+					  M-wheel-up
 
-                                 S-mouse-1
-                                 S-mouse-2
-                                 S-mouse-3
-                                 S-mouse-4
-                                 S-mouse-5
-                                 S-wheel-down
-                                 S-wheel-up
+					  S-mouse-1
+					  S-mouse-2
+					  S-mouse-3
+					  S-mouse-4
+					  S-mouse-5
+					  S-wheel-down
+					  S-wheel-up
 
-                                 s-mouse-1
-                                 s-mouse-2
-                                 s-mouse-3
-                                 s-mouse-4
-                                 s-mouse-5
-                                 s-wheel-down
-                                 s-wheel-up)
+					  s-mouse-1
+					  s-mouse-2
+					  s-mouse-3
+					  s-mouse-4
+					  s-mouse-5
+					  s-wheel-down
+					  s-wheel-up)
 
-"Attach mouse actions to text via `font-lock-mode'.
+  "Attach mouse actions to text via `font-lock-mode'.
 
 Required argument PATTERN is a regular expression to match.
 
@@ -927,27 +958,27 @@ The button value can be passed to `button-lock-extend-binding'."
     (add-to-list 'font-lock-extra-managed-props 'button-lock)
 
     (when additional-property
-      (callf append properties `(,additional-property t))
+      (cl-callf append properties `(,additional-property t))
       (add-to-list 'font-lock-extra-managed-props additional-property))
 
     (when mouse-face
-      (callf append properties `(mouse-face ,mouse-face))
+      (cl-callf append properties `(mouse-face ,mouse-face))
       (add-to-list 'font-lock-extra-managed-props 'mouse-face))
 
     (when (or help-echo help-text)
-      (callf append properties `(help-echo ,(or help-echo help-text)))
+      (cl-callf append properties `(help-echo ,(or help-echo help-text)))
       (add-to-list 'font-lock-extra-managed-props 'help-echo))
 
     (when kbd-help
-      (callf append properties `(kbd-help ,kbd-help))
+      (cl-callf append properties `(kbd-help ,kbd-help))
       (add-to-list 'font-lock-extra-managed-props 'kbd-help))
 
     (when kbd-help-multiline
-      (callf append properties `(kbd-help-multiline ,kbd-help-multiline))
+      (cl-callf append properties `(kbd-help-multiline ,kbd-help-multiline))
       (add-to-list 'font-lock-extra-managed-props 'kbd-help-multiline))
 
     (unless rear-sticky
-      (callf append properties `(rear-nonsticky t))
+      (cl-callf append properties `(rear-nonsticky t))
       (add-to-list 'font-lock-extra-managed-props 'rear-nonsticky))
 
     (setq fl-keyword `(,pattern (,grouping ',properties ,face-policy)))
@@ -1065,7 +1096,6 @@ deactivated and reactivated."
 ;; mangle-whitespace: t
 ;; require-final-newline: t
 ;; coding: utf-8
-;; byte-compile-warnings: (not cl-functions redefine)
 ;; End:
 ;;
 ;; LocalWords: ButtonLockMode mouseable mybutton keymap propertize

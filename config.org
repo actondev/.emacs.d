@@ -866,10 +866,12 @@ paredit        ; Introduce some paredit commands.
    #+END_SRC
 
 ** Buttons
+   See https://github.com/rolandwalker/button-lock/issues/14 (solved)
+
    #+BEGIN_SRC emacs-lisp
 (use-package button-lock
   :load-path "elisp/"
-  :commands (button-lock-mode)
+  :commands (button-lock-mode button-lock-set-button)
   )
    #+END_SRC
 

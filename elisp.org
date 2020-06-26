@@ -107,13 +107,64 @@
 	      ))))))))
 
    #+END_SRC
+** eval named block in repl
+   #+BEGIN_SRC emacs-lisp :results silent
+(defun aod-org-babel/eval-named-block-in-repl (name)
+  "Sends the code of the named block into the repl session.
+   Requires ober-eval-in-repl package"
+  (interactive "sName:")
+  (save-excursion
+    (goto-char (org-babel-find-named-block name))
+    (ober-eval-block-in-repl)))
+   #+END_SRC
+
+** buttons for named block
+   #+BEGIN_SRC emacs-lisp :results silent
+(defmacro aod-button/make-org-babel-button (name &optional format)
+  (button-lock-mode 1)
+  (message (format "defining button for %s" name))
+  (let* ((button-format (or format "[%s]"))
+	 (button-name (format button-format name))
+	 (button-regexp (regexp-quote button-name))
+	 (callback-name (format "aod-button/--%s" name)))
+    `(progn
+       ;; the button callback
+       (defun ,(intern callback-name) ()
+	 "Auto generated button action"
+	 (interactive)
+	 (aod-org-babel/eval-named-block-in-repl ,name)
+	 )
+       ;; the button creation with button-lock
+       (button-lock-set-button ,button-regexp
+			       ',(intern callback-name)
+			       :face 'custom-button
+			       :face-policy 'prepend
+			       :mouse-face 'custom-button-mouse
+			       )
+       ,button-name)))
+
+(defun aod-button/make-org-babel-buttons (&optional blocks)
+  "Creates a button for all the named src blocks
+
+   Pro tip: make an emacs-lisp src block calling this function
+   and you will get a table with clickable buttons for all the
+   src blocks"
+  (let ((blocks (or blocks (org-babel-src-block-names))))
+    (mapcar
+     (lambda (name)
+       ;; note: i cannot just call the macro.. ugh
+       ;; see https://stackoverflow.com/a/11341079
+       (eval `(aod-button/make-org-babel-button ,name)))
+     blocks)))
+   #+END_SRC
+
 * Meson build system
   Adding new =files()=
   - select the directory (it will be prepended in the actual files)
   - the regexp filter for the files in the given directory
 
   After the selection has be made, the matching files will be inserted with their directory prepended
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
 (defun aod-meson/sources (dir regexp)
   (interactive "fDirectory:\nsRegexp: ")
   (message dir)
@@ -128,5 +179,5 @@
 			       filenames
 			       " ")))
     (insert formatted)))
-#+END_SRC
+  #+END_SRC
 
