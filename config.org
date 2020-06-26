@@ -202,116 +202,10 @@
    #+BEGIN_SRC emacs-lisp
 (use-package htmlize)
    #+END_SRC
-** wrap blocks of text
-   http://pragmaticemacs.com/emacs/wrap-text-in-an-org-mode-block/
-   - [X] indent properly the inserted text
-     - (indent-for-tab-command)
-     - (newline-and-indent)
-     - (indent-new-comment-line)
-   
-   #+BEGIN_SRC emacs-lisp
-(defun aod.org/wrap-region ()
-  "Make a template at point."
-  (interactive)
-  (if (org-at-table-p)
-      (call-interactively 'org-table-rotate-recalc-marks)
-    (let* ((choices '(("s" . "SRC")
-                      ("e" . "EXAMPLE")
-                      ("q" . "QUOTE")
-                      ("v" . "VERSE")
-                      ("c" . "CENTER")
-		      ("C" . "COMMENT")
-                      ("l" . "LaTeX")
-                      ("h" . "HTML")
-                      ("a" . "ASCII")))
-           (key
-            (key-description
-             (vector
-              (read-key
-               (concat (propertize "Template type: " 'face 'minibuffer-prompt)
-                       (mapconcat (lambda (choice)
-                                    (concat (propertize (car choice) 'face 'font-lock-type-face)
-                                            ": "
-                                            (cdr choice)))
-                                  choices
-                                  ", ")))))))
-      (let ((result (assoc key choices)))
-        (when result
-          (let ((choice (cdr result)))
-            (cond
-             ((region-active-p)
-              (let ((start (region-beginning))
-                    (end (region-end)))
-                (goto-char end)
-		(newline-and-indent)
-                (insert "#+END_" choice)
-		(newline-and-indent)
-                (goto-char start)
-		;; (newline)
-		
-		(previous-line)
-		(indent-new-comment-line)
-                (insert "#+BEGIN_" choice)
-		))
-             (t
-	      (indent-new-comment-line)
-              (insert "#+BEGIN_" choice)
-	      (newline-and-indent)
-              (save-excursion
-		(newline-and-indent)
-		(insert "#+END_" choice))
-	      (indent-for-tab-command)
-	      ))))))))
-
-   #+END_SRC
 ** new moon calendar
    #+BEGIN_SRC emacs-lisp
 (load-file (relative-from-init "elisp/aod-new-moon.el"))   
    #+END_SRC
-** opening links
-   #+BEGIN_SRC emacs-lisp
-(setq browse-url-browser-function 'aod.web/browse-function)
-(setq aod.web/browse-private-p nil)
-
-(defun aod.web/toggle-browse-private ()
-  (interactive)
-  (setq aod.web/browse-private-p (not aod.web/browse-private-p))
-  (message "openining in private? %s" aod.web/browse-private-p))
-
-(defun aod.web/browse-function (url &rest ignore)
-  "Browse URLs in either normal mode or in a firefox private window"
-  ;; (interactive "sURL: ")
-  (if aod.web/browse-private-p
-      (progn
-	(message "opening in private firefox window")
-	(shell-command (concat "firefox --private-window " url)))
-    (progn
-      (message "openining in normal browser window")
-      (browse-url-default-browser url))
-    ))   
-   #+END_SRC
-** babel: emacs-lisp & window excursion
-   Running emacs-lisp src blocks and being able to change windows configurations
-   #+BEGIN_SRC emacs-lisp
-(defun aod-org/babel-execute:emacs-lisp-advice (orig &rest args)
-  (setf aod-temp/save-window-excursion 'save-window-excursion)
-  (cl-letf (((symbol-function 'set-window-configuration)
-	     (lambda (args)
-	       (message "ignoring changes in window configuration"))))
-    (apply orig args)))
-
-(setq aod-org/babel-elisp-save-window-excursion t)
-
-(defun aod-org/babel-toggle-elisp-window-excursion ()
-  (interactive)
-  (setq aod-org/babel-elisp-save-window-excursion
-	(not aod-org/babel-elisp-save-window-excursion))
-  (if aod-org/babel-elisp-save-window-excursion
-      (advice-remove 'org-babel-execute:emacs-lisp #'aod-org/babel-execute:emacs-lisp-advice)
-    (advice-add 'org-babel-execute:emacs-lisp :around #'aod-org/babel-execute:emacs-lisp-advice))
-  (message (format "Saving window excursion? %s" aod-org/babel-elisp-save-window-excursion)))
-   #+END_SRC
-
 * Helm
   #+BEGIN_SRC emacs-lisp
 (use-package helm
@@ -395,7 +289,6 @@ sudo apt-get install silversearcher-ag
 
    #+BEGIN_SRC emacs-lisp
 (use-package projectile
-  :demand t
   :config
   (projectile-mode 1)
   ;; speed!
@@ -930,8 +823,16 @@ paredit        ; Introduce some paredit commands.
 
 (defun key-chord-editing ()
   ;; Expand Region (r for region)
-  (key-chord-define-global "rj" 'er/expand-region)
+  (key-chord-define-global "e3" 'er/expand-region)
+  (key-chord-define-global "e2" 'er/contract-region)
   )
+
+;; TODO could I use tab..?
+
+;;(defun key-chord-backslash ()
+  ;; (key-chord-define-global [?\\ ?w] '(lambda () (message "hi")))
+;;  (key-chord-define-global "\\q" 'keyboard-quit)
+;;  )
 
 (use-package key-chord
   :demand t

@@ -33,5 +33,6 @@
 (package-initialize)
 ;; loading org files : not loading org-mode everytime, but load the .el cached file
 (load-org-cached "config.org")
+(load-org-cached "elisp.org")
 
 (message (format "%s%s" "Startup time: " (emacs-init-time)))
