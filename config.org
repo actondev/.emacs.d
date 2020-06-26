@@ -865,6 +865,33 @@ paredit        ; Introduce some paredit commands.
   )
    #+END_SRC
 
+** Buttons
+   #+BEGIN_SRC emacs-lisp
+(use-package button-lock
+  :load-path "elisp/"
+  :commands (button-lock-mode)
+  )
+   #+END_SRC
+
+   example
+   (note: the function should be =(interactive)= cause it's needed by =define-key=)
+   #+BEGIN_SRC emacs-lisp :tangle no
+(button-lock-mode 1)
+(defun button/say-hi ()
+  "Shout when clicked"
+  (interactive)
+  (message "hi there!")
+)
+
+(button-lock-set-button (regexp-quote ">say-hi")
+			'button/say-hi
+			:face 'link )
+   #+END_SRC
+   >say-hi
+
+   #+BEGIN_SRC emacs-lisp :tangle no
+(button-lock-clear-all-buttons)
+   #+END_SRC
 * Presentation? (command-log)
   #+BEGIN_SRC emacs-lisp
 (use-package command-log-mode
