@@ -490,7 +490,9 @@ This is to avoid turning on font-lock if we are in the process of
 disabling button-lock."
   (when (and (boundp 'font-lock-fontified)
              font-lock-fontified)
-    (font-lock-fontify-buffer)))
+    (font-lock-fontify-buffer)
+    ;; (font-lock-ensure)
+    ))
 
 ;; button functions
 

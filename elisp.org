@@ -1,5 +1,20 @@
 * Elisp
   Some functions that help :)
+* Manipulating lists
+  #+BEGIN_SRC emacs-lisp
+(defun xah-filter-list (@predicate @sequence)
+  "Return a new list such that *predicate is true on all members of *sequence.
+URL `http://ergoemacs.org/emacs/elisp_filter_list.html'
+Version 2016-07-18"
+  (delete
+   "e3824ad41f2ec1ed"
+   (mapcar
+    (lambda ($x)
+      (if (funcall @predicate $x)
+          $x
+        "e3824ad41f2ec1ed" ))
+    @sequence)))
+  #+END_SRC
 * Org-mode
 ** babel: emacs-lisp & window excursion
    Running emacs-lisp src blocks and being able to change windows configurations
@@ -166,17 +181,77 @@ blocks"
        ;; see https://stackoverflow.com/a/11341079
        (eval `(aod.org-babel/make-named-block-button ,name)))
      blocks)))
+
+(defun aod.org-babel/generate-named-buttons-inc (regexp)
+  "Generates the buttons for the named src blocks in this org
+file that MATCH the given regexp"
+  (let ((blocks (xah-filter-list
+		 (lambda (x)
+		   (s-match regexp x))
+		 (org-babel-src-block-names))))
+    (aod.org-babel/generate-named-buttons blocks)))
+
+(defun aod.org-babel/generate-named-buttons-exc (regexp)
+  "Generates the buttons for the named src blocks in this org
+file that DON'T MATCH the given regexp"
+  (let ((blocks (xah-filter-list
+		 (lambda (x)
+		   (not (s-match regexp x)))
+		 (org-babel-src-block-names))))
+    (aod.org-babel/generate-named-buttons blocks)))
    #+END_SRC
 
+*** COMMENT examples
+
+    #+BEGIN_SRC emacs-lisp
+(aod.org-babel/generate-named-buttons)
+    #+END_SRC
+
+    #+RESULTS:
+    | [dev:run] | [dev:build] | [demo-sh-2] | [demo-sh] |
+
+    #+BEGIN_SRC emacs-lisp
+(aod.org-babel/generate-named-buttons-inc "dev")
+    #+END_SRC
+
+    #+RESULTS:
+    | [dev:run] | [dev:build] |
+
+    #+BEGIN_SRC emacs-lisp
+(aod.org-babel/generate-named-buttons-exc "dev")
+    #+END_SRC
+
+    #+RESULTS:
+    | [demo-sh-2] | [demo-sh] |
+
+    #+NAME: demo-sh
+    #+BEGIN_SRC sh
+echo demo
+    #+END_SRC
+
+    #+NAME: demo-sh-2
+    #+BEGIN_SRC sh
+echo demo 2
+    #+END_SRC
+
+    #+NAME: dev:build
+    #+BEGIN_SRC sh
+echo dev build
+    #+END_SRC
+
+    #+NAME: dev:run
+    #+BEGIN_SRC sh
+echo dev run
+    #+END_SRC
 * Meson build system
   Adding new =files()=
   - select the directory (it will be prepended in the actual files)
   - the regexp filter for the files in the given directory
 
   After the selection has be made, the matching files will be inserted with their directory prepended
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp :results silent
 (defun aod.meson/sources (dir regexp)
-  (interactive "fDirectory:\nsRegexp: ")
+  (interactive "GDirectory:\nsRegexp: ")
   (message dir)
   (let* ((filenames (directory-files dir
 				     t ; full path
@@ -190,4 +265,3 @@ blocks"
 			       " ")))
     (insert formatted)))
   #+END_SRC
-
