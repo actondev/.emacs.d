@@ -528,6 +528,11 @@ This is a good place to put keybindings."
   (interactive)
   (scheme-send-region (point-min) (point-max)))
 
+(defun scheme-send-string (string)
+  "Send the current region to the inferior Scheme process."
+  (interactive "r")
+  (comint-send-string (scheme-proc) (format "%s\n" string)))
+
 (provide 'cmuscheme)
 
 ;; arch-tag: e8795f4a-c496-45a2-97b4-8e0f2a2c57d2

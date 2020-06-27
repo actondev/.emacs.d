@@ -279,6 +279,20 @@ sudo apt-get install silversearcher-ag
   )
    #+END_SRC
 
+** sessions, workgroups
+   Tip:
+   - =wg-save-session= when you have a nice window arrangement
+   - =wg-open-session= to load it
+
+   Don't know though the session/workgroup separation. what is what.
+   (see all the =wg-xx-workgroup= methods)
+
+     #+BEGIN_SRC emacs-lisp
+(use-package workgroups2
+  :commands (workgroups-mode wg-open-session)
+  )
+  #+END_SRC
+
 * Project management
 ** Projectile & neotree
    Useful neotree shortcuts

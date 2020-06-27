@@ -180,3 +180,40 @@
   #+RESULTS:
   : aod\\\.hydra/org-present/body
   
+* eybrowse
+  #+BEGIN_SRC emacs-lisp
+(use-package eyebrowse
+  :demand t
+  :load-path "elisp/"
+  :commands (eyebrowse-mode))
+  #+END_SRC
+
+  #+RESULTS:
+* perspective, workgroups ?
+  #+BEGIN_SRC emacs-lisp
+(use-package perspective
+  :demand t
+)
+  #+END_SRC
+
+
+  #+BEGIN_SRC emacs-lisp
+(use-package persp-mode
+:demand t
+)
+  #+END_SRC
+
+  #+BEGIN_SRC emacs-lisp
+(use-package workgroups
+  :demand t
+  :load-path "elisp"
+  )  
+  #+END_SRC
+
+  #+BEGIN_SRC emacs-lisp
+(use-package workgroups2
+
+)
+  #+END_SRC
+
+  #+RESULTS:

@@ -128,17 +128,30 @@ Version 2016-07-18"
   "Sends the code of the named block into the repl session.
    Requires ober-eval-in-repl package"
   (interactive "sName:")
-  (save-excursion
-    (goto-char (org-babel-find-named-block name))
-    ;; if there is an active job : interrupt it
-    (let* ((params (nth 2 (org-babel-get-src-block-info)))
-	   (session (cdr (assq :session params))))
-      (if (and (get-buffer session) (process-running-child-p session))
-	  (progn
-	    (message "There was already a process running, interrupting.. ")
-	    (interrupt-process session comint-ptyp))
-	;; else: run the code :)
-	(ober-eval-block-in-repl)))))
+  (org-save-outline-visibility nil ;; use markers?
+    (save-excursion
+      (goto-char (org-babel-find-named-block name))
+      ;; if there is an active job : interrupt it
+      (let* ((info (org-babel-get-src-block-info))
+	     (type (nth 0 info))
+	     (params (nth 2 info))
+	     (session (cdr (assq :session params)))
+	     (is-elisp (s-match (rx (or "elisp" "emacs-lisp"))
+				type) ))
+	(if is-elisp
+	    ;; just evaluating.. saves alot of trouble.
+	    ;; we don't really need an ielm buffer etc
+	    ;; TODO could probably hijack ober-eval-in-repl to use eval as its call function?
+	    ;; this would be useful to handle all the expansion of variables etc
+	    (let ((body (format "(progn %s )" (nth 1 info))))
+	      (eval (read (format body))))
+	  ;; else : eval in repl
+	  (if (and (get-buffer session) (process-running-child-p session))
+	      (progn
+		(message "There was already a process running, interrupting.. ")
+		(interrupt-process session comint-ptyp))
+
+	    (ober-eval-block-in-repl)))))))
    #+END_SRC
 
 ** buttons for named block
@@ -265,3 +278,20 @@ echo dev run
 			       " ")))
     (insert formatted)))
   #+END_SRC
+* Dekstop  (saving configurations)
+  #+BEGIN_SRC emacs-lisp
+(defun aod.desktop/save ()
+  "Save current project dekstop"
+  (interactive)
+  (desktop-save (projectile-project-root) t nil 208)
+  )
+
+(defun aod.desktop/read ()
+  "Save current project dekstop"
+  (interactive)
+  (desktop-read (projectile-project-root))
+  )
+  #+END_SRC
+
+  #+RESULTS:
+  : aod\.desktop/read
