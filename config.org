@@ -872,6 +872,16 @@ paredit        ; Introduce some paredit commands.
 (use-package button-lock
   :load-path "elisp/"
   :commands (button-lock-mode button-lock-set-button)
+  :config
+  ;; styling after custom-button & custom-button-mouse
+  (set-face-attribute 'button-lock-button-face nil
+		      :foreground "#268bd2"
+		      :background "#1c1e1f"
+		      :box '(:line-width 1 :style none))
+  (set-face-attribute 'button-lock-mouse-face nil
+		      :foreground "#1c1e1f"
+		      :background "#268bd2"
+		      :box '(:line-width 1 :style none))
   )
    #+END_SRC
 

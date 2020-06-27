@@ -109,18 +109,26 @@
    #+END_SRC
 ** eval named block in repl
    #+BEGIN_SRC emacs-lisp :results silent
-(defun aod-org-babel/eval-named-block-in-repl (name)
+(defun aod.org-babel/eval-named-block-in-repl (name)
   "Sends the code of the named block into the repl session.
    Requires ober-eval-in-repl package"
   (interactive "sName:")
   (save-excursion
     (goto-char (org-babel-find-named-block name))
-    (ober-eval-block-in-repl)))
+    ;; if there is an active job : interrupt it
+    (let* ((params (nth 2 (org-babel-get-src-block-info)))
+	   (session (cdr (assq :session params))))
+      (if (and (get-buffer session) (process-running-child-p session))
+	  (progn
+	    (message "There was already a process running, interrupting.. ")
+	    (interrupt-process session comint-ptyp))
+	;; else: run the code :)
+	(ober-eval-block-in-repl)))))
    #+END_SRC
 
 ** buttons for named block
    #+BEGIN_SRC emacs-lisp :results silent
-(defmacro aod-button/make-org-babel-button (name &optional format)
+(defmacro aod.org-babel/make-named-block-button (name &optional format)
   (button-lock-mode 1)
   (message (format "defining button for %s" name))
   (let* ((button-format (or format "[%s]"))
@@ -132,29 +140,31 @@
        (defun ,(intern callback-name) ()
 	 "Auto generated button action"
 	 (interactive)
-	 (aod-org-babel/eval-named-block-in-repl ,name)
+	 (aod.org-babel/eval-named-block-in-repl ,name)
 	 )
        ;; the button creation with button-lock
        (button-lock-set-button ,button-regexp
 			       ',(intern callback-name)
-			       :face 'custom-button
+			       :keyboard-binding "RET"
+			       :face 'button-lock-button-face
+			       :mouse-face 'button-lock-mouse-face
 			       :face-policy 'prepend
-			       :mouse-face 'custom-button-mouse
 			       )
        ,button-name)))
 
-(defun aod-button/make-org-babel-buttons (&optional blocks)
-  "Creates a button for all the named src blocks
+(defun aod.org-babel/generate-named-buttons (&optional blocks)
+  "Generates the buttons for all the named src blocks in this org
+file.
 
-   Pro tip: make an emacs-lisp src block calling this function
-   and you will get a table with clickable buttons for all the
-   src blocks"
+Pro tip: make an emacs-lisp src block calling this function and
+you will get a table with clickable buttons for all the src
+blocks"
   (let ((blocks (or blocks (org-babel-src-block-names))))
     (mapcar
      (lambda (name)
        ;; note: i cannot just call the macro.. ugh
        ;; see https://stackoverflow.com/a/11341079
-       (eval `(aod-button/make-org-babel-button ,name)))
+       (eval `(aod.org-babel/make-named-block-button ,name)))
      blocks)))
    #+END_SRC
 
@@ -165,7 +175,7 @@
 
   After the selection has be made, the matching files will be inserted with their directory prepended
   #+BEGIN_SRC emacs-lisp
-(defun aod-meson/sources (dir regexp)
+(defun aod.meson/sources (dir regexp)
   (interactive "fDirectory:\nsRegexp: ")
   (message dir)
   (let* ((filenames (directory-files dir
