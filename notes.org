@@ -147,3 +147,12 @@ pwd
       (advice-remove 'org-babel-read #'read-advice)
       info)))  
   #+END_SRC
+* Profiling startup time
+  https://blog.d46.us/advanced-emacs-startup/
+  #+BEGIN_SRC emacs-lisp
+(use-package esup
+  :ensure t
+  ;; To use MELPA Stable use ":pin mepla-stable",
+  :pin melpa
+  :commands (esup))
+  #+END_SRC

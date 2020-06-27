@@ -130,7 +130,6 @@
    #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path (relative-from-init "elisp"))
    #+END_SRC
-
 * Org customizations
 ** Src block customizations
    #+BEGIN_SRC emacs-lisp
@@ -209,6 +208,8 @@
 * Helm
   #+BEGIN_SRC emacs-lisp
 (use-package helm
+  ;; dashboard: opening project file requires helm and helm-make-source
+  :commands (helm helm-make-source)
   :bind(
 	("M-x" . helm-M-x)
 	("C-<tab>" . helm-mini)
@@ -292,7 +293,6 @@ sudo apt-get install silversearcher-ag
   :commands (workgroups-mode wg-open-session)
   )
   #+END_SRC
-
 * Project management
 ** Projectile & neotree
    Useful neotree shortcuts
@@ -774,7 +774,6 @@ paredit        ; Introduce some paredit commands.
    #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode)
    #+END_SRC
-  
 * Web
 ** restclient
    Associating with =.http= files
