@@ -199,20 +199,20 @@ Version 2016-07-18"
 
 ** buttons for named block
    #+BEGIN_SRC emacs-lisp :results silent
+(setq aod.org-babel/button-format "[%s]")
+
 (defmacro aod.org-babel/make-named-block-button (name &optional format)
   (button-lock-mode 1)
-  (message (format "defining button for %s" name))
-  (let* ((button-format (or format "[%s]"))
+  (let* ((button-format (or format aod.org-babel/button-format))
 	 (button-name (format button-format name))
 	 (button-regexp (regexp-quote button-name))
-	 (callback-name (format "aod-button/--%s" name)))
+	 (callback-name (format "aod-button/--%s" (s-replace " " "-" name))))
     `(progn
        ;; the button callback
        (defun ,(intern callback-name) ()
 	 "Auto generated button action"
 	 (interactive)
-	 (aod.org-babel/eval-named-block-in-repl ,name)
-	 )
+	 (aod.org-babel/eval-named-block-in-repl ,name))
        ;; the button creation with button-lock
        (button-lock-set-button ,button-regexp
 			       ',(intern callback-name)
