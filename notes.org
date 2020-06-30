@@ -147,3 +147,7 @@ pwd
       (advice-remove 'org-babel-read #'read-advice)
       info)))  
   #+END_SRC
+* Shell: windows : enter once in cmd
+  #+BEGIN_SRC sh
+[[ -z "$home" ]] && cmd    
+  #+END_SRC
