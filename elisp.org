@@ -165,9 +165,9 @@ Version 2016-07-18"
 	      ))))))))
 
    #+END_SRC
-** eval named block in repl
+** eval named block
    #+BEGIN_SRC emacs-lisp :results silent
-(defun aod.org-babel/eval-named-block-in-repl (name)
+(defun aod.org-babel/eval-named-block (name)
   "Sends the code of the named block into the repl session.
    Requires ober-eval-in-repl package"
   (interactive "sName:")
@@ -212,7 +212,7 @@ Version 2016-07-18"
        (defun ,(intern callback-name) ()
 	 "Auto generated button action"
 	 (interactive)
-	 (aod.org-babel/eval-named-block-in-repl ,name))
+	 (aod.org-babel/eval-named-block ,name))
        ;; the button creation with button-lock
        (button-lock-set-button ,button-regexp
 			       ',(intern callback-name)

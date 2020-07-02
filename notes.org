@@ -156,3 +156,16 @@ pwd
   :pin melpa
   :commands (esup))
   #+END_SRC
+* Local variables - running code on open
+  for example, in an org-mode file I had
+  #+BEGIN_SRC org
+
+# Local Variables:
+# eval: (aod.org-babel/eval-named-block "buttons")
+# eval: (org-babel-goto-named-result "buttons")
+# End:
+
+  #+END_SRC
+
+  the =(org-babel-goto-named-result "buttons")= though doesn't work.
+  Upon opening the file the cursor is at the beginning
