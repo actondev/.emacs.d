@@ -189,9 +189,13 @@ Version 2016-07-18"
 	    (let ((body (format "(progn %s )" (nth 1 info))))
 	      (eval (read (format body))))
 	  ;; else : eval in repl
-	  (if (and (get-buffer session) (process-running-child-p session))
+	  (if (and
+	       ;; windows sucks cannot do anything about this
+	       (not (eq system-type 'windows-nt))
+	       (get-buffer session) (process-running-child-p session))
 	      (progn
 		(message "There was already a process running, interrupting.. ")
+		;; comint-ptyp
 		(interrupt-process session comint-ptyp))
 
 	    (ober-eval-block-in-repl)))))))

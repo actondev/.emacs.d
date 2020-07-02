@@ -156,6 +156,12 @@ pwd
   :pin melpa
   :commands (esup))
   #+END_SRC
+
+* windows: bash & cmd - enter once in cmd
+  #+BEGIN_SRC sh
+[[ -z "$home" ]] && cmd
+  #+END_SRC
+
 * Local variables - running code on open
   for example, in an org-mode file I had
   #+BEGIN_SRC org
