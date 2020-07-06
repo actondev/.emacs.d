@@ -3,8 +3,8 @@
   #+BEGIN_SRC emacs-lisp
 
 (add-hook 'clojure-mode-hook
-	    (lambda ()
-	      (message "how do i remove myself??")))
+	  (lambda ()
+	    (message "how do i remove myself??")))
 
 
 clojure-mode-hook
@@ -15,7 +15,7 @@ clojure-mode-hook
 * profiling time of each block
   + https://emacs.stackexchange.com/a/21251/19673
 
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
 (defmacro with-timer (title &rest forms)
   "Run the given FORMS, counting the elapsed time.
 A message including the given TITLE and the corresponding elapsed
@@ -32,9 +32,9 @@ time is displayed."
 
 
 
-#+END_SRC
+  #+END_SRC
 ** COMMENT playing with use-package
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
 
 (defalias 'use-package-old 'use-package)
 (defmacro use-package (&rest forms)
@@ -54,7 +54,7 @@ time is displayed."
 (macroexpand-1 '(use-package2 helm))
 (use-package helm)
 (macroexpand-all '(with-timer "test " (+ 1 2)))
-#+END_SRC
+   #+END_SRC
 * Highlighting thing under cursor etc..
   + M-x highlight-symbol-at-point
     or add C-u prefix to select what color shall be used
@@ -164,14 +164,163 @@ pwd
 
 * Local variables - running code on open
   for example, in an org-mode file I had
-  #+BEGIN_SRC org
+  #+BEGIN_EXAMPLE org
 
 # Local Variables:
 # eval: (aod.org-babel/eval-named-block "buttons")
 # eval: (org-babel-goto-named-result "buttons")
 # End:
 
-  #+END_SRC
+  #+END_EXAMPLE
 
   the =(org-babel-goto-named-result "buttons")= though doesn't work.
   Upon opening the file the cursor is at the beginning
+* Editing example src code
+  org-edit-src-code
+  #+BEGIN_SRC elisp
+(let ((lang
+       (if (eq type 'src-block) (org-element-property :language (org-element-at-point))
+	 "example"))
+      ;; ...
+      )
+  #+END_SRC
+
+  #+BEGIN_SRC c
+printf("hi");
+  #+END_SRC
+
+  =(org-element-at-point)= gives
+  #+BEGIN_SRC elisp
+(src-block (:language "c" :switches nil :parameters nil :begin 3682 :end 4317 :number-lines nil ...))  
+  #+END_SRC
+
+  #+BEGIN_EXAMPLE c
+printf("hi");
+  #+END_EXAMPLE
+
+  gives
+
+  #+BEGIN_SRC elisp
+(example-block (:begin 5614 :end 5663 :value "printf(\"hi\");
+" :switches "c" :number-lines nil :preserve-indent nil ...))
+  #+END_SRC
+* org babel notes
+  disable confirming:
+  =org-confirm-babel-evaluate=
+  (setq-local to set on certain buffer)
+  - org-babel-use-quick-and-dirty-noweb-expansion
+    ??
+** noweb, templating etc
+
+   #+NAME: c-template
+   #+BEGIN_SRC c :noweb yes
+printf("hi, A is {A} and B is {B}");
+   #+END_SRC
+
+   #+NAME: c-template2
+   #+BEGIN_SRC c :noweb yes
+printf("hi, A is {A} and B is {B}");
+<<render2(a="another a",b="another b")>>
+   #+END_SRC
+
+   #+NAME: render
+   #+BEGIN_SRC emacs-lisp :var template="c-template" a="value_a" b="value_b" :wrap SRC cpp
+(-as-> (aod.org/src-block-content template) x
+       (replace-regexp-in-string (regexp-quote "{A}") a x t)
+       (replace-regexp-in-string (regexp-quote "{B}") b x t)
+       )
+   #+END_SRC
+
+   #+RESULTS: render
+   #+BEGIN_SRC cpp
+printf("hi, A is value_a and B is value_b");
+   #+END_SRC
+
+
+   This cause an infinite recursion!
+   #+NAME: render2
+   #+BEGIN_SRC emacs-lisp :var template="c-template2" a="value_a" b="value_b" :wrap SRC cpp
+(-as-> (aod.org/src-block-content-noweb template) x
+       (replace-regexp-in-string (regexp-quote "{A}") a x t)
+       (replace-regexp-in-string (regexp-quote "{B}") b x t)
+       )
+   #+END_SRC
+
+
+*** nested.. example
+    #+NAME: expand
+    #+BEGIN_SRC emacs-lisp :var template="the-template" c-type="bool"
+(-as-> (aod.org/src-block-content-noweb template) x
+       (replace-regexp-in-string "C_TYPE" c-type x t)
+       )
+    #+END_SRC
+
+    #+NAME: T-struct
+    #+BEGIN_SRC c
+typedef struct {
+     size_t size;
+     C_TYPE* elements;
+} C_TYPE_arr;
+    #+END_SRC
+
+    #+NAME: T-struct+
+    #+BEGIN_SRC c :noweb yes
+// here we see the struct for C_TYPE
+<<T-struct>>
+    #+END_SRC
+
+    #+NAME: render-structs
+    #+BEGIN_SRC emacs-lisp :wrap src c
+(mapconcat
+ (lambda (type)
+   (-as-> (aod.org/src-block-content-noweb "T-struct+") x
+	  (replace-regexp-in-string "C_TYPE" type x t)
+	  ))
+ (list "bool" "int" "float")
+ "\n\n")
+    #+END_SRC
+
+
+    #+BEGIN_SRC c :noweb yes
+// and.. fuclly expanded here
+
+<<render-structs()>>
+
+  // we did it!
+  // run org-babel-expand-src-block to see the result
+
+
+    #+END_SRC
+
+    gives
+    #+BEGIN_EXAMPLE c
+// and.. fuclly expanded here
+
+// here we see the struct for bool
+typedef struct {
+     size_t size;
+     bool* elements;
+} bool_arr;
+
+// here we see the struct for int
+typedef struct {
+     size_t size;
+     int* elements;
+} int_arr;
+
+// here we see the struct for float
+typedef struct {
+     size_t size;
+     float* elements;
+} float_arr;
+
+  // we did it!
+  // run org-babel-expand-src-block to see the result
+
+    
+    #+END_EXAMPLE
+** header flags
+   - :main no
+     in C blocks
+   - :noweb-ref foo
+     instead of naming the blocks..? it's an option

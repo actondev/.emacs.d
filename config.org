@@ -219,10 +219,13 @@
 	("<tab>" . helm-execute-persistent-action)
 	("<left>" . left-char)
 	("<right>" . right-char)
-	:map helm-find-files-map ;; to be able to select/copy filenames
+	:map helm-find-files-map
 	("<left>" . left-char)
 	("<right>" . right-char)
-	("C-SPC" . set-mark-command)
+	;; to be able to select/copy filenames
+	;; ("C-SPC" . set-mark-command)
+	;; or be able to mark multiple files
+	("C-SPC" . helm-toggle-visible-mark-forward)
 	)
   :config
   (setq helm-M-x-fuzzy-match t
@@ -378,10 +381,12 @@ sudo apt-get install silversearcher-ag
 ;; note: can't use for some reason directy the system-type
 (setq system-type-name (symbol-name system-type))
 (setq frame-title-format '("%f  -- " system-type-name))
-(defun aod/name-frame (name)
+(defun aod/name-session (name)
   (interactive "Mname:")
-  (setq frame-title-format `(,name " -- %f  -- " system-type-name))
-  )
+  ;; making it persistent across frame
+  ;; if I were to use the name directly that couldn't work
+  (setq aod/session-name name)
+  (setq frame-title-format `("" aod/session-name " -- %f  -- " system-type-name)))
    #+END_SRC
 ** COMMENT monokai
    #+BEGIN_SRC emacs-lisp
@@ -410,7 +415,11 @@ sudo apt-get install silversearcher-ag
 ** doom-modeline
    #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
-   :hook (after-init . doom-modeline-mode))
+  :hook (after-init . doom-modeline-mode)
+  :config
+  ;; border for modeline: had problem with org-mode src blocks (same color)
+  (custom-set-faces
+   '(mode-line ((t (:box (:line-width 1 :color "dim gray")))))))
    #+END_SRC
 
    + [ ] TODO

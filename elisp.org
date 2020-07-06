@@ -303,6 +303,23 @@ echo dev build
     #+BEGIN_SRC sh
 echo dev run
     #+END_SRC
+** Getting named src block content
+
+   #+BEGIN_SRC emacs-lisp :results nil
+(defun aod.org/src-block-content (name)
+  (org-save-outline-visibility nil ;; use markers?
+    (save-excursion
+      (goto-char (org-babel-find-named-block name))
+      (let ((src (org-element-property :value (org-element-at-point))))
+	src))))
+
+(defun aod.org/src-block-content-noweb (name)
+  (org-save-outline-visibility nil ;; use markers?
+    (save-excursion
+      (goto-char (org-babel-find-named-block name))
+      (org-babel-expand-noweb-references))))
+   #+END_SRC
+
 * Workgroups
   #+BEGIN_SRC emacs-lisp :results silent
 (defun aod.wg/load-session (session)
@@ -339,6 +356,28 @@ echo dev run
 			       " ")))
     (insert formatted)))
   #+END_SRC
+
+  #+BEGIN_SRC emacs-lisp :results silent
+(defun aod.meson/sources-multiple (regexp)
+  "Uses helm-read-file-name where you can select multiple file names.
+By default the regexp is matching .cpp or .c files.
+TODO: if called with a prefix argument ask for the regexp..?"
+  (interactive (list
+		(rx (or ".cpp" ".c"))))
+  (let* ((filenames (helm-read-file-name "files"
+					 :marked-candidates t
+					 :test (lambda (x)
+						 (or (f-directory-p x)
+						     (s-match regexp x)))))
+	 (formatted (mapconcat (function (lambda (x)
+					   (let ((relative-path (file-relative-name x ".")))
+					     (format "'%s',\n" relative-path))))
+			       filenames
+			       " ")))
+    (insert formatted)))
+
+  #+END_SRC
+
 * Dekstop  (saving configurations)
   #+BEGIN_SRC emacs-lisp
 (defun aod.desktop/save ()
