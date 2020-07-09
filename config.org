@@ -207,6 +207,21 @@
    #+END_SRC
 * Helm
   #+BEGIN_SRC emacs-lisp
+(setq aod.helm/C-SPC-set-mark-p nil)
+
+(defun aod.helm/toggle-C-SPC ()
+  "Toggles the functionality of C-SPC in helm-map"
+  (interactive)
+  (setq aod.helm/C-SPC-set-mark-p (not aod.helm/C-SPC-set-mark-p)))
+
+(defun aod.helm/C-SPC ()
+  "Either normal C-SPC (aka mark mini buffer input) or mark
+multiple files"
+  (interactive)
+  (if aod.helm/C-SPC-set-mark-p
+      (call-interactively 'set-mark-command)
+    (helm-toggle-visible-mark-forward)))
+
 (use-package helm
   ;; dashboard: opening project file requires helm and helm-make-source
   :commands (helm helm-make-source)
@@ -225,7 +240,8 @@
 	;; to be able to select/copy filenames
 	;; ("C-SPC" . set-mark-command)
 	;; or be able to mark multiple files
-	("C-SPC" . helm-toggle-visible-mark-forward)
+	;;("C-SPC" . helm-toggle-visible-mark-forward)
+	("C-SPC" . aod.helm/C-SPC)
 	)
   :config
   (setq helm-M-x-fuzzy-match t
