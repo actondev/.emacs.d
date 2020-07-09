@@ -1,0 +1,416 @@
+* moving monitor to next monitor/screen
+  #+BEGIN_SRC sh
+sudo apt-get install xdotool wmctrl
+  #+END_SRC
+  Run org-bable-tangle and the script will be at [[file:move-window.sh]]
+** The script
+   - https://github.com/jc00ke/move-to-next-monitor/blob/master/move-to-next-monitor
+     works fast if x monitors of same resolution
+   - https://github.com/Sylvain303/move-to-next-monitor/blob/center-screen-offset/move-to-next-monitor
+     better version, works with 2 monitors of not the same sizes
+     though it's slow cause it calls xrandr each time
+
+   My solution: calculate the xrandr output once (when tangling) and use this cached output
+   Also added some fixes about the window padding
+
+   #+NAME: get_monitors
+   #+BEGIN_SRC sh :results output
+real_monitors_all() {
+  OFFSET_RE="([0-9]+)\+([0-9]+)"
+
+  xrandr | sed -nr "/ connected / {
+      s/^([^ ]*).*\b([0-9]+)x([0-9]+)\+$OFFSET_RE.*$/\1 \2 \3 \4 \5/ p
+    }"
+}
+
+real_monitors_all
+   #+END_SRC
+
+   #+RESULTS: get_monitors
+   : eDP-1 1366 768 1920 0
+   : DP-1 1920 1080 0 0
+
+   well it's a buggy if window is not maximized but well.. that's what I have
+   #+BEGIN_SRC sh :tangle "move-window.sh" :shebang "#!/bin/bash" :var cached_monitors=get_monitors() :var fake=1
+# Move the current window to the next monitor.
+#
+# Also works only on one X screen (which is the most common case).
+#
+# Props to
+# http://icyrock.com/blog/2012/05/xubuntu-moving-windows-between-monitors/
+#
+# Unfortunately, both "xdotool getwindowgeometry --shell $window_id" and
+# checking "-geometry" of "xwininfo -id $window_id" are not sufficient, as
+# the first command does not respect panel/decoration offsets and the second
+# will sometimes give a "-0-0" geometry. This is why we resort to "xwininfo".
+#
+# algorithm:
+#  get_monitors dimensions and offset
+#  get_current_window position and maximized status
+#  find next monitor
+#  compute new coordinate in the next monitor
+#  move to the next monintor centered maxmize if it was
+#
+# bash array remainder: (Yes, array syntax is totally ugly)
+#   # create an array
+#   arr=( val1 val2 )
+#   # get element 0
+#   ${arr[0]}
+#   # all elements
+#   ${arr[@]}
+#   # number of elements
+#   ${#arr[@]}
+
+[[ $0 != "$BASH_SOURCE" ]] && sourced=1 || sourced=0
+if [[ $sourced -eq 0  ]]
+then
+    me=$(readlink -f $0)
+else
+    me=$(readlink -f "$BASH_SOURCE")
+fi
+mydir=$(dirname $me)
+
+WINDOW_HORZ_MAXED=""
+WINDOW_VERT_MAXED=""
+
+debug() {
+    echo "$1" >&2
+}
+
+abs() { 
+    [[ $[ $@ ] -lt 0 ]] && echo "$[ ($@) * -1 ]" || echo "$[ $@ ]"
+}
+
+max () {
+    if [ $1 -gt $2 ] ; then
+	echo $1
+    else
+	echo $2
+    fi
+}
+
+real_monitors_all() {
+    OFFSET_RE="([0-9]+)\+([0-9]+)"
+
+    xrandr | sed -nr "/ connected / {
+      s/^([^ ]*).*\b([0-9]+)x([0-9]+)\+$OFFSET_RE.*$/\1 \2 \3 \4 \5/ p
+    }"
+}
+
+get_monitors_all() {
+    OFFSET_RE="([0-9]+)\+([0-9]+)"
+
+    # allow debug without dual screen
+    if [[ "$fake" -eq 1 ]] ; then
+	fake_get_monitors_all
+    else
+	real_monitors_all
+    fi
+}
+
+# get_monitors output: See fake_get_monitors
+# LVDS-1 1366 768 0 515
+# OTHER 1280 1024 1366 0
+# Usage: 
+#   get_monitors
+#   get_monitors SCREEN_NUM
+get_monitors() {
+    # $1 can number a monitor starting at 0
+    range="p"
+    if [[ ! -z "$1" ]]
+    then
+	range="$(($1+1)) p"
+    fi
+    get_monitors_all | sed -n -e "$range"
+}
+
+fake_get_monitors_all() {
+    # using printf to trim any trailing new line in the input string
+    # it's introduced when tangling from emacs
+    # see https://stackoverflow.com/questions/12524308/bash-strip-trailing-linebreak-from-output
+    printf "%s" "$cached_monitors"
+}
+
+get_current_window() {
+    # current window_id
+    xdotool getactivewindow
+}
+
+
+window_get_position() {
+    local window_id=$1
+
+    local pos=( `xdotool getwindowgeometry $window_id | awk -F '[ ,]+' '/Position:/ { print $3,$4 }'` )
+    local dim=( `xdotool getwindowgeometry $window_id | awk -F '[ x]+' '/Geometry:/ { print $3,$4 }'` )
+
+    echo "${pos[@]} ${dim[@]}"
+}
+
+# params: x, y
+move_active_window() {
+    window_id=$(get_current_window)
+    xdotool windowmove $window_id $1 $2
+}
+
+get_merged_display() {
+    #xdpyinfo | grep dimensions:
+    #  dimensions:    2646x1340 pixels (700x355 millimeters)
+    # virtual screen monitor merged dimensions including offsets
+    xdpyinfo | awk -F '[ x]+' '/dimensions:/ { print $3,$4}'
+}
+
+compute_window_center() {
+    # array assign IFS must contains ' '
+    local wpos=( $@ )
+    echo $((${wpos[0]} + (${wpos[2]}) / 2)) $((${wpos[1]} + (${wpos[3]}) / 2))
+}
+
+# moves the current window to its.. current position
+# and calculates the difference
+# for example, in xfce4 default theme (bored to check) is x:2 y:48
+calculate_padding() {
+    debug "--- calculating window padding"
+    local win=$(get_current_window)
+    read x y _ _ <<< $(window_get_position $win)
+    debug "init: x $x y $y"
+    move_active_window $x $y
+
+    read x2 y2 _ _ <<< $(window_get_position $win)
+    debug "after move: x $x2 y $y2"
+
+    padding_x=$((x2-x))
+    padding_y=$((y2-y))
+    local corr_x=$((x-padding_x))
+    local corr_y=$((y-padding_y))
+    debug "padding is $padding_x $padding_y"
+    move_active_window $corr_x $corr_y
+
+    debug "---"
+    echo "$padding_x $padding_y"
+}
+
+window_compute_move() {
+    local window_id=$1
+
+    # to fix loss of precision when dividing
+    mul_factor=10000
+
+    local nbscreen=$(get_monitors | wc -l)
+    if [[ $nbscreen -eq 1 ]] ; then
+	return 1
+    fi
+
+    local pos=( $(window_get_position $window_id) )
+    # off the border padding
+    read padding_x padding_y <<< $(calculate_padding)
+    # local padding_x=0
+    # local padding_y=0
+
+    local myscreen=$(find_which_monitor ${pos[@]})
+    # multiple var assignment
+    # debug "$(get_monitors $myscreen)"
+    read sname1 swidth1 sheight1 sxoff1 syoff1 <<< $(get_monitors $myscreen)
+
+    local x=$((${pos[0]} - sxoff1))
+    local y=$((${pos[1]} - syoff1))
+    
+    debug "swidth1 is $swidth1"
+    local xratio=$(abs $((x * mul_factor / swidth1)))
+    local yratio=$(abs $((y * mul_factor / sheight1)))
+
+    debug "xratio is $xratio"
+    debug "yratio is $yratio"
+
+    # Compute new position
+    local nexts=$((($myscreen + 1) % $nbscreen))
+
+    # add new screen offset
+    read sname2 swidth2 sheight2 sxoff2 syoff2 <<< $(get_monitors $nexts)
+    #echo $sname $swidth $sheight $sxoff $syoff
+
+    # remove current screen offset
+    local new_x=$((xratio * (swidth2 + 1) / mul_factor - padding_x))
+    local new_y=$((yratio * (sheight2 + 1) / mul_factor - padding_y))
+
+    # positioning it in the screen: taking in mind its offset
+    new_x=$((new_x + sxoff2))
+
+    # ensure new position is in the screen, if window width and height is not
+    # too big re integrate window in the screen
+
+    # too far on right
+    local maxx=$(($sxoff2 + $swidth2))
+    if [[ $(($new_x + ${pos[2]})) -gt $maxx ]] ; then
+	debug "too far on the right"
+	new_x=$(max $sxoff2 $((maxx - ${pos[2]} - padding_x)))
+    fi
+
+    # too far on bottom
+    local maxy=$((syoff2 + sheight2))
+    if [[ $((new_y + ${pos[3]})) -gt $maxy ]] ; then
+	debug "too far on the bottom"
+	new_y=$(max 0 $((maxy - ${pos[3]} - padding_y)))
+    fi
+
+    # off the screen coorection
+    # @actondev: actually I don't know what this is for but well..
+    # if [[ $new_x -lt $sxoff ]] ; then
+    # 	debug "off the screen in x"
+    # 	new_x=$(($padding + $sxoff))
+    # fi
+
+    # if [[ $new_y -lt $syoff ]] ; then
+    # 	debug "off the screen in y"
+    # 	new_y=$(($padding + $syoff))
+    # fi
+
+    echo $new_x $new_y
+}
+
+find_which_monitor() {
+    # array assign IFS must contains ' '
+    local winpos=( $@ )
+    #echo "${winpos[0]} ${winpos[1]} ${winpos[2]} ${winpos[3]}"
+    # Loop through each screen and compare the offset with the window
+    # coordinates.
+    local i=0
+    local monitor
+    while read name width height xoff yoff
+    do
+	#echo MON: $name $width $height $xoff $yoff
+	if [ "${winpos[0]}" -ge "$xoff" \
+			    -a "${winpos[1]}" -ge "$yoff" \
+			    -a "${winpos[0]}" -lt "$(($xoff+$width))" \
+			    -a "${winpos[1]}" -lt "$(($yoff+$height))" ]
+	then
+	    monitor=$name
+	    break
+	fi
+	i=$(($i + 1))
+    done < <(get_monitors)
+
+    # If we found a monitor, echo it out, otherwise print an error.
+    if [[ ! -z "$monitor" ]]
+    then
+	echo $i
+	return 0
+    else
+	echo "Couldn't find any monitor for the current window." >&2
+	return 1
+    fi
+}
+
+main() {
+    # current window properties
+    window_id=$(get_current_window)
+
+    # Remember if it was maximized.
+    WINDOW_HORZ_MAXED=`xprop -id $window_id _NET_WM_STATE \
+    | grep '_NET_WM_STATE_MAXIMIZED_HORZ'`
+    WINDOW_VERT_MAXED=`xprop -id $window_id _NET_WM_STATE \
+    | grep '_NET_WM_STATE_MAXIMIZED_VERT'`
+
+    read newx newy <<< $(window_compute_move $window_id)
+    debug "newx $newx newy $newy"
+
+    # Un-maximize current window so that we can move it
+    wmctrl -ir $window_id -b remove,maximized_vert,maximized_horz
+
+    # Move the window
+    xdotool windowmove $window_id $newx $newy
+
+    # Maximize window again, if it was before
+    if [ -n "${WINDOW_HORZ_MAXED}" -a -n "${WINDOW_VERT_MAXED}" ]; then
+	debug "here1"
+    	wmctrl -ir $window_id -b add,maximized_vert,maximized_horz
+    elif [ -n  "${WINDOW_HORZ_MAXED}" ]; then
+	debug "here2"
+    	wmctrl -ir $window_id -b add,maximized_horz
+    elif [ -n  "${WINDOW_VERT_MAXED}" ]; then
+	debug "here 3"
+    	wmctrl -ir $window_id -b add,maximized_vert
+    fi
+}
+
+
+if [[ $sourced -eq 0  ]] ; then
+    main "$@"
+fi
+   #+END_SRC
+
+   #+RESULTS:
+** debug
+   #+BEGIN_SRC sh :results output
+get_current_window() {
+    # current window_id
+    xdotool getactivewindow
+}
+window_id=$(get_current_window)
+wmctrl -ir $window_id -b remove,maximized_vert,maximized_horz
+   #+END_SRC
+
+   #+BEGIN_SRC sh :results output
+min () {
+    if [ $1 -lt $2 ] ; then
+	echo $1
+    else
+	echo $2
+    fi
+}
+
+max () {
+echo "a $1 b $2"
+    if [ $1 -gt $2 ] ; then
+    echo "if"
+	echo $1
+    else
+    echo "else"
+	echo $2
+    fi
+}
+   #+END_SRC
+
+   #+RESULTS:
+   : 0
+
+** notes
+
+*** script: get monitors
+    #+BEGIN_SRC sh :results pp
+
+get_monitors() {
+  OFFSET_RE="([0-9]+)\+([0-9]+)"
+
+  # $1 can number a monitor starting at 0
+  range="p"
+  if [[ ! -z "$1" ]]
+  then
+    range="$(($1+1)) p"
+  fi
+
+  # allow debug without dual screen
+  if [[ "$fake" -eq 1 ]] ; then
+    fake_get_monitors
+  else
+    xrandr | 
+      sed -nr "/ connected / {
+        s/^([^ ]*).*\b([0-9]+)x([0-9]+)\+$OFFSET_RE.*$/\1 \2 \3 \4 \5/ p
+      }"
+  fi
+}
+
+get_monitors
+    #+END_SRC
+
+    #+RESULTS:
+    : eDP-1 1366 768 1920 0
+    : DP-1 1920 1080 0 0
+
+*** getting monitores
+    #+BEGIN_SRC sh
+xrandr | grep '*' | awk {'print $1'}
+    #+END_SRC
+
+    #+RESULTS:
+    |  1366x768 |
+    | 1920x1080 |

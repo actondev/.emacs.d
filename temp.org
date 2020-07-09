@@ -1,3 +1,6 @@
+#+PROPERTY: header-args :results silent
+# default results is replace
+
 * Testing emacs packages functions etc
   Provisional packages which might end up in =config.org=
 * Hydra
@@ -217,3 +220,26 @@
   #+END_SRC
 
   #+RESULTS:
+* Headline
+  Hmm.. could use this for the org-mode named src block buttons
+  
+  https://www.reddit.com/r/emacs/comments/eaor6z/clickable_text_in_a_headerline_modeline/
+  #+BEGIN_SRC emacs-lisp
+(setq header-line-format
+      (propertize "Hello" 'help-echo "mouse-1: Click me"
+                  'mouse-face 'mode-line-highlight
+                  'local-map (let ((map (make-sparse-keymap)))
+                               (define-key map
+                                 (vector 'header-line 'mouse-1) 
+                                 #'header-line-test)
+                               map)))
+
+(defun header-line-test (event)
+  (interactive "e")
+  (message "current window %s"(posn-window (event-start event))))
+  #+END_SRC
+
+
+  #+BEGIN_SRC emacs-lisp
+(setq header-line-format nil)
+  #+END_SRC

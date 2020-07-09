@@ -112,7 +112,7 @@ pwd
 
   For a subheading add
   #+BEGIN_EXAMPLE
-    :PROPERTIES:
+  :PROPERTIES:
   :header-args: :session *test* :var test="abc" test2="def" :dir ~/dev
   :END:
   #+END_EXAMPLE
