@@ -18,11 +18,12 @@
   (interactive)
   (if-let ((ns (aod.s7/get-ns)))
       (progn
-	;; (message (format "switching to ns %s" ns))
+	(message (format "switching to ns %s" ns))
 	(scheme-send-string ns))
     ;; else
-    (if (interactive-p)
-	(message "No (ns ..) form found!"))))
+    (progn (if (interactive-p)
+	       (message "No (ns ..) form found!"))
+	   (scheme-send-string "(set! *ns* #f)"))))
 
 (defun aod.s7/send-definition ()
   (interactive)
