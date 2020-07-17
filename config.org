@@ -756,17 +756,20 @@ paredit        ; Introduce some paredit commands.
 (add-to-list 'auto-mode-alist '("\\.sls\\'" . scheme-mode))   
    #+END_SRC
 
-   Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
-   #+BEGIN_SRC emacs-lisp
+*** COMMENT Geiser
+    Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
+    #+BEGIN_SRC emacs-lisp
 (use-package geiser
   :config
   (setq geiser-chez-binary "scheme")
   (setq geiser-default-implementation 'chez)
   ;; need to reopen the file for that.. heh
   (setq geiser-implementations-alist '	
-	(((regexp "\\.scm$") guile)
+	(
+	 ;;((regexp "\\.scm$") guile)
 	 ((regexp "\\.ss$") chez)
-	 ((regexp "\\.rkt$") racket)))
+	 ((regexp "\\.rkt$") racket))
+)
   ;;:init (add-hook 'scheme-mode-hook 'geiser-mode)
   ;; :bind(
   ;; 	:map geiser-mode-map
@@ -774,9 +777,11 @@ paredit        ; Introduce some paredit commands.
   ;; 	("M-<return>" . geiser-eval-last-sexp)
   ;; 	)
   )
-   #+END_SRC
+    #+END_SRC
 
-   #+BEGIN_SRC emacs-lisp
+*** cmuscheme
+
+    #+BEGIN_SRC emacs-lisp
 (use-package cmuscheme
   :load-path "elisp/"
   :bind(
@@ -785,8 +790,20 @@ paredit        ; Introduce some paredit commands.
 	("M-<return>" . scheme-send-last-sexp)
 	)
   )
-   #+END_SRC
+    #+END_SRC
    
+*** s7 + (ns..)
+    #+BEGIN_SRC emacs-lisp
+(use-package aod-s7
+  :load-path "elisp/"
+  :bind(
+	:map scheme-mode-map
+	("C-<return>" . aod.s7/send-definition)
+	("M-<return>" . aod.s7/send-last-sexp)
+	)
+  )
+    #+END_SRC
+
 *** windows path
     #+BEGIN_SRC emacs-lisp :tangle (when (eq system-type 'windows-nt) "yes")
 (add-to-list 'exec-path "c:/Program Files/Chez Scheme 9.5.2/bin/ta6nt/")

@@ -31,7 +31,7 @@ Version 2016-07-18"
 * Org-mode
 ** various
    I had these at functions.el
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :results silent
 (defun aod.org/insert-src (mode)
   "Insert a new source block and start editing it in its own editor
   TODO
@@ -51,14 +51,15 @@ Version 2016-07-18"
   (search-forward "#+END_SRC")
   (indent-new-comment-line))
 
-(defun aod-org/execute-elisp ()
-  "Executes current org-babel src block without asking.
+(defun aod.org/eval-elisp ()
+  "Evaluates current org-babel src block without asking.
   Plus, it doesn't use the save-window-excursion that C-c C-c does"
   (interactive)
   (let* ((info (org-babel-get-src-block-info))
 	 (body (nth 1 info)))
-    (eval (read body))))   
+    (eval (read (format "(progn %s )" body)))))
    #+END_SRC
+
 ** babel: emacs-lisp & window excursion
    Running emacs-lisp src blocks and being able to change windows configurations
    #+BEGIN_SRC emacs-lisp
@@ -395,3 +396,20 @@ TODO: if called with a prefix argument ask for the regexp..?"
 
   #+RESULTS:
   : aod\.desktop/read
+* COMMENT S7 scheme (moved to elisp/aod-s7.el)
+  #+BEGIN_SRC emacs-lisp :results silent
+(defun aod.s7/get-ns ()
+  "Get the (ns some.namespace) part to send on the repl"
+  (interactive)
+  (save-excursion
+    (beginning-of-buffer)
+    (if (re-search-forward "\\(\(ns .+\)\\)" nil t)
+	(match-string-no-properties 1)
+      nil)))
+  #+END_SRC
+
+  That if =aod.s7/get-ns= returns non nil, then it returns the =(ns ..)= statement to be run in the repl.
+  
+  That string should be send to the comint scheme process.
+  - modify cmuscheme directly? (dirty)
+  - hooks (eg before send?)
