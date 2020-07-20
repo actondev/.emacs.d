@@ -228,6 +228,18 @@ Version 2016-07-18"
 			       )
        ,button-name)))
 
+(defun aod.org-babel/generate-call-buttons ()
+  (interactive)
+  (button-lock-mode 1)
+  (let ((button-regexp (regexp-quote "#+CALL:")))
+    (button-lock-set-button button-regexp
+			    'org-babel-execute-maybe
+			    :keyboard-binding "RET"
+			    :face 'button-lock-button-face
+			    :mouse-face 'button-lock-mouse-face
+			    :face-policy 'prepend
+			    )))
+
 (defun aod.org-babel/generate-named-buttons (&optional blocks)
   "Generates the buttons for all the named src blocks in this org
 file.

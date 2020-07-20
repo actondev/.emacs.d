@@ -786,13 +786,14 @@ paredit        ; Introduce some paredit commands.
   :load-path "elisp/"
   :bind(
 	:map scheme-mode-map
-	("C-<return>" . scheme-send-definition)
-	("M-<return>" . scheme-send-last-sexp)
+	;; ("C-<return>" . scheme-send-definition)
+	;; ("M-<return>" . scheme-send-last-sexp)
 	)
   )
     #+END_SRC
    
-*** s7 + (ns..)
+*** TODO s7 + (ns)
+    Hmm.. have problems with autoloading
     #+BEGIN_SRC emacs-lisp
 (use-package aod-s7
   :load-path "elisp/"
@@ -882,10 +883,22 @@ paredit        ; Introduce some paredit commands.
   (key-chord-define-global "e2" 'er/contract-region)
   )
 
+(defun key-chord-dot ()
+  ;; with dot . prefix
+  ;; 
+  ;; putting the key sequence cause for example org-mode does its thing
+  (key-chord-define-global ".s" "\C-x\C-s")
+  (key-chord-define-global ".f" 'helm-find-files)
+  (key-chord-define-global ".g" 'keyboard-quit)
+  (key-chord-define-global ".c" "\C-c\C-c")
+  (key-chord-define-global ".k" "\C-x\k")
+  (key-chord-define-global ".z" 'undo-tree-undo)
+  )
+
 ;; TODO could I use tab..?
 
 ;;(defun key-chord-backslash ()
-  ;; (key-chord-define-global [?\\ ?w] '(lambda () (message "hi")))
+;; (key-chord-define-global [?\\ ?w] '(lambda () (message "hi")))
 ;;  (key-chord-define-global "\\q" 'keyboard-quit)
 ;;  )
 
@@ -905,6 +918,7 @@ paredit        ; Introduce some paredit commands.
   (key-chord-windows-management)
   (key-chord-editing)
   (key-chord-ace-jump)
+  (key-chord-dot)
   )
    #+END_SRC
 
