@@ -893,6 +893,9 @@ paredit        ; Introduce some paredit commands.
   (key-chord-define-global ".c" "\C-c\C-c")
   (key-chord-define-global ".k" "\C-x\k")
   (key-chord-define-global ".z" 'undo-tree-undo)
+  (key-chord-define-global ".d" "\C-d")
+  (key-chord-define-global ".e" "\C-e")
+  (key-chord-define-global ".a" "\C-a")
   )
 
 ;; TODO could I use tab..?
