@@ -425,3 +425,23 @@ TODO: if called with a prefix argument ask for the regexp..?"
   That string should be send to the comint scheme process.
   - modify cmuscheme directly? (dirty)
   - hooks (eg before send?)
+* Cache: reading cached file names
+  hm.. could make this more generic like a persistent-memoized kind of thing
+  
+  #+BEGIN_SRC emacs-lisp
+(defun aod.cache/read-file-name (prompt)
+  (unless (boundp 'aod.cache/files)
+    (setq aod.cache/files '()))
+  (let ((cached (alist-get (intern prompt) aod.cache/files)))
+    (if (and cached
+	     (file-exists-p cached))
+	cached
+      (progn
+	;; else: reading file and storing it
+	(let ((read (read-file-name (concat prompt ": "))))
+	  (add-to-list 'aod.cache/files
+		       (cons (intern prompt)
+			     read))
+	  (customize-save-variable 'aod.cache/files aod.cache/files)
+	  read)))))
+  #+END_SRC
