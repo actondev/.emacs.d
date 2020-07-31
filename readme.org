@@ -1,8 +1,8 @@
 * My emacs setup
   Rewrote my emacs setup using iterate programming (org-mode)
   Files to check:
-  + [[file:init.el][init.el]]
-    the most minimal file, loading the org file
+  + [[file:init.el][init.el]] & [[file:functions.el][functions.el]]
+    the necessary bootstraping for loading the later =org-mode= files
   + [[file:config.org][config.org]]
     contains all the configuration
   + [[file:elisp.org][elisp.org]]
@@ -17,8 +17,8 @@
    + company-complete
 ** TODO navigating code
    + helm-imenu ??
-   + [[file:emacs-lisp/hideshowvis.el]]
-     displaying + - icons to show/hide blocks
+   + [[file:elisp/hideshowvis.el]]
+     displaying =+= =-= icons to show/hide blocks
      functions to know
      + hs-minor
      + hs-hide-block
@@ -31,20 +31,8 @@
    + https://www.emacswiki.org/emacs/ButtonLockMode
      define clickable text based on regular expressions
 ** Org-mode
-   + (setq org-hide-emphasis-markers t)
      #+BEGIN_SRC emacs-lisp
 (setq org-hide-emphasis-markers t)
      #+END_SRC
 
-     #+RESULTS:
-     : t
-
      to hide the =markers= (= ~ * etc)
-* TODO moar doc
-  + what packages are used
-  + certain kbd shortcuts etc
-* <2019-11-09 Sat> optimizing..
-  use-package cider was taking around 5 seconds (f**ing windows)
-  so adding a =:defer t= really helped
-
-  helm stuff also seems to take long
