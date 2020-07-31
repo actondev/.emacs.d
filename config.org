@@ -792,11 +792,14 @@ paredit        ; Introduce some paredit commands.
   )
     #+END_SRC
    
-*** TODO s7 + (ns)
-    Hmm.. have problems with autoloading
+*** s7 scheme + (ns)
     #+BEGIN_SRC emacs-lisp
 (use-package aod-s7
   :load-path "elisp/"
+  ;; the after apparently is needed..
+  ;; if not, the bindings are not there even if in a scheme file
+  ;; and having started a scheme with (run-scheme)
+  :after (cmuscheme)
   :bind(
 	:map scheme-mode-map
 	("C-<return>" . aod.s7/send-definition)
