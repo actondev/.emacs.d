@@ -7,25 +7,45 @@
 (require 'cmuscheme)
 
 (defun aod.s7/get-ns ()
-  "Get the (ns some.namespace) part to send on the repl"
+  "Get the namespace name to send on the repl.
+NOTE: you need to have the (ns) in the beginning of the
+line. This is to not mistake things after ;; comments"
   (save-excursion
     (beginning-of-buffer)
-    (if (re-search-forward "^\\(\(ns .+\)\\)" nil t)
+    (if (re-search-forward "^\(ns \\([a-zA-Z0-9\.\-]+\\)" nil t)
 	(match-string-no-properties 1)
       nil)))
 
 (defun aod.s7/switch-to-ns ()
+  "Switches to the namespace of the currently open buffer."
   (interactive)
   (if-let ((ns (aod.s7/get-ns)))
       (progn
 	(message (format "switching to ns %s" ns))
-	(scheme-send-string ns))
+	(scheme-send-string (format "(ns %s)" ns)))
     ;; else
-    (progn (if (interactive-p)
-	       (message "No (ns ..) form found!"))
-	   (scheme-send-string "(set! *ns* #f)"))))
+    (progn
+      (message "switching to (rootlet)")
+      (scheme-send-string "(set! *ns* (rootlet))"))))
+
+(defun aod.s7/top-level-sexp-region ()
+  "Gets the top level sexp (start end)"
+  (save-excursion
+    (list
+     (progn (beginning-of-defun) (point))
+     (progn (end-of-sexp) (point)))))
+
+(defun aod.s7/last-sexp-region ()
+  "Gets the last (previous) sexp (start end)"
+  (list
+   (save-excursion (backward-sexp) (point))
+   (point)))
 
 (defun aod.s7/top-level-sexp ()
+  "Gets the top level sexp without any trailing new lines
+This was added cause the cmuscheme had extra whitespace at the end (a new line)
+And this was messing a bit with my REPL. However, have edited my cmuscheme.el now.
+So this is duplicate/not necessary code now"
   (save-excursion
     (end-of-defun)
     (let ((end (point)))
@@ -42,13 +62,14 @@ Note: (scheme-send-definition) would send 2 things:
 Here we just send ounce the trimmed top level sexp"
   (interactive)
   (aod.s7/switch-to-ns)
-  (scheme-send-string
-   (aod.s7/top-level-sexp)))
+  (let ((region (aod.s7/top-level-sexp-region)))
+    (apply #'scheme-send-region region)))
 
 (defun aod.s7/send-last-sexp ()
+  "Send the last sexp"
   (interactive)
   (aod.s7/switch-to-ns)
-  (scheme-send-last-sexp)
-  )
+  (let ((region (aod.s7/last-sexp-region)))
+    (apply #'scheme-send-region region)))
 
 (provide 'aod-s7)

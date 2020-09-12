@@ -202,6 +202,9 @@
 (use-package htmlize)
    #+END_SRC
 ** new moon calendar
+   Maybe should use use-package
+   This thing requires tiny
+   =(require 'tiny)=
    #+BEGIN_SRC emacs-lisp
 (load-file (relative-from-init "elisp/aod-new-moon.el"))   
    #+END_SRC
@@ -473,6 +476,13 @@ sudo apt-get install silversearcher-ag
 		      :box '(:line-width -1 :color "#ccc")
 		      :foreground nil
 		      :weight 'normal))
+   #+END_SRC
+** flashing / highlighting
+   #+BEGIN_SRC emacs-lisp
+(use-package nav-flash
+  :config
+  (custom-set-faces
+   '(nav-flash-face ((t (:background "#666" :foreground nil :weight nil))))))
    #+END_SRC
 * editing etc
 ** linear ranges (tiny)

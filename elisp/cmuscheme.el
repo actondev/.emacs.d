@@ -94,6 +94,7 @@
 
 (require 'scheme)
 (require 'comint)
+(require 'nav-flash nil 'noerror)
 
 
 (defgroup cmuscheme nil
@@ -261,9 +262,15 @@ order.  Return nil if no start file found."
         start-file
       (and (file-exists-p alt-start-file) alt-start-file))))
 
+(defun scheme-flash-region (start end)
+  (when (require 'nav-flash nil 'noerror)
+    (let ((nav-flash-delay 0.2))
+      (nav-flash-show start end))))
+
 (defun scheme-send-region (start end)
   "Send the current region to the inferior Scheme process."
   (interactive "r")
+  (scheme-flash-region start end)
   (comint-send-region (scheme-proc) start end)
   (comint-send-string (scheme-proc) "\n"))
 
@@ -271,10 +278,10 @@ order.  Return nil if no start file found."
   "Send the current definition to the inferior Scheme process."
   (interactive)
   (save-excursion
-   (end-of-defun)
-   (let ((end (point)))
-     (beginning-of-defun)
-     (scheme-send-region (point) end))))
+    (beginning-of-defun)
+    (let ((start (point)))
+      (end-of-sexp)
+      (scheme-send-region start (point)))))
 
 (defun scheme-send-last-sexp ()
   "Send the previous sexp to the inferior Scheme process."
