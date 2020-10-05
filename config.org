@@ -826,6 +826,10 @@ paredit        ; Introduce some paredit commands.
    #+BEGIN_SRC emacs-lisp
 (use-package rust-mode)   
    #+END_SRC
+** PHP
+   #+BEGIN_SRC emacs-lisp
+(use-package php-mode)
+   #+END_SRC
 ** etc (yaml..)
    #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode)

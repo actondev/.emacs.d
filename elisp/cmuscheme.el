@@ -201,7 +201,14 @@ Paragraphs are separated only by blank lines.  Semicolons start comments.
 If you accidentally suspend your process, use \\[comint-continue-subjob]
 to continue it."
   ;; Customize in inferior-scheme-mode-hook
-  (setq comint-prompt-regexp "^[^>\n]*>+ *") ; OK for cscheme, oaklisp, T,...
+  ;; ---
+  ;; edited:
+  ;; was "^[^>\n]*>+ *" but had problems with
+  ;; > (#<unspecified> "...")
+  ;; TODO how could I override this.. while using cmuscheme from use-package
+  ;; for example??
+  (setq comint-prompt-regexp "^> ") ; OK for cscheme, oaklisp, T,...
+  ;; --- end edits
   (scheme-mode-variables)
   (setq mode-line-process '(":%s"))
   (setq comint-input-filter (function scheme-input-filter))

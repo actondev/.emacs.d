@@ -21,3 +21,12 @@ ls -alh # one_level_up -> /home/actondev/.emacs.d
 rm one_level_up
 
   #+END_SRC
+* touchpad fix
+  sometimes it just stops working
+
+    #+BEGIN_SRC sh
+sudo modprobe -r psmouse
+sudo modprobe psmouse
+# and running startup script (double tap middle click etc)
+~/.emacs.d/linux/startup.sh
+    #+END_SRC

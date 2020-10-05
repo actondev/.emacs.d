@@ -12,7 +12,9 @@ NOTE: you need to have the (ns) in the beginning of the
 line. This is to not mistake things after ;; comments"
   (save-excursion
     (beginning-of-buffer)
-    (if (re-search-forward "^\(ns \\([a-zA-Z0-9\.\-]+\\)" nil t)
+    ;; matching any non whitespace character after the "(ns "
+    ;; \s didn't match new line for some reason..?
+    (if (re-search-forward "^\(ns \\([^ \t\r\n]+\\)" nil t)
 	(match-string-no-properties 1)
       nil)))
 
