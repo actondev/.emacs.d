@@ -101,7 +101,44 @@
 (setq use-package-verbose 'verbose)
    #+END_SRC
 
-** straight.el
+** quelpa (for git forks)
+   needed on <2020-11-13 Fri> for the =eval-in-repl= fork about =term= supports
+
+   #+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'quelpa)
+  (with-temp-buffer
+    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+    (eval-buffer)
+    (quelpa-self-upgrade)))
+
+;; (quelpa
+;;  '(quelpa-use-package
+;;    :fetcher git
+;;    :url "https://github.com/quelpa/quelpa-use-package.git"))
+;; (require 'quelpa-use-package)
+
+(use-package quelpa-use-package
+  :demand t
+  :init (setq quelpa-update-melpa-p nil)
+  :config (quelpa-use-package-activate-advice))
+   #+END_SRC
+
+   and the =:quelpa= argument in =use-package= accepts a melpa recipe format:
+   https://github.com/melpa/melpa#recipe-format
+   #+BEGIN_EXAMPLE elisp
+(<package-name>
+ :fetcher [git|github|gitlab|hg]
+ [:url "<repo url>"]
+ [:repo "github-or-gitlab-user/repo-name"]
+ [:commit "commit"]
+ [:branch "branch"]
+ [:version-regexp "<regexp>"]
+ [:files ("<file1>" ...)])
+   #+END_EXAMPLE
+
+** COMMENT straight.el
+   <2020-11-13 Fri> tried to set eval-in-repl to use my fork, and had errors.
+   so not using straight :)
    see
    + https://github.crookster.org/switching-to-straight.el-from-emacs-26-builtin-package.el/
    + https://github.com/raxod502/straight.el/blob/develop/README.md#getting-started
@@ -122,6 +159,7 @@
 
 (setq straight-vc-git-default-clone-depth 1)
 ;; (setq straight-use-package-by-default t)
+(straight-use-package 'use-package)
    #+END_SRC
 ** Custom directories
    Note: in [[file:init.el]] we defined the =relative-from-init= function.
@@ -179,15 +217,33 @@
 ** org-babel-eval-in-repl
    #+BEGIN_SRC emacs-lisp
 (use-package eval-in-repl
-  ;; :ensure t
-  ;; uhm.. use-package fail? i have default ensure set to true,
-  ;; yet without the custom :ensure t it didn't work
+  ;; while developing:
+  ;; :load-path "~/dev/github/eval-in-repl"
+  
+  :quelpa (eval-in-repl
+           :fetcher github
+           :repo "actondev/eval-in-repl"
+	   :branch "feature/shell-and-term")
+
+  ;; straight just failed with some errors.. fuck it
+  ;; temp until it gets merged
+  ;; :straight (eval-in-repl
+  ;; 	     :type git :host github :repo "kaz-yos/eval-in-repl"
+  ;; 	     :fork (:host github
+  ;; 			  :repo "actondev/eval-in-repl")
+  ;;         :branch "feature/shell-and-term")
   )
 
 
 (use-package org-babel-eval-in-repl
   ;; For the C-return command to work, we either have to "demand" or
   ;; require the package after org is loaded
+  ;; :load-path "~/dev/github/org-babel-eval-in-repl"
+  :quelpa (org-babel-eval-in-repl
+           :fetcher github
+           :repo "actondev/org-babel-eval-in-repl"
+	   :branch "feature/shell-and-term")
+
   :init
   (with-eval-after-load 'org
     (require 'org-babel-eval-in-repl))
