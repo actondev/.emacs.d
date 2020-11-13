@@ -1,8 +1,8 @@
 * moving monitor to next monitor/screen
   #+BEGIN_SRC sh
-sudo apt-get install xdotool wmctrl
+sudo apt-get install xdotool wmctrl -y
   #+END_SRC
-  Run org-bable-tangle and the script will be at [[file:move-window.sh]]
+  Run org-babel-tangle and the script will be at [[file:move-window.sh]]
 ** The script
    - https://github.com/jc00ke/move-to-next-monitor/blob/master/move-to-next-monitor
      works fast if x monitors of same resolution

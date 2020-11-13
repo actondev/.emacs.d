@@ -95,14 +95,16 @@ Version 2016-07-18"
 (defun aod.web/browse-function (url &rest ignore)
   "Browse URLs in either normal mode or in a firefox private window"
   ;; (interactive "sURL: ")
-  (if aod-web/browse-private-p
+  (let ((default-directory "~") ; fixing snap chromium & fuse bug
+	)
+    (if aod-web/browse-private-p
+	(progn
+	  (message "opening in private firefox window")
+	  (shell-command (concat "firefox --private-window " url)))
       (progn
-	(message "opening in private firefox window")
-	(shell-command (concat "firefox --private-window " url)))
-    (progn
-      (message "openining in normal browser window")
-      (browse-url-default-browser url))
-    ))   
+	(message "openining in normal browser window")
+	(browse-url-default-browser url))
+      )))
    #+END_SRC
 ** wrap blocks of text
    http://pragmaticemacs.com/emacs/wrap-text-in-an-org-mode-block/

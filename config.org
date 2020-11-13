@@ -208,6 +208,17 @@
    #+BEGIN_SRC emacs-lisp
 (load-file (relative-from-init "elisp/aod-new-moon.el"))   
    #+END_SRC
+** babel tangle append
+   https://emacs.stackexchange.com/a/38898
+   #+BEGIN_SRC emacs-lisp
+(defun org-babel-tangle-append ()
+  "Append source code block at point to its tangle file.
+The command works like `org-babel-tangle' with prefix arg
+but `delete-file' is ignored."
+  (interactive)
+  (cl-letf (((symbol-function 'delete-file) #'ignore))
+    (org-babel-tangle '(4))))
+   #+END_SRC
 * Helm
   #+BEGIN_SRC emacs-lisp
 (setq aod.helm/C-SPC-set-mark-p nil)
