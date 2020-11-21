@@ -414,3 +414,10 @@ xrandr | grep '*' | awk {'print $1'}
     #+RESULTS:
     |  1366x768 |
     | 1920x1080 |
+* <2020-11-13 Fri> installing from ppa (emacs 27)
+  #+BEGIN_SRC sh 
+sudo add-apt-repository ppa:kelleyk/emacs
+sudo apt-get remove emacs # removing previous installation
+sudo apt-get update
+sudo apt-get install emacs27
+  #+END_SRC

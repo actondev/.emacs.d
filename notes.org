@@ -384,3 +384,9 @@ typedef struct {
 ;; Replace `org-babel-execute:emacs-lisp':
 (advice-add 'org-babel-execute:emacs-lisp :override #'ad-org-babel-execute:emacs-lisp)   
    #+END_SRC
+* <2020-11-13 Fri> quelpa and fucking paredit
+Cloning https://github.com/actondev/eval-in-repl.git to /home/actondev/.emacs.d/quelpa/build/eval-in-repl/
+
+  Cloning https://github.com/magnars/dash.el.git
+Cloning https://mumble.net/~campbell/git/paredit.git to /home/actondev/.emacs.d/quelpa/build/paredit/
+Entering debugger...

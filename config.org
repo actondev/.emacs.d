@@ -101,15 +101,20 @@
 (setq use-package-verbose 'verbose)
    #+END_SRC
 
-** quelpa (for git forks)
+** COMMENT quelpa (for git forks)
    needed on <2020-11-13 Fri> for the =eval-in-repl= fork about =term= supports
+   but fuck it, the recursive dependecies were fetched from melpa. I just wanted my fork to be from git
+   and the dependencies resolved from elpa
 
    #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'quelpa)
   (with-temp-buffer
     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
     (eval-buffer)
-    (quelpa-self-upgrade)))
+    ;;(quelpa-self-upgrade)
+))
+(setq quelpa-checkout-melpa-p nil)
+(setq quelpa-update-melpa-p nil)
 
 ;; (quelpa
 ;;  '(quelpa-use-package
@@ -120,7 +125,10 @@
 (use-package quelpa-use-package
   :demand t
   :init (setq quelpa-update-melpa-p nil)
-  :config (quelpa-use-package-activate-advice))
+  ;; i think (quelpa-use-package-activate-advice) made things fail
+  ;; ie helm not being installed later on
+  ;; :config (quelpa-use-package-activate-advice)
+)
    #+END_SRC
 
    and the =:quelpa= argument in =use-package= accepts a melpa recipe format:
@@ -161,6 +169,14 @@
 ;; (setq straight-use-package-by-default t)
 (straight-use-package 'use-package)
    #+END_SRC
+** el-get
+   #+begin_src emacs-lisp
+(use-package el-get
+  :demand t
+  :ensure t)
+;; not really needed
+;; (use-package use-package-el-get)
+   #+end_src
 ** Custom directories
    Note: in [[file:init.el]] we defined the =relative-from-init= function.
    Here we add relative folders (from the init file) to load files from.
@@ -182,6 +198,11 @@
 (with-eval-after-load 'org
   (setq org-image-actual-width 400))
    #+END_SRC
+** emacs 27 org-mode templates
+   #+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'org
+  (require 'org-tempo))
+   #+END_SRC   
 ** habits
    #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'org
@@ -214,35 +235,43 @@
 			       ))
    #+END_SRC
 
-** org-babel-eval-in-repl
-   #+BEGIN_SRC emacs-lisp
+** (org-babel) eval-in-repl
+
+*** el-get : my forks
+    Just stating this before =use-package= makes it so that my fork is used.
+    the =:config= etc from =use-package= calls work as expected
+    #+begin_src emacs-lisp
+(el-get-bundle eval-in-repl
+   :type git
+   :url "https://github.com/actonDev/eval-in-repl.git"
+   :branch "feature/shell-and-term")
+
+(el-get-bundle org-babel-eval-in-repl
+   :type git
+   :url "https://github.com/actondev/org-babel-eval-in-repl.git"
+   :branch "feature/shell-and-term")
+    #+end_src
+
+*** installing with use-package
+    #+BEGIN_SRC emacs-lisp
 (use-package eval-in-repl
   ;; while developing:
   ;; :load-path "~/dev/github/eval-in-repl"
-  
-  :quelpa (eval-in-repl
-           :fetcher github
-           :repo "actondev/eval-in-repl"
-	   :branch "feature/shell-and-term")
 
-  ;; straight just failed with some errors.. fuck it
-  ;; temp until it gets merged
-  ;; :straight (eval-in-repl
-  ;; 	     :type git :host github :repo "kaz-yos/eval-in-repl"
-  ;; 	     :fork (:host github
-  ;; 			  :repo "actondev/eval-in-repl")
-  ;;         :branch "feature/shell-and-term")
+  ;; add ensure nil if using el-get
+  :ensure nil
   )
 
 
 (use-package org-babel-eval-in-repl
   ;; For the C-return command to work, we either have to "demand" or
   ;; require the package after org is loaded
+  
+  ;; while developing:
   ;; :load-path "~/dev/github/org-babel-eval-in-repl"
-  :quelpa (org-babel-eval-in-repl
-           :fetcher github
-           :repo "actondev/org-babel-eval-in-repl"
-	   :branch "feature/shell-and-term")
+
+  ;; add ensure nil if using el-get
+  :ensure nil
 
   :init
   (with-eval-after-load 'org
@@ -251,8 +280,21 @@
   :bind
   (:map org-mode-map
 	("C-<return>" . ober-eval-in-repl)))
-   #+END_SRC
+    #+END_SRC
 
+*** COMMENT el-get definitions
+    another way to make this work..?
+    #+begin_src emacs-lisp
+;; needed
+(require 'use-package-el-get)
+(use-package-el-get-setup)
+
+(setq el-get-sources
+      
+      '((:name org-babel-eval-in-repl :type git :url "https://github.com/actondev/org-babel-eval-in-repl.git" :branch "feature/shell-and-term" :after nil)
+       (:name eval-in-repl :type git :url "https://github.com/actonDev/eval-in-repl.git" :branch "feature/shell-and-term" :after nil)))     
+
+    #+end_src
 ** exporting to html
    #+BEGIN_SRC emacs-lisp
 (use-package htmlize)
@@ -262,7 +304,8 @@
    This thing requires tiny
    =(require 'tiny)=
    #+BEGIN_SRC emacs-lisp
-(load-file (relative-from-init "elisp/aod-new-moon.el"))   
+   ;; TODO not here??
+;;(load-file (relative-from-init "elisp/aod-new-moon.el"))   
    #+END_SRC
 ** babel tangle append
    https://emacs.stackexchange.com/a/38898
@@ -293,6 +336,7 @@ multiple files"
     (helm-toggle-visible-mark-forward)))
 
 (use-package helm
+  :ensure t
   ;; dashboard: opening project file requires helm and helm-make-source
   :commands (helm helm-make-source)
   :bind(
@@ -570,7 +614,7 @@ sudo apt-get install silversearcher-ag
      adds clickable + - icons in the left fringe for folding/unfolding (hiding/showing) code blocks
    + [[file:emacs-lisp/hideshow-org.el]]
      adds functionality similar to org-mode: toggle code block hide/show by pressing tab
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp-TODO
 (use-package hideshow-org
   ;; https://github.com/shanecelis/hideshow-org
   :load-path "elisp/"
@@ -767,6 +811,24 @@ paredit        ; Introduce some paredit commands.
    #+END_SRC
 ** TODO Writing - spelling
    TBD
+* Utilities (vterm..)
+** vterm
+   - [ ] check --with-modules support
+
+   #+BEGIN_SRC emacs-lisp
+(use-package vterm)
+   #+END_SRC
+
+   #+BEGIN_QUOTE
+   VTerm needs module support.  Please compile Emacs with the
+  --with-modules option!
+   #+END_QUOTE
+
+   also, you need the following to compile the module (ubuntu example)
+   #+begin_src sh
+sudo apt-get install cmake libtool-bin -y
+   #+end_src
+
 * (Ma)git
   #+BEGIN_SRC emacs-lisp
 (use-package magit
