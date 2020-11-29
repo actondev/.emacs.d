@@ -279,7 +279,8 @@
   :commands (ober-eval-in-repl)
   :bind
   (:map org-mode-map
-	("C-<return>" . ober-eval-in-repl)))
+	;; ("C-<return>" . ober-eval-in-repl)
+	))
     #+END_SRC
 
 *** COMMENT el-get definitions
@@ -294,6 +295,17 @@
       '((:name org-babel-eval-in-repl :type git :url "https://github.com/actondev/org-babel-eval-in-repl.git" :branch "feature/shell-and-term" :after nil)
        (:name eval-in-repl :type git :url "https://github.com/actonDev/eval-in-repl.git" :branch "feature/shell-and-term" :after nil)))     
 
+    #+end_src
+*** TODO my mod: aod-eval-in-repl ??
+    #+begin_src emacs-lisp
+(use-package aod-eval-in-repl
+  :load-path "elisp/aod-eval-in-repl/"
+  :init
+  (with-eval-after-load 'org
+    (require 'aod-eval-in-repl))
+  :bind (:map org-mode-map
+	      ("C-<return>" . aod.eir/eval-org-src)
+	      ))
     #+end_src
 ** exporting to html
    #+BEGIN_SRC emacs-lisp
@@ -614,7 +626,7 @@ sudo apt-get install silversearcher-ag
      adds clickable + - icons in the left fringe for folding/unfolding (hiding/showing) code blocks
    + [[file:emacs-lisp/hideshow-org.el]]
      adds functionality similar to org-mode: toggle code block hide/show by pressing tab
-   #+BEGIN_SRC emacs-lisp-TODO
+   #+BEGIN_SRC emacs-lisp
 (use-package hideshow-org
   ;; https://github.com/shanecelis/hideshow-org
   :load-path "elisp/"

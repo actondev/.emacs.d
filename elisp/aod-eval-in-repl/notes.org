@@ -1,0 +1,35 @@
+* aod-eval-in-repl
+  My mod of org-babel-eval-in-repl & eval-in-repl packages
+
+* Shell & sql
+  #+begin_src sh :session *psql* :shell-type term
+# to use postgres:
+sudo apt-get install postgresql postgresql-contrib
+# switch over to postgres user
+sudo -i -u postgres
+psql
+  #+end_src
+
+  #+begin_src sql :session *psql*
+CREATE TABLE temp(id SERIAL, name VARCHAR);
+
+select * from temp;
+
+select * from temp
+where id > 1;
+
+  #+end_src
+
+* Python
+  TODO have to always pass :session *Python* for now.
+  I guess a need an alist with lang : default session (aka buffer name)
+
+  #+begin_src python
+1+2+3
+print("hi default python")
+  #+end_src
+
+  #+begin_src python :session *my-python*
+1+2
+print("hi my python")
+  #+end_src

@@ -1,5 +1,5 @@
 # ignore .el files: tangled from .org files
-*.el
+/*.el
 session.*
 eshell/
 # some files about unicode fonts end up being there
@@ -26,6 +26,7 @@ projectile.cache
 straight/
 quelpa/
 elpa/
+el-get/
 server/
 
 # ignoring other emacs stuff
@@ -35,3 +36,6 @@ auto-save-list
 # restclient?
 /url
 /tramp
+
+# some package files?
+transient/
