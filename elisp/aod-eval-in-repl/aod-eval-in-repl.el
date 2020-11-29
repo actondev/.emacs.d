@@ -59,7 +59,8 @@ opts are in the format of `(nth 2 (org-babel-get-src-block-info))` output"
   (error "Don't know how to start a repl for lang %S" lang))
 
 (cl-defgeneric aod.eir/eval (lang string opts)
-  "Default implementation for eval. Could be extended with cl-defmethod for a specific lang"
+  "Default implementation for eval. Could be extended with cl-defmethod for a specific lang.
+TODO should this one be 'exposed' and also start the repl if not present?"
   (save-current-buffer
     (set-buffer (aod.eir/session-name lang opts))
     (aod.eir/send-string string)
@@ -74,22 +75,6 @@ with defmethod and using the &context"
 (cl-defgeneric aod.eir/send-input ()
   (comint-send-input))
 
-(defun aod.eir/eval-org-src ()
-  (interactive)
-  (let* ((src-block-info (aod.eir/src-block-info-light))
-	 (opts (nth 2 src-block-info))
-	 (lang (intern-soft (nth 0 src-block-info)))
-	 (session (aod.eir/session-name lang opts)))
-    (message "lang is %S session is %S" lang session)
-    (unless (aod.eir/-session-exists-p session)
-      (message "starting repl %S" lang)
-      ;; perhaps save-current-window?
-      (save-selected-window
-	(aod.eir/start-repl lang session opts)))
-    ;; TODO flash the region
-    ;; prefix to eval paragraph?
-    (aod.eir/eval lang (aod.eir/get-string-to-eval lang) opts)))
-
 (cl-defgeneric aod.eir/get-string-to-eval (lang)
   "By default eval current line. Other implementations (eg sql) send current paragraph."
   (save-mark-and-excursion
@@ -97,6 +82,19 @@ with defmethod and using the &context"
     (set-mark (point))
     (end-of-line)
     (buffer-substring-no-properties (mark) (point))))
+
+(defun aod.eir/eval-org-src ()
+  (interactive)
+  (let* ((src-block-info (aod.eir/src-block-info-light))
+	 (opts (nth 2 src-block-info))
+	 (lang (intern-soft (nth 0 src-block-info)))
+	 (session (aod.eir/session-name lang opts)))
+    (unless (aod.eir/-session-exists-p session)
+      (message "starting repl %S" lang)
+      (save-selected-window
+	(aod.eir/start-repl lang session opts)))
+    ;; TODO flash the region
+    (aod.eir/eval lang (aod.eir/get-string-to-eval lang) opts)))
 
 (defun aod.eir/-remove-surrounding-stars (string)
   "Sometimes it's 'needed' (more like advised) to pass a session name with stars - eg calling (shell \"*shell-session*\") -, but other times the stars are added by them. eg from term, python etc"
