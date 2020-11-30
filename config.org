@@ -185,6 +185,16 @@
 (add-to-list 'load-path (relative-from-init "elisp"))
    #+END_SRC
 * Org customizations
+** configs with use-package
+   #+begin_src emacs-lisp
+(use-package org
+  :ensure t
+  ;; ignore org-mode from upstream and use a manually installed version
+  :pin manual
+  :bind (:map org-mode-map
+	      ("C-M-p" . org-up-element)
+	      ("C-M-n" . org-down-element)))    
+   #+end_src
 ** Src block customizations
    #+BEGIN_SRC emacs-lisp
 (setq org-src-preserve-indentation t)

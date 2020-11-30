@@ -384,9 +384,36 @@ typedef struct {
 ;; Replace `org-babel-execute:emacs-lisp':
 (advice-add 'org-babel-execute:emacs-lisp :override #'ad-org-babel-execute:emacs-lisp)   
    #+END_SRC
-* <2020-11-13 Fri> quelpa and fucking paredit
+* DONE <2020-11-13 Fri> quelpa and fucking paredit
+  Solution: =el-get=
 Cloning https://github.com/actondev/eval-in-repl.git to /home/actondev/.emacs.d/quelpa/build/eval-in-repl/
 
   Cloning https://github.com/magnars/dash.el.git
 Cloning https://mumble.net/~campbell/git/paredit.git to /home/actondev/.emacs.d/quelpa/build/paredit/
 Entering debugger...
+* <2020-11-24 Tue> vterm : helm-show-kill-ring
+  cannot paste from helm kill ring into vterm
+
+  possible solution (have to modify code ofcourse)
+  #+begin_src emacs-lisp
+(defun vterm-counsel-yank-pop-action (orig-fun &rest args)
+  (if (equal major-mode 'vterm-mode)
+      (let ((inhibit-read-only t)
+            (yank-undo-function (lambda (_start _end) (vterm-undo))))
+        (cl-letf (((symbol-function 'insert-for-yank)
+		   (lambda (str) (vterm-send-string str t))))
+          (apply orig-fun args)))
+    (apply orig-fun args)))
+
+(advice-add 'counsel-yank-pop-action :around #'vterm-counsel-yank-pop-action)
+
+  #+end_src
+  
+  from https://github.com/akermu/emacs-libvterm/blob/a896799/README.md
+  "=counsel-yank-pop= doesn't work" section
+
+  this snippet could be useful for other things as well (the =cl-letf= and =symbol-function=)
+* overriding function & referring to the original one
+  https://stackoverflow.com/a/25249318
+* TODO doom-emacs: what are they doing with the repl?
+  https://github.com/hlissner/doom-emacs/issues/2496
