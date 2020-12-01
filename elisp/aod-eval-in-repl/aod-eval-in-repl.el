@@ -88,11 +88,14 @@ with defmethod and using the &context"
   (let* ((src-block-info (aod.eir/src-block-info-light))
 	 (opts (nth 2 src-block-info))
 	 (lang (intern-soft (nth 0 src-block-info)))
+	 (dir (cdr (assq :dir opts)))
 	 (session (aod.eir/session-name lang opts)))
     (unless (aod.eir/-session-exists-p session)
       (message "starting repl %S" lang)
-      (save-selected-window
-	(aod.eir/start-repl lang session opts)))
+      (let ((default-directory
+	      (or (and dir (file-name-as-directory (expand-file-name dir)))
+		  default-directory)))
+	(save-selected-window (aod.eir/start-repl lang session opts))))
     ;; TODO flash the region
     (aod.eir/eval lang (aod.eir/get-string-to-eval lang) opts)))
 
