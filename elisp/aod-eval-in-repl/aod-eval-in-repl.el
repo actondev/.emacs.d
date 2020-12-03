@@ -28,6 +28,9 @@
       info)))
 
 (defun aod.eir/-sesion-name-from-opts (opts)
+  "Returns the session name from the org-mode src block info.
+org-mode has a 'none' session if nothing is explicitly set. In that
+case this function returns nil"
   (let* ((session (cdr (assq :session opts))))
     (if (string= session "none")
 	nil
@@ -60,7 +63,9 @@ opts are in the format of `(nth 2 (org-babel-get-src-block-info))` output"
 
 (cl-defgeneric aod.eir/eval (lang string opts)
   "Default implementation for eval. Could be extended with cl-defmethod for a specific lang.
-TODO should this one be 'exposed' and also start the repl if not present?"
+TODO 
+- should this one start the repl if not present?
+- should session be passed to make usable/friendly beyond org-mode contexts?"
   (save-current-buffer
     (set-buffer (aod.eir/session-name lang opts))
     (aod.eir/send-string string)
@@ -75,13 +80,35 @@ with defmethod and using the &context"
 (cl-defgeneric aod.eir/send-input ()
   (comint-send-input))
 
-(cl-defgeneric aod.eir/get-string-to-eval (lang)
-  "By default eval current line. Other implementations (eg sql) send current paragraph."
+(cl-defgeneric aod.eir/get-region-to-eval (lang &optional opts)
+  "By default eval current line. Other implementations (eg sql)
+get the current paragraph."
   (save-mark-and-excursion
     (beginning-of-line)
     (set-mark (point))
     (end-of-line)
-    (buffer-substring-no-properties (mark) (point))))
+    (list (mark) (point))))
+
+(defun aod.eir/-constraint-region-to-element (region &optional element)
+  (let* ((element (or element (org-element-at-point)))
+	 (boundaries (org-src--contents-area element)))
+    (list (max (car region) (car boundaries))
+	  (min (cadr region) (cadr boundaries)))))
+
+(defun aod.eir/-region-with-trimmed-whitespace (region)
+  "TODO fix this. c-skip* is from cc-mode ?
+use something like (re-search-forward \"^\\|[^[:space:]]\")
+
+\\s is whitespace?"
+
+  ;; (re-search-forward "[ \t\r\n\v\f]+") ??
+  (save-mark-and-excursion
+    (goto-char (car region))
+    (c-skip-ws-forward)
+    (set-mark (point))
+    (goto-char (cadr region))
+    (c-skip-ws-backward)
+    (list (mark) (point))))
 
 (defun aod.eir/eval-org-src ()
   (interactive)
@@ -96,8 +123,17 @@ with defmethod and using the &context"
 	      (or (and dir (file-name-as-directory (expand-file-name dir)))
 		  default-directory)))
 	(save-selected-window (aod.eir/start-repl lang session opts))))
-    ;; TODO flash the region
-    (aod.eir/eval lang (aod.eir/get-string-to-eval lang) opts)))
+    (let* ((region (aod.eir/-region-with-trimmed-whitespace
+		    (aod.eir/-constraint-region-to-element
+		     (aod.eir/get-region-to-eval lang opts)
+		     (org-element-at-point))))
+	   (string (apply #'buffer-substring-no-properties region)))
+      ;; TODO is this ok here?
+      ;; also, make a param for the delay value
+      (when (require 'nav-flash nil 'noerror)
+	(let ((nav-flash-delay 0.1))
+	  (apply #'nav-flash-show region)))
+      (aod.eir/eval lang string opts))))
 
 (defun aod.eir/-remove-surrounding-stars (string)
   "Sometimes it's 'needed' (more like advised) to pass a session name with stars - eg calling (shell \"*shell-session*\") -, but other times the stars are added by them. eg from term, python etc"

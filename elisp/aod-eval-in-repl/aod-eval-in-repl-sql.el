@@ -1,11 +1,11 @@
 ;;; aod-eval-in-repl-sql.el --- Extensible evaluation in repl with focus in org-mode  -*- lexical-binding: t; -*-
 
-(cl-defmethod aod.eir/get-string-to-eval ((lang (eql sql)))
-  "In sql prefer sending the current paragraph (to support long multi-line queries)"
+(cl-defmethod aod.eir/get-region-to-eval ((lang (eql sql)) &optional opts)
+  "In sql prefer sending the current paragraph (to support long multi-linde queries)"
   (save-mark-and-excursion
     (backward-paragraph)
     (set-mark (point))
     (forward-paragraph)
-    (s-trim (buffer-substring-no-properties (mark) (point)))))
+    (list (mark) (point))))
 
 (provide 'aod-eval-in-repl-sql)
