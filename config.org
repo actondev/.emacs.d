@@ -615,7 +615,7 @@ sudo apt-get install silversearcher-ag
 (use-package nav-flash
   :config
   (custom-set-faces
-   '(nav-flash-face ((t (:background "#666" :foreground nil :weight nil))))))
+   '(nav-flash-face ((t (:background "#666" :foreground nil))))))
    #+END_SRC
 * editing etc
 ** linear ranges (tiny)
@@ -840,7 +840,18 @@ paredit        ; Introduce some paredit commands.
    #+BEGIN_SRC emacs-lisp
 (use-package vterm)
    #+END_SRC
+*** TODO copy mode: C-c C-t
+    - [ ] bind to =C-c j= ala line mode for term.
+    - [ ] minion: show =vterm-copy-mode= (if it's not show something else?)
+*** vterm info
+    #+begin_quote
+    C-c C-c runs the command vterm-send-C-c (found in vterm-mode-map),
+which is an interactive Lisp function in ‘vterm.el’.
+It is bound to C-c C-c.
 
+(vterm-send-C-c)
+    #+end_quote
+*** vterm installation notes
    #+BEGIN_QUOTE
    VTerm needs module support.  Please compile Emacs with the
   --with-modules option!
@@ -1006,6 +1017,11 @@ sudo apt-get install cmake libtool-bin -y
   (org-babel-do-load-languages 'org-babel-load-languages
 			       '((restclient . t))))
    #+END_SRC
+** TODO ob-http
+   https://github.com/zweifisch/ob-http
+
+   this vs restclient?
+
 * Interface enhancmenets, key bindings
 ** Key-chord
    #+BEGIN_SRC emacs-lisp
