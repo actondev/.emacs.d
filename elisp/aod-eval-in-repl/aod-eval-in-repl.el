@@ -95,19 +95,21 @@ get the current paragraph."
     (list (max (car region) (car boundaries))
 	  (min (cadr region) (cadr boundaries)))))
 
+(defun aod.eir/forward-whitespace ()
+  (interactive)
+  (re-search-forward "[ \t\r\n\v\f]*"))
+
+(defun aod.eir/backward-whitespace ()
+  (interactive)
+  (re-search-backward "[ \t\r\n\v\f]*"))
+
 (defun aod.eir/-region-with-trimmed-whitespace (region)
-  "TODO fix this. c-skip* is from cc-mode ?
-use something like (re-search-forward \"^\\|[^[:space:]]\")
-
-\\s is whitespace?"
-
-  ;; (re-search-forward "[ \t\r\n\v\f]+") ??
   (save-mark-and-excursion
     (goto-char (car region))
-    (c-skip-ws-forward)
+    (aod.eir/forward-whitespace)
     (set-mark (point))
     (goto-char (cadr region))
-    (c-skip-ws-backward)
+    (aod.eir/backward-whitespace)
     (list (mark) (point))))
 
 (defun aod.eir/eval-org-src ()
