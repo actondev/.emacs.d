@@ -112,6 +112,57 @@ get the current paragraph."
     (aod.eir/backward-whitespace)
     (list (mark) (point))))
 
+(defun aod.eir/-parse-multiple (header-arguments key)
+  "Copied definition of org-babel-parse-multiple-vars to work more
+cases than only :var.
+Expand multiple variable assignments behind a single `key` keyword.
+
+This allows expression of multiple variables with one `key` as
+shown below.
+
+#+PROPERTY: `key` foo=1, bar=2"
+  (let (results)
+    (mapc (lambda (pair)
+	    (if (eq (car pair) key)
+		(mapcar (lambda (v) (push (cons key (org-trim v)) results))
+			(org-babel-join-splits-near-ch
+			 61 (org-babel-balanced-split (cdr pair) 32)))
+	      (push pair results)))
+	  header-arguments)
+    (nreverse results)))
+
+(defun aod.eir/-get-multiple (params key)
+  "Copied from
+Return the babel variable assignments in PARAMS.
+
+PARAMS is a quasi-alist of header args, which may contain
+multiple entries for the key `:var'.  This function returns a
+list of the cdr of all the `:var' entries."
+  (mapcar #'cdr
+	  (cl-remove-if-not (lambda (x) (eq (car x) key)) params)))
+
+(cl-defgeneric aod.eir/process-string (lang string opts)
+  "TODO should it generic?
+It provides a way to process the string before it's sent to
+the repl. For example
+#+begin_src sh :replace (\"aa\" 1) (\"bb\" 2)
+echo aa is not bb
+#+end_src
+
+Will send \"echo 1 is not 2\" to the repl"
+  (let ((replaces (mapcar
+		   (lambda (x) (car (read-from-string x)))
+		   (aod.eir/-get-multiple
+		    (aod.eir/-parse-multiple opts
+					     :replace)
+		    :replace))))
+    (mapc (lambda (replace)
+	    (let ((what (car replace))
+		  (with (message "%s" (eval (cadr replace)))))
+	      (setq string (replace-regexp-in-string what with string))))
+	  replaces)
+    string))
+
 (defun aod.eir/eval-org-src ()
   (interactive)
   (let* ((src-block-info (aod.eir/src-block-info-light))
@@ -129,7 +180,10 @@ get the current paragraph."
 		    (aod.eir/-constraint-region-to-element
 		     (aod.eir/get-region-to-eval lang opts)
 		     (org-element-at-point))))
-	   (string (apply #'buffer-substring-no-properties region)))
+	   (string (aod.eir/process-string
+		    lang
+		    (apply #'buffer-substring-no-properties region)
+		    opts)))
       ;; TODO is this ok here?
       ;; also, make a param for the delay value
       (when (require 'nav-flash nil 'noerror)
