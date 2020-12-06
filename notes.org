@@ -417,3 +417,7 @@ Entering debugger...
   https://stackoverflow.com/a/25249318
 * TODO doom-emacs: what are they doing with the repl?
   https://github.com/hlissner/doom-emacs/issues/2496
+* TODO org-roam
+  - https://emacsconf.org/2020/talks/16/
+* TODO directory local variables
+  https://seandavi.github.io/post/2018-12-08-directory-local-variables-for-custom-emacs-projects/

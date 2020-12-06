@@ -191,28 +191,22 @@
   :ensure t
   ;; ignore org-mode from upstream and use a manually installed version
   :pin manual
+  :config
+  (setq org-src-preserve-indentation t)
+  ;; there are bugs with this if t
+  ;; see https://lists.gnu.org/archive/html/emacs-orgmode/2019-12/msg00311.html
+  ;; fixed at https://code.orgmode.org/bzg/org-mode/commit/298d6332222258316aaa6b74699127eb97073ce2
+  (setq-default org-src-tab-acts-natively nil)
+  (setq org-log-note-clock-out t)
+  (setq org-image-actual-width 400)
+  ;; for <sTAB to work
+  (require 'org-tempo)
   :bind (:map org-mode-map
 	      ("C-M-p" . org-up-element)
 	      ("C-M-n" . org-down-element)))    
    #+end_src
-** Src block customizations
-   #+BEGIN_SRC emacs-lisp
-(setq org-src-preserve-indentation t)
-   #+END_SRC
-** Log, scheduling etc
-   #+BEGIN_SRC emacs-lisp
-(setq org-log-note-clock-out t)
-   #+END_SRC
-** Images customizations
-   #+BEGIN_SRC emacs-lisp
-(with-eval-after-load 'org
-  (setq org-image-actual-width 400))
-   #+END_SRC
-** emacs 27 org-mode templates
-   #+BEGIN_SRC emacs-lisp
-(with-eval-after-load 'org
-  (require 'org-tempo))
-   #+END_SRC   
+
+
 ** habits
    #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'org
@@ -340,6 +334,7 @@ but `delete-file' is ignored."
   (cl-letf (((symbol-function 'delete-file) #'ignore))
     (org-babel-tangle '(4))))
    #+END_SRC
+
 * Helm
   #+BEGIN_SRC emacs-lisp
 (setq aod.helm/C-SPC-set-mark-p nil)
