@@ -33,3 +33,13 @@ print("hi default python")
 1+2
 print("hi my python")
   #+end_src
+
+* vars and :dir
+  #+begin_src sh :session *demo-vars-dir* :var a=1 b=(read-string "b: ") :dir (read-directory-name "dir:")
+echo a is $a b is $b and dir is $(pwd)
+  #+end_src
+
+* replace
+  #+begin_src sh :session *demo-replace* :replace ("aa" "hello") ("bb" "there")
+echo aa bb
+  #+end_src

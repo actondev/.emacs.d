@@ -24,8 +24,20 @@
 (cl-defmethod aod.eir/start-repl ((lang (eql sh)) session &optional opts)
   "Starts a repl for sh/shell"
   (let ((shell-type (or (intern-soft (cdr (assq :shell-type opts)))
-			aod.eir/shell-type)))
-    (aod.eir/-start-repl-shell session shell-type)))
+			aod.eir/shell-type))
+	;; opts might have multiple :var keys, so we cannot use just assoc or
+	;; something like this. instead, seq-filter
+	;; then, org-babel-process-params is responsible for possibly evaluationg
+	;; any lisp forms inside the :var
+	(opts-with-vars (org-babel-process-params (seq-filter (lambda (x)
+								(eq (car x) :var))
+							      opts))))
+    (aod.eir/-start-repl-shell session shell-type)
+    (let ((assignment-statement
+	   (org-babel-expand-body:generic
+	    "" opts (org-babel-variable-assignments:shell opts-with-vars))))
+      (aod.eir/eval lang assignment-statement opts)
+      )))
 
 (cl-defmethod aod.eir/send-string (string &context (major-mode term-mode))
   (term-send-string (current-buffer) string))

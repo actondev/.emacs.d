@@ -10,7 +10,8 @@
 
 ;;; Code:
 (defun aod.eir/src-block-info-light ()
-  "Returns the src-block-info without evaluating anything.
+  "NOTE: this seems to have been fixed in org 9.3
+Returns the src-block-info without evaluating anything.
    While passing 'light to org-babel-get-src-block-info makes the
    :var definitions not evaluate any lisp expressions, other
    things (like :dir for example) get evaluated.
@@ -158,23 +159,29 @@ Will send \"echo 1 is not 2\" to the repl"
 		    :replace))))
     (mapc (lambda (replace)
 	    (let ((what (car replace))
-		  (with (message "%s" (eval (cadr replace)))))
+		  (with (eval (cadr replace))))
 	      (setq string (replace-regexp-in-string what with string))))
 	  replaces)
     string))
 
 (defun aod.eir/eval-org-src ()
   (interactive)
-  (let* ((src-block-info (aod.eir/src-block-info-light))
+  (let* ((src-block-info (org-babel-get-src-block-info 'light))
 	 (opts (nth 2 src-block-info))
 	 (lang (intern-soft (nth 0 src-block-info)))
-	 (dir (cdr (assq :dir opts)))
 	 (session (aod.eir/session-name lang opts)))
     (unless (aod.eir/-session-exists-p session)
-      (message "starting repl %S" lang)
-      (let ((default-directory
-	      (or (and dir (file-name-as-directory (expand-file-name dir)))
-		  default-directory)))
+      (let* (;;using org-babel-read and not eval cause
+	     ;; "../" and (read-directory-name "dir ")
+	     ;; both appear as strings. ie "../" doesn't seem
+	     ;; to have exrta quotations anywhere.
+	     ;; org-babel-read evals only if something starts with ( etc
+	     (dir (org-babel-read (cdr (assq :dir opts))))
+	     (default-directory
+	       (or (and dir (file-name-as-directory (expand-file-name
+						     dir)))
+		   default-directory)))
+	(message "starting repl %S at dir %S " lang default-directory)
 	(save-selected-window (aod.eir/start-repl lang session opts))))
     (let* ((region (aod.eir/-region-with-trimmed-whitespace
 		    (aod.eir/-constraint-region-to-element
