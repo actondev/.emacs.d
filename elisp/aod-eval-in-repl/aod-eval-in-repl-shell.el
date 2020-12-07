@@ -55,3 +55,10 @@
 
 (provide 'aod-eval-in-repl-shell)
 
+
+(cl-defgeneric aod.eir/eof ((lang (eql sh)) string)
+  (format "$(cat <<EOF\n%s\nEOF\n)" string))
+
+
+(cl-defmethod aod.eir/send-input (&context (major-mode vterm-mode))
+  (vterm-send-return))

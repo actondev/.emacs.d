@@ -223,6 +223,9 @@ Will send \"echo 1 is not 2\" to the repl"
   "Sometimes it's 'needed' (more like advised) to pass a session name with stars - eg calling (shell \"*shell-session*\") -, but other times the stars are added by them. eg from term, python etc"
   (replace-regexp-in-string "^[*]\\(.+\\)[*]$" "\\1" string))
 
+(cl-defgeneric aod.eir/eof (lang string)
+  (error "unknown way to send EOF string"))
+
 (require 'aod-eval-in-repl-shell)
 (require 'aod-eval-in-repl-python)
 (require 'aod-eval-in-repl-sql)

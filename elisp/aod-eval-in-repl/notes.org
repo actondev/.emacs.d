@@ -43,3 +43,25 @@ echo a is $a b is $b and dir is $(pwd)
   #+begin_src sh :session *demo-replace* :replace ("aa" "hello") ("bb" "there")
 echo aa bb
   #+end_src
+* eof : replace multiline
+  #+name: json
+  #+begin_src js
+{
+    "foo": "bar",
+    "timestamp": 123
+}
+  #+end_src
+
+
+  #+NAME: some-elisp
+  #+begin_src emacs-lisp
+(+ 1 2 3)
+  #+end_src
+
+
+  #+begin_src sh :session *demo-eof* :replace ("<<json>>" (aod.eir/eof 'sh (aod.org/src-block-content-noweb "json")))
+echo "json is" <<json>>
+  #+end_src
+
+
+  check =org-babel-expand-noweb-references=
