@@ -40,28 +40,31 @@ echo a is $a b is $b and dir is $(pwd)
   #+end_src
 
 * replace
-  #+begin_src sh :session *demo-replace* :replace ("aa" "hello") ("bb" "there")
+  #+begin_src sh :session *demo-replace* :replace aa="hello" bb="there"
 echo aa bb
   #+end_src
-* eof : replace multiline
+* elaboreexample: replace multiline noweb
   #+name: json
-  #+begin_src js
+  #+begin_src js :replace TIMESTAMP=(time-convert nil 'integer)
 {
     "foo": "bar",
-    "timestamp": 123
+    "timestamp": TIMESTAMP
 }
   #+end_src
 
-
-  #+NAME: some-elisp
-  #+begin_src emacs-lisp
-(+ 1 2 3)
+  #+name: sh-heredoc
+  #+begin_src emacs-lisp :var block=""
+(format "$(cat <<EOF\n%s\nEOF\n)" (aod.eir/block-contents-replaced block))
   #+end_src
 
+  #+begin_src sh :session *demo-heredoc* :replace JSON=sh-heredoc(block="json") foo="world"
+json=JSON
 
-  #+begin_src sh :session *demo-eof* :replace ("<<json>>" (aod.eir/eof 'sh (aod.org/src-block-content-noweb "json")))
-echo "json is" <<json>>
+echo $json
+
+echo hi FOO
   #+end_src
 
-
-  check =org-babel-expand-noweb-references=
+# Local Variables:
+# org-confirm-babel-evaluate: nil
+# End:

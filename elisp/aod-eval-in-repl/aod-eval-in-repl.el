@@ -121,6 +121,14 @@ get the current paragraph."
 ie `:var a=1 b=2` gets parsed to give ((:var . \"a=1\") (:var \"b=2\")
 Without this parsing it would give ((:var . \"a=1 b=2\"")
 
+(defun aod.eir/block-contents-replaced (name)
+  (org-save-outline-visibility nil ;; use markers?
+    (save-excursion
+      (goto-char (org-babel-find-named-block name))
+      (let ((src (org-element-property :value (org-element-at-point)))
+	    (opts (aod.eir/parse-opts (nth 2 (org-babel-get-src-block-info 'light)))))
+	(aod.eir/process-string src opts)))))
+
 (defun aod.eir/parse-opts (opts)
   "Parses opts for `aod.eir/opts-multi-keys'"
   (let (results)
@@ -131,7 +139,8 @@ Without this parsing it would give ((:var . \"a=1 b=2\"")
 		    ;; (mapcar (lambda (v) (push (cons key v) results))
 		    ;; 	    (split-string (cdr pair) " "))
 		    ;; TODO remove the org-* functions from here
-		    (mapcar (lambda (v) (push (cons key (org-trim v)) results))
+		    (mapcar (lambda (v)
+			      (push (cons key (org-trim v)) results))
 			    ;; 32 is space
 			    (org-babel-balanced-split (cdr pair) 32)
 			    ;;(split-string (cdr pair) "(?![^(]*\)) ")
@@ -160,23 +169,54 @@ list of the cdr of all the `:var' entries."
   (mapcar #'cdr
 	  (cl-remove-if-not (lambda (x) (eq (car x) key)) opts)))
 
-(cl-defgeneric aod.eir/process-string (lang string opts)
-  "TODO should it generic?
-It provides a way to process the string before it's sent to
+(defun aod.eir/parse-replacement (assignment)
+  "Modified version of org-babel-ref-parse
+Parse an x=y form in a header argument.
+x cannot be a string (with quotes around it), so
+if it has to be a string with spaces it can be done like
+(concat \"foo bar\")=1 or (identity \"foo bar\")=1
+
+If the right hand side of the assignment has a literal value
+return that value, otherwise interpret it as a reference to an
+external resource and find its value using `org-babel-ref-resolve'.
+
+Return a list with two elements: the regex string to replace, and a
+FUNCTION that when called returns the Emacs Lisp representation of the value of the value to replace with.
+This is to avoid running the evaluation if the regex isn't found!"
+  (when (string-match "\\(.+?\\)=" assignment)
+    (let ((var (org-trim (match-string 1 assignment)))
+	  (ref (org-trim (substring assignment (match-end 0)))))
+      (cons (org-babel-read var)
+	    (lambda ()
+	      (let ((out (org-babel-read ref)))
+		(if (equal out ref)
+		    (if (and (string-prefix-p "\"" ref)
+			     (string-suffix-p "\"" ref))
+			(read ref)
+		      (org-babel-ref-resolve ref))
+		  out)))))))
+
+(defun aod.eir/process-string (string opts)
+  "It provides a way to process the string before it's sent to
 the repl. For example
-#+begin_src sh :replace (\"aa\" 1) (\"bb\" 2)
+#+begin_src sh :replace aa=1 bb=2
 echo aa is not bb
 #+end_src
 
 Will send \"echo 1 is not 2\" to the repl"
   (let ((replaces (mapcar
 		   (lambda (x)
-		     (car (read-from-string x)))
+		     (aod.eir/parse-replacement x))
 		   (aod.eir/get-opts opts :replace))))
     (mapc (lambda (replace)
 	    (let ((what (car replace))
-		  (with (eval (cadr replace))))
-	      (setq string (replace-regexp-in-string what (format "%s" with) string))))
+		  ;; the with might be a noweb ref call
+		  ;; in which case, org-babel-ref-resolve must be called
+		  (with-fn (cdr replace))
+		  (case-fold-search nil))
+	      (when (string-match what string)
+		(let ((with (funcall with-fn)))
+		  (setq string (replace-regexp-in-string what (format "%s" with) string 'fixed-case))))))
 	  replaces)
     string))
 
@@ -209,7 +249,6 @@ Will send \"echo 1 is not 2\" to the repl"
 		     (aod.eir/get-region-to-eval lang opts)
 		     (org-element-at-point))))
 	   (string (aod.eir/process-string
-		    lang
 		    (apply #'buffer-substring-no-properties region)
 		    opts)))
       ;; TODO is this ok here?

@@ -167,6 +167,7 @@ pwd
   #+BEGIN_EXAMPLE org
 
 # Local Variables:
+# org-confirm-babel-evaluate: nil
 # eval: (aod.org-babel/eval-named-block "buttons")
 # eval: (org-babel-goto-named-result "buttons")
 # End:
