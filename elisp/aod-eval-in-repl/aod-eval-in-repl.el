@@ -9,6 +9,9 @@
 ;; This file is not part of GNU Emacs.
 
 ;;; Code:
+
+;; running tests:
+;; (ert "aod.eir/*")
 (defun aod.eir/src-block-info-light ()
   "NOTE: this seems to have been fixed in org 9.3
 Returns the src-block-info without evaluating anything.
@@ -113,34 +116,49 @@ get the current paragraph."
     (aod.eir/backward-whitespace)
     (list (mark) (point))))
 
-(defun aod.eir/-parse-multiple (header-arguments key)
-  "Copied definition of org-babel-parse-multiple-vars to work more
-cases than only :var.
-Expand multiple variable assignments behind a single `key` keyword.
+(defvar aod.eir/opts-multi-keys '(:replace)
+  "Keys that support multiple space-separated statements, like the `:var'
+ie `:var a=1 b=2` gets parsed to give ((:var . \"a=1\") (:var \"b=2\")
+Without this parsing it would give ((:var . \"a=1 b=2\"")
 
-This allows expression of multiple variables with one `key` as
-shown below.
-
-#+PROPERTY: `key` foo=1, bar=2"
+(defun aod.eir/parse-opts (opts)
+  "Parses opts for `aod.eir/opts-multi-keys'"
   (let (results)
     (mapc (lambda (pair)
-	    (if (eq (car pair) key)
-		(mapcar (lambda (v) (push (cons key (org-trim v)) results))
-			(org-babel-join-splits-near-ch
-			 61 (org-babel-balanced-split (cdr pair) 32)))
-	      (push pair results)))
-	  header-arguments)
+	    (let ((key (car pair)))
+	      (if (member key aod.eir/opts-multi-keys)
+		  (progn
+		    ;; (mapcar (lambda (v) (push (cons key v) results))
+		    ;; 	    (split-string (cdr pair) " "))
+		    ;; TODO remove the org-* functions from here
+		    (mapcar (lambda (v) (push (cons key (org-trim v)) results))
+			    ;; 32 is space
+			    (org-babel-balanced-split (cdr pair) 32)
+			    ;;(split-string (cdr pair) "(?![^(]*\)) ")
+			    )
+		    )
+		(push pair results))))
+	  opts)
     (nreverse results)))
 
-(defun aod.eir/-get-multiple (params key)
-  "Copied from
-Return the babel variable assignments in PARAMS.
+(ert-deftest aod.eir/parse-opts ()
+  (let ((aod.eir/opts-multi-keys '(:foo :bar))
+	(opts '((:meh . 1) (:foo . "a=1 b=2") (:bar . "c=3 d=4"))))
+    (should (equal (aod.eir/parse-opts opts) '((:meh . 1) (:foo . "a=1") (:foo . "b=2") (:bar . "c=3") (:bar . "d=4")))))
+  
+  )
 
-PARAMS is a quasi-alist of header args, which may contain
-multiple entries for the key `:var'.  This function returns a
+(ert-deftest aod.eir/parse-and-get-opts ()
+  (let ((aod.eir/opts-multi-keys '(:replace))
+	(opts '((:results . "replace") (:exports . "code") (:replace . "(\"aa\" \"hello\") (\"bb\" \"there\")") (:session . "*demo-replace*") (:tangle . "no") (:hlines . "no") (:noweb . "no") (:cache . "no"))))
+    (should (equal (aod.eir/get-opts (aod.eir/parse-opts opts) :replace) '("(\"aa\" \"hello\")" "(\"bb\" \"there\")")))))
+
+(defun aod.eir/get-opts (opts key)
+  "PARAMS is a quasi-alist of header args, which may contain
+multiple entries for eg the key `:var'.  This function returns a
 list of the cdr of all the `:var' entries."
   (mapcar #'cdr
-	  (cl-remove-if-not (lambda (x) (eq (car x) key)) params)))
+	  (cl-remove-if-not (lambda (x) (eq (car x) key)) opts)))
 
 (cl-defgeneric aod.eir/process-string (lang string opts)
   "TODO should it generic?
@@ -152,22 +170,25 @@ echo aa is not bb
 
 Will send \"echo 1 is not 2\" to the repl"
   (let ((replaces (mapcar
-		   (lambda (x) (car (read-from-string x)))
-		   (aod.eir/-get-multiple
-		    (aod.eir/-parse-multiple opts
-					     :replace)
-		    :replace))))
+		   (lambda (x)
+		     (car (read-from-string x)))
+		   (aod.eir/get-opts opts :replace))))
     (mapc (lambda (replace)
 	    (let ((what (car replace))
 		  (with (eval (cadr replace))))
-	      (setq string (replace-regexp-in-string what with string))))
+	      (setq string (replace-regexp-in-string what (format "%s" with) string))))
 	  replaces)
     string))
+
+(ert-deftest aod.eir/process-string ()
+  (let ((string "echo aa is bb")
+	(opts '((:replace . "(\"aa\" \"three\")") (:replace . "(\"bb\" (+ 1 2))"))))
+    (should (equal (aod.eir/process-string 'default-lang string opts) "echo three is 3"))))
 
 (defun aod.eir/eval-org-src ()
   (interactive)
   (let* ((src-block-info (org-babel-get-src-block-info 'light))
-	 (opts (nth 2 src-block-info))
+	 (opts (aod.eir/parse-opts (nth 2 src-block-info)))
 	 (lang (intern-soft (nth 0 src-block-info)))
 	 (session (aod.eir/session-name lang opts)))
     (unless (aod.eir/-session-exists-p session)
