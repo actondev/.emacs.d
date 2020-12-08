@@ -75,6 +75,19 @@ echo $json
 echo hi FOO
   #+end_src
 
+  another way:
+
+  #+name: sh-escape
+  #+begin_src emacs-lisp :var block="" opts=()
+(replace-regexp-in-string "\"" "\\\"" (aod.eir/block-contents-replaced "json") 'fixed 'literal)
+  #+end_src
+
+  #+begin_src sh :session *demo-heredoc* :replace JSON=sh-escape(block="json")
+json="JSON"
+
+echo "JSON" | jq
+  #+end_src
+
 # Local Variables:
 # org-confirm-babel-evaluate: nil
 # End:

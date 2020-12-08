@@ -217,7 +217,7 @@ Will send \"echo 1 is not 2\" to the repl"
 		  (case-fold-search nil))
 	      (when (string-match what string)
 		(let ((with (funcall with-fn)))
-		  (setq string (replace-regexp-in-string what (format "%s" with) string 'fixed-case))))))
+		  (setq string (replace-regexp-in-string what (format "%s" with) string 'fixed 'literal))))))
 	  replaces)
     string))
 
