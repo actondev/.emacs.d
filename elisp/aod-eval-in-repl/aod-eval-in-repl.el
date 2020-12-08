@@ -121,12 +121,13 @@ get the current paragraph."
 ie `:var a=1 b=2` gets parsed to give ((:var . \"a=1\") (:var \"b=2\")
 Without this parsing it would give ((:var . \"a=1 b=2\"")
 
-(defun aod.eir/block-contents-replaced (name)
+(defun aod.eir/block-contents-replaced (name &optional opts)
   (org-save-outline-visibility nil ;; use markers?
     (save-excursion
       (goto-char (org-babel-find-named-block name))
       (let ((src (org-element-property :value (org-element-at-point)))
-	    (opts (aod.eir/parse-opts (nth 2 (org-babel-get-src-block-info 'light)))))
+	    (opts (or opts
+		      (aod.eir/parse-opts (nth 2 (org-babel-get-src-block-info 'light))))))
 	(aod.eir/process-string src opts)))))
 
 (defun aod.eir/parse-opts (opts)

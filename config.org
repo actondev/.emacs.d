@@ -833,7 +833,14 @@ paredit        ; Introduce some paredit commands.
    - [ ] check --with-modules support
 
    #+BEGIN_SRC emacs-lisp
-(use-package vterm)
+(use-package vterm
+  :bind (:map vterm-mode-map
+	      ;; hm.. when in copy mode, enter will
+	      ;; - copy region (kill-ring-save)
+	      ;; - exit from copy mode
+	      ;; .. that's enough no?
+	      ;;("M-w" . kill-ring-save)
+	      ))
    #+END_SRC
 *** TODO copy mode: C-c C-t
     - [ ] bind to =C-c j= ala line mode for term.

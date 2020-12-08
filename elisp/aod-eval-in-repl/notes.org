@@ -53,11 +53,21 @@ echo aa bb
   #+end_src
 
   #+name: sh-heredoc
-  #+begin_src emacs-lisp :var block=""
-(format "$(cat <<EOF\n%s\nEOF\n)" (aod.eir/block-contents-replaced block))
+  #+begin_src emacs-lisp :var block="" opts=()
+(format "$(cat <<EOF\n%s\nEOF\n)" (aod.eir/block-contents-replaced block opts))
   #+end_src
 
   #+begin_src sh :session *demo-heredoc* :replace JSON=sh-heredoc(block="json") foo="world"
+json=JSON
+
+echo $json
+
+echo hi FOO
+  #+end_src
+
+
+  and here we pass the replacement ourselves with =read-number=
+  #+begin_src sh :session *demo-heredoc* :replace JSON=sh-heredoc(block="json",opts='((:replace . "TIMESTAMP=(read-number \"timestamp:\")"))) foo="world"
 json=JSON
 
 echo $json
