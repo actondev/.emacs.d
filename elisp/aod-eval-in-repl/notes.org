@@ -91,3 +91,8 @@ echo "JSON" | jq
 # Local Variables:
 # org-confirm-babel-evaluate: nil
 # End:
+* TODO read-string with memory
+  there's a =history= argument.
+  spin of aod.eir/read* variants which store in a alist/hashtable under the
+  - key (prompt)
+  the given input. so whenever the minibuffer opens up, you cycle through values that you previously gave
