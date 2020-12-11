@@ -48,7 +48,7 @@ TODO should this be a defcustom ??")
 
 (defun aod.eir/session-name (lang opts)
   "Returns either the default session name, or the one from opts under the :session key"
-  (or (aod.eir/-sesion-name-from-opts opts)
+  (or (org-babel-read (aod.eir/-sesion-name-from-opts opts))
       (cdr (assq lang aod.eir/default-session-alist))
       (error "Could not find neither passed neither default session for lang %S" lang)))
 
@@ -65,13 +65,13 @@ TODO should this be a defcustom ??")
 opts are in the format of `(nth 2 (org-babel-get-src-block-info))` output"
   (error "Don't know how to start a repl for lang %S" lang))
 
-(cl-defgeneric aod.eir/eval (lang string opts)
+(cl-defgeneric aod.eir/eval (lang session string opts)
   "Default implementation for eval. Could be extended with cl-defmethod for a specific lang.
 TODO 
 - should this one start the repl if not present?
 - should session be passed to make usable/friendly beyond org-mode contexts?"
   (save-current-buffer
-    (set-buffer (aod.eir/session-name lang opts))
+    (set-buffer session)
     (aod.eir/send-string string)
     (aod.eir/send-input)))
 
@@ -257,7 +257,7 @@ Will send \"echo 1 is not 2\" to the repl"
       (when (require 'nav-flash nil 'noerror)
 	(let ((nav-flash-delay 0.1))
 	  (apply #'nav-flash-show region)))
-      (aod.eir/eval lang string opts))))
+      (aod.eir/eval lang session string opts))))
 
 (defun aod.eir/-remove-surrounding-stars (string)
   "Sometimes it's 'needed' (more like advised) to pass a session name with stars - eg calling (shell \"*shell-session*\") -, but other times the stars are added by them. eg from term, python etc"

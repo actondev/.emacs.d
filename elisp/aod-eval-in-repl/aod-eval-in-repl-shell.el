@@ -36,7 +36,7 @@
     (let ((assignment-statement
 	   (org-babel-expand-body:generic
 	    "" opts (org-babel-variable-assignments:shell opts-with-vars))))
-      (aod.eir/eval lang assignment-statement opts)
+      (aod.eir/eval lang session assignment-statement opts)
       )))
 
 (cl-defmethod aod.eir/send-string (string &context (major-mode term-mode))
