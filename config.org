@@ -612,6 +612,21 @@ sudo apt-get install silversearcher-ag
   (custom-set-faces
    '(nav-flash-face ((t (:background "#666" :foreground nil))))))
    #+END_SRC
+** coloring background for PRODUCTION, STAGING
+   #+begin_src emacs-lisp
+(defun aod.devops/color-buffer ()
+  "Set background color for *PROD* or *STAG* (staging) buffers"
+  (let ((case-fold-search nil))
+    (when (or
+	   (string-match ".*PROD.*" (buffer-name))
+	   (string-match ".*STAG.*" (buffer-name))
+	   (string-match ".*DEV.*" (buffer-name)))
+      (face-remap-add-relative 'default :background "#300")
+      )))
+
+;; (add-hook 'find-file-hook #'aod.devops/color-buffer)
+(add-hook 'after-change-major-mode-hook #'aod.devops/color-buffer)
+   #+end_src
 * editing etc
 ** linear ranges (tiny)
    #+BEGIN_SRC emacs-lisp
