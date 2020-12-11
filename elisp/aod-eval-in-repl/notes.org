@@ -96,3 +96,32 @@ echo "JSON" | jq
   spin of aod.eir/read* variants which store in a alist/hashtable under the
   - key (prompt)
   the given input. so whenever the minibuffer opens up, you cycle through values that you previously gave
+* init body
+  :PROPERTIES:
+  :header-args: sh :init *shell-a*=init-a *shell-b*=init-b
+  :END:
+
+  The init blocks: to be placed somewhere up in the document with all the inits:
+  #+name: init-a
+  #+begin_src sh :replace IN=(read-string "shell-a special var:")
+shell_id="shell-a"
+echo "hello from a"
+special_var=IN
+  #+end_src
+
+  #+name: init-b
+  #+begin_src sh
+shell_id="shell-b"
+echo "hello from b"
+  #+end_src
+
+  The actual shells:
+  #+begin_src sh :session *shell-a*
+echo "i am in a"
+echo "shell is $shell_id and my special var $special_var"
+  #+end_src
+
+  #+begin_src sh :session *shell-b*
+echo "i am in b"
+echo shell is $shell_id
+  #+end_src

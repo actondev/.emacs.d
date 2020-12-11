@@ -116,7 +116,7 @@ get the current paragraph."
     (aod.eir/backward-whitespace)
     (list (mark) (point))))
 
-(defvar aod.eir/opts-multi-keys '(:replace)
+(defvar aod.eir/opts-multi-keys '(:replace :init)
   "Keys that support multiple space-separated statements, like the `:var'
 ie `:var a=1 b=2` gets parsed to give ((:var . \"a=1\") (:var \"b=2\")
 Without this parsing it would give ((:var . \"a=1 b=2\"")
@@ -226,6 +226,28 @@ Will send \"echo 1 is not 2\" to the repl"
 	(opts '((:replace . "(\"aa\" \"three\")") (:replace . "(\"bb\" (+ 1 2))"))))
     (should (equal (aod.eir/process-string 'default-lang string opts) "echo three is 3"))))
 
+(defun aod.eir/block-processed-contents (name)
+  (org-save-outline-visibility nil ;; use markers?
+    (save-excursion
+      (goto-char (org-babel-find-named-block name))
+      (let* ((el (org-element-at-point))
+	     (src (org-element-property :value el))
+	     (src-block-info (org-babel-get-src-block-info 'light el))
+	     (opts (aod.eir/parse-opts (nth 2 src-block-info))))
+	(aod.eir/process-string src opts)))))
+
+(defun aod.eir/init-body (session opts)
+  (let ((inits (aod.eir/get-opts opts :init))
+	(body ""))
+    (mapc (lambda (init-assignment)
+	    (when (string-match "\\(.+?\\)=" init-assignment)
+	      (let ((var (org-trim (match-string 1 init-assignment)))
+		    (ref (org-trim (substring init-assignment (match-end 0)))))
+		(when (string-equal session var)
+		  (setq body (aod.eir/block-processed-contents ref))))))
+	  inits)
+    body))
+
 (defun aod.eir/eval-org-src ()
   (interactive)
   (let* ((src-block-info (org-babel-get-src-block-info 'light))
@@ -244,7 +266,10 @@ Will send \"echo 1 is not 2\" to the repl"
 						     dir)))
 		   default-directory)))
 	(message "starting repl %S at dir %S " lang default-directory)
-	(save-selected-window (aod.eir/start-repl lang session opts))))
+	(save-selected-window (aod.eir/start-repl lang session opts))
+	(aod.eir/eval lang session
+		      (aod.eir/init-body session opts)
+		      opts)))
     (let* ((region (aod.eir/-region-with-trimmed-whitespace
 		    (aod.eir/-constraint-region-to-element
 		     (aod.eir/get-region-to-eval lang opts)
