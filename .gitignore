@@ -39,3 +39,6 @@ auto-save-list
 
 # some package files?
 transient/
+
+# etc
+*.log

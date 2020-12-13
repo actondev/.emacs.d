@@ -125,3 +125,21 @@ echo "shell is $shell_id and my special var $special_var"
 echo "i am in b"
 echo shell is $shell_id
   #+end_src
+* Replace: no-ref or other body
+  #+name: foo
+  #+begin_src sh
+echo "hi from foo"
+  #+end_src
+
+  #+name: get-foo
+  #+begin_src sh
+echo "--foo--"
+  #+end_src
+
+  #+begin_src sh :replace do_foo=foo get_foo=get-foo()
+# here we just insert the src
+do_foo
+
+# here get_foo is replace with the RESULT of evaluating get-foo()
+echo foo is get_foo
+  #+end_src

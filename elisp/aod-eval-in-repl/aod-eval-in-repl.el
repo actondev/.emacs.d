@@ -191,10 +191,13 @@ This is to avoid running the evaluation if the regex isn't found!"
 	    (lambda ()
 	      (let ((out (org-babel-read ref)))
 		(if (equal out ref)
-		    (if (and (string-prefix-p "\"" ref)
-			     (string-suffix-p "\"" ref))
-			(read ref)
-		      (org-babel-ref-resolve ref))
+		    (cond ((and (not (string-prefix-p "(" ref))
+				(string-suffix-p ")" ref))
+			   ;; it's a noweb call
+			   (org-babel-ref-resolve ref))
+			  ((org-babel-find-named-block ref)
+			   (aod.eir/block-processed-contents ref))
+			  (t (org-babel-read)))
 		  out)))))))
 
 (defun aod.eir/process-string (string opts)
@@ -247,6 +250,10 @@ Will send \"echo 1 is not 2\" to the repl"
 		  (setq body (aod.eir/block-processed-contents ref))))))
 	  inits)
     body))
+
+(defun aod.eir/opts (&optional datum)
+  (let ((src-block-info (org-babel-get-src-block-info 'light datum)))
+    (aod.eir/parse-opts (nth 2 src-block-info))))
 
 (defun aod.eir/eval-org-src ()
   (interactive)
