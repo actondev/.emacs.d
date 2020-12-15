@@ -1009,6 +1009,11 @@ sudo apt-get install cmake libtool-bin -y
    #+BEGIN_SRC emacs-lisp
 (use-package php-mode)
    #+END_SRC
+** JavaScript
+   #+begin_src emacs-lisp
+(use-package js2-mode
+  :mode "\\.js\\'")
+   #+end_src
 ** etc (yaml..)
    #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode)

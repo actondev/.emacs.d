@@ -93,6 +93,10 @@ get the current paragraph."
     (end-of-line)
     (list (mark) (point))))
 
+(defun aod.eir/org-src-point ()
+  (let ((boundaries (org-src--contents-area (org-element-at-point))))
+    (- (point) (car boundaries))))
+
 (defun aod.eir/-constraint-region-to-element (region &optional element)
   (let* ((element (or element (org-element-at-point)))
 	 (boundaries (org-src--contents-area element)))
@@ -301,4 +305,5 @@ Will send \"echo 1 is not 2\" to the repl"
 (require 'aod-eval-in-repl-shell)
 (require 'aod-eval-in-repl-python)
 (require 'aod-eval-in-repl-sql)
+(require 'aod-eval-in-repl-js)
 (provide 'aod-eval-in-repl)

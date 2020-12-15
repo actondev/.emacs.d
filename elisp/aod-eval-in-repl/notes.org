@@ -143,3 +143,19 @@ do_foo
 # here get_foo is replace with the RESULT of evaluating get-foo()
 echo foo is get_foo
   #+end_src
+* js
+  #+begin_src sh :session *js*
+node
+  #+end_src
+
+  #+begin_src js :session *js*
+let x = 1;
+let y = 3;
+
+let foo = (x, y) => {
+    console.log({x, y});
+    return x + y;
+}
+
+foo(x, y);
+  #+end_src
