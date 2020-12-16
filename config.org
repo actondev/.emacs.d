@@ -671,18 +671,23 @@ sudo apt-get install silversearcher-ag
   )
    #+END_SRC
 ** undo
+   Note: for some reason =C-_= (which original runs =undo=) gets
+   rebound to =undo-tree-undo= and I cannot in *ANY* way to bind it
+   back to the original =undo=
    #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
   :config
   (global-undo-tree-mode 1)
+  ;; it's buggy actually and messes with the normal undo
+  ;; which works great when there's a region selected
+  ;; https://emacs.stackexchange.com/a/37399/19673
+  ;;(setq undo-tree-enable-undo-in-region t)
   (unbind-key "C-/" undo-tree-map)
   (unbind-key "C-?" undo-tree-map)
   :bind(
 	("M-/" . undo-tree-visualize)
 	("C-z" . undo-tree-undo)
-	("C-S-z" . undo-tree-redo)
-	)
-  )
+	("C-S-z" . undo-tree-redo)))
    #+END_SRC
 ** Working with lisps
 *** paredit
