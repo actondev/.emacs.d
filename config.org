@@ -464,6 +464,8 @@ sudo apt-get install silversearcher-ag
   ;; oor install tr with "choco install tr"
   ;; oor msys2 paths (see heading)
   )
+
+(use-package ag)
 (use-package helm-projectile
   :commands (helm-projectile-find-file
 	     helm-projectile-ag)
@@ -618,9 +620,9 @@ sudo apt-get install silversearcher-ag
   "Set background color for *PROD* or *STAG* (staging) buffers"
   (let ((case-fold-search nil))
     (when (or
-	   (string-match ".*PROD.*" (buffer-name))
-	   (string-match ".*STAG.*" (buffer-name))
-	   (string-match ".*DEV.*" (buffer-name)))
+	   (string-match-p ".*PROD.*" (buffer-name))
+	   (string-match-p ".*STAG.*" (buffer-name))
+	   (string-match-p ".*DEV.*" (buffer-name)))
       (face-remap-add-relative 'default :background "#300")
       )))
 

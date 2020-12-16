@@ -71,7 +71,7 @@ opts are in the format of `(nth 2 (org-babel-get-src-block-info))` output"
     ;; I'm usually naming session like STAGING, PROD, DEV or something
     ;; so, if there are 3 capitaler letter, prompt for validation
     ;; TODO make this a defcustom
-    (if (string-match "[A-Z]\\{3,\\}" session)
+    (if (string-match-p "[A-Z]\\{3,\\}" session)
 	(y-or-n-p (format "Confirm: eval in %s: %s" session (truncate-string-to-width string trunc-length 0 nil "..")))
       t)))
 
