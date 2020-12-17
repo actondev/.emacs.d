@@ -269,6 +269,14 @@ Will send \"echo 1 is not 2\" to the repl"
   (let ((src-block-info (org-babel-get-src-block-info 'light datum)))
     (aod.eir/parse-opts (nth 2 src-block-info))))
 
+(defun aod.eir/-org-region-to-eval (lang opts)
+  (if (region-active-p)
+      (list (mark) (point))
+    (aod.eir/-region-with-trimmed-whitespace
+     (aod.eir/-constraint-region-to-element
+      (aod.eir/get-region-to-eval lang opts)
+      (org-element-at-point)))))
+
 (defun aod.eir/eval-org-src ()
   (interactive)
   (let* ((src-block-info (org-babel-get-src-block-info 'light))
@@ -291,10 +299,7 @@ Will send \"echo 1 is not 2\" to the repl"
 	(aod.eir/eval lang session
 		      (aod.eir/init-body session opts)
 		      opts)))
-    (let* ((region (aod.eir/-region-with-trimmed-whitespace
-		    (aod.eir/-constraint-region-to-element
-		     (aod.eir/get-region-to-eval lang opts)
-		     (org-element-at-point))))
+    (let* ((region (aod.eir/-org-region-to-eval lang opts))
 	   (string (aod.eir/process-string
 		    (apply #'buffer-substring-no-properties region)
 		    opts)))
