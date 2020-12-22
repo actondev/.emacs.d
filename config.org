@@ -201,6 +201,9 @@
   (setq org-image-actual-width 400)
   ;; for <sTAB to work
   (require 'org-tempo)
+  ;; org-goto with helm?
+  (setq org-goto-interface 'outline-path-completion)
+  (setq org-outline-path-complete-in-steps nil)
   :bind (:map org-mode-map
 	      ("C-M-p" . org-up-element)
 	      ("C-M-n" . org-down-element)))    
