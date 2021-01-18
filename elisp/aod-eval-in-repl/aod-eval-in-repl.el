@@ -198,21 +198,29 @@ external resource and find its value using `org-babel-ref-resolve'.
 Return a list with two elements: the regex string to replace, and a
 FUNCTION that when called returns the Emacs Lisp representation of the value of the value to replace with.
 This is to avoid running the evaluation if the regex isn't found!"
-  (when (string-match "\\(.+?\\)=" assignment)
-    (let ((var (org-trim (match-string 1 assignment)))
-	  (ref (org-trim (substring assignment (match-end 0)))))
-      (cons (org-babel-read var)
-	    (lambda ()
-	      (let ((out (org-babel-read ref)))
-		(if (equal out ref)
-		    (cond ((and (not (string-prefix-p "(" ref))
-				(string-suffix-p ")" ref))
-			   ;; it's a noweb call
-			   (org-babel-ref-resolve ref))
-			  ((org-babel-find-named-block ref)
-			   (aod.eir/block-processed-contents ref))
-			  (t (org-babel-read)))
-		  out)))))))
+  (if (string-match "\\(.+?\\)=" assignment)
+      (let ((var (org-trim (match-string 1 assignment)))
+	    (ref (org-trim (substring assignment (match-end 0)))))
+	(cons (org-babel-read var)
+	      (lambda ()
+		(let ((out (org-babel-read ref)))
+		  (if (equal out ref)
+		      (cond ((and (not (string-prefix-p "(" ref))
+				  (string-suffix-p ")" ref))
+			     ;; it's a noweb call
+			     (org-babel-ref-resolve ref))
+			    ((org-babel-find-named-block ref)
+			     (aod.eir/block-processed-contents ref))
+			    (t (progn
+				 ;; org-babel-read will not resolve variables
+				 ;; but I want here to use :replace psql=var-holding-the-sql-conn-stirng
+				 (eval (read ref)))))
+		    out)))))
+    ;; if no = , then return the symbol's value
+    ;; buut remember, we actually return the string that we replace and it's replacement function
+    (cons assignment
+	  (lambda ()
+	    (symbol-value (intern-soft assignment))))))
 
 (defun aod.eir/process-string (string opts)
   "It provides a way to process the string before it's sent to

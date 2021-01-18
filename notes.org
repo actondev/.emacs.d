@@ -113,7 +113,7 @@ pwd
   For a subheading add
   #+BEGIN_EXAMPLE
   :PROPERTIES:
-  :header-args: :session *test* :var test="abc" test2="def" :dir ~/dev
+  :header-args:sh: :session *test* :var test="abc" test2="def" :dir ~/dev
   :END:
   #+END_EXAMPLE
 
@@ -122,6 +122,8 @@ pwd
   #+BEGIN_EXAMPLE
 #+PROPERTY: header-args:R  :session *R*
   #+END_EXAMPLE
+  there's also the =header-args+=
+  or add a + afther the =begin_src lang=
 
   results:
   - silent
