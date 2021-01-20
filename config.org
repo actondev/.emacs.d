@@ -44,6 +44,15 @@
   (interactive)
   (comment-or-uncomment-region (line-beginning-position) (line-end-position))
   )
+
+(defun insert-buffer-name (buffer)
+  (interactive
+   (list
+    (progn
+      (barf-if-buffer-read-only)
+      (read-buffer "Insert buffer name: "))))
+  (insert buffer)
+  nil)
    #+END_SRC
 ** bindings
    #+BEGIN_SRC emacs-lisp
