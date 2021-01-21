@@ -478,10 +478,30 @@ sudo apt-get install silversearcher-ag
   )
 
 (use-package ag)
+
 (use-package helm-projectile
   :commands (helm-projectile-find-file
-	     helm-projectile-ag)
-  )
+	     helm-projectile-ag))
+
+(defun aod.ag/toggle-vcs-ignore ()
+  "ag has a bug with .gitignore. encountered this in openFrameworks
+see https://github.com/ggreer/the_silver_searcher/issues/862
+
+So, when some files are not found, the .gitignore should be kept"
+  (interactive)
+  (let ((flag "--skip-vcs-ignores"))
+    (if (member flag ag-arguments)
+	(progn
+	  (setq ag-arguments (remove-if (lambda (x) (string-equal x flag))
+					ag-arguments))
+	  (setq helm-ag-command-option nil))
+      (progn
+	(push flag ag-arguments)
+	(setq helm-ag-command-option flag)))
+    (message "new ag-arguments: %s
+new helm-ag-command-option %s"
+	     ag-arguments
+	     helm-ag-command-option)))
 
 (defun display-line-numbers-disable-hook (_)
   "Disable display-line-numbers locally."
