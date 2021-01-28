@@ -30,3 +30,7 @@ sudo modprobe psmouse
 # and running startup script (double tap middle click etc)
 ~/.emacs.d/linux/startup.sh
     #+END_SRC
+* <2021-01-28 Thu> zeal
+  #+begin_src sh
+sudo apt-get install zeal
+  #+end_src

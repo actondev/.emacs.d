@@ -1221,6 +1221,16 @@ sudo apt-get install cmake libtool-bin -y
    #+BEGIN_SRC emacs-lisp :tangle no
 (button-lock-clear-all-buttons)
    #+END_SRC
+** caps-lock
+   #+begin_src emacs-lisp
+(use-package caps-lock)
+   #+end_src
+   And then modify caps lock :)
+   #+begin_src sh :tangle no
+setxkbmap -option # reset
+setxkbmap -option ctrl:nocaps # ctrl & caps act as control
+setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
+   #+end_src
 * Presentation? (command-log)
   #+BEGIN_SRC emacs-lisp
 (use-package command-log-mode

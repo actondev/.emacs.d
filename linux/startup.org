@@ -82,3 +82,16 @@ synclient TapButton2=2
    #+BEGIN_SRC sh :tangle yes
 synclient PalmDetect=1
    #+END_SRC 
+* swap caps lock & ctrl
+  #+begin_src sh :tangle yes
+# caps is control
+setxkbmap -option ctrl:nocaps
+  #+end_src
+
+  revert/play with it
+  #+begin_src sh
+# revert (or event without -option)?
+setxkbmap -option
+setxkbmap -option ctrl:nocaps
+setxkbmap -option ctrl:swapcaps
+  #+end_src
