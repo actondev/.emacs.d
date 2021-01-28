@@ -1083,6 +1083,20 @@ sudo apt-get install cmake libtool-bin -y
 
    this vs restclient?
 
+* Documentation
+  Note: first install zeal
+  #+begin_src sh :tangle no
+sudo apt-get install zeal
+  #+end_src
+
+  #+begin_src emacs-lisp
+(use-package zeal-at-point
+  :bind
+  (("C-c d" . zeal-at-point)))
+  #+end_src
+
+  Note: js docs are acting weird
+  Solution (<2021-01-28 Thu>): find react-main.01db16f317c6.js in =~/.local/share/zeal= and delete it (there were 2, deleted both)
 * Interface enhancmenets, key bindings
 ** Key-chord
    #+BEGIN_SRC emacs-lisp
