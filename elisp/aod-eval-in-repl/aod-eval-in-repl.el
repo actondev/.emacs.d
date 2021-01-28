@@ -243,7 +243,10 @@ Will send \"echo 1 is not 2\" to the repl"
 	      (when (string-match what string)
 		(let ((with (funcall with-fn)))
 		  (setq string (replace-regexp-in-string what (format "%s" with) string 'fixed 'literal))))))
-	  replaces)
+	  ;; in sql I had $1=.. $2=.. [..] $11=.. $12=...
+	  ;; and $11 was replace first by $1 and then had a trailing 1
+	  ;; temp solution: first replacing $12 and then the previous (in reverse)
+	  (reverse replaces))
     string))
 
 (ert-deftest aod.eir/process-string ()
