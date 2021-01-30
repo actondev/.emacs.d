@@ -702,6 +702,18 @@ new helm-ag-command-option %s"
       (end-of-line)
       (hs-hide-block))))
 
+;; ooor
+;; pressing tab in the beggigning of the line -> hideshow
+;; else, indent or whatever?
+
+;; (let ((other-keys hs-org/trigger-keys-block))
+;;   (while (and (null command)
+;;               (not (null other-keys)))
+;;     (setq command (key-binding (car other-keys)))
+;;     (setq other-keys (cdr other-keys)))
+;;   (when (commandp command)
+;;     (call-interactively command)))
+
 (use-package hideshowvis
   ;; https://www.emacswiki.org/emacs/hideshowvis.el
   :load-path "elisp/"

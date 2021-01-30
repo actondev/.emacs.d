@@ -94,7 +94,7 @@
 
 (require 'scheme)
 (require 'comint)
-(require 'nav-flash nil 'noerror)
+(require 'pulse) ;; pulse-momentary-highlight-region
 
 
 (defgroup cmuscheme nil
@@ -269,15 +269,12 @@ order.  Return nil if no start file found."
         start-file
       (and (file-exists-p alt-start-file) alt-start-file))))
 
-(defun scheme-flash-region (start end)
-  (when (require 'nav-flash nil 'noerror)
-    (let ((nav-flash-delay 0.2))
-      (nav-flash-show start end))))
-
 (defun scheme-send-region (start end)
   "Send the current region to the inferior Scheme process."
   (interactive "r")
-  (scheme-flash-region start end)
+  ;; oor, add a hook to comint-send-region
+  ;; well.. there are no hooks, so.. defadvice??
+  (pulse-momentary-highlight-region start end 'next-error)
   (comint-send-region (scheme-proc) start end)
   (comint-send-string (scheme-proc) "\n"))
 
