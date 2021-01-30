@@ -370,7 +370,6 @@ multiple files"
   :commands (helm helm-make-source)
   :bind(
 	("M-x" . helm-M-x)
-	("C-<tab>" . helm-mini)
 	("C-x C-f" . helm-find-files)
 	("C-S-v" . helm-show-kill-ring)
 	:map helm-map
@@ -684,12 +683,32 @@ new helm-ag-command-option %s"
 (use-package hideshow-org
   ;; https://github.com/shanecelis/hideshow-org
   :load-path "elisp/"
-  :hook (prog-mode . hs-org/minor-mode))
+  ;; :hook (prog-mode . hs-org/minor-mode)
+  )
+
+(defvar aod.hs/hide-show-all-next nil)
+(defun aod.hs/hideshow-all ()
+  (interactive)
+  (if aod.hs/hide-show-all-next
+      (hs-show-all)
+    (hs-hide-all))
+  (setq-local aod.hs/hide-show-all-next (not aod.hs/hide-show-all-next)))
+
+(defun aod.hs/toggle-line ()
+  (interactive)
+  (save-excursion
+    (if (hs-already-hidden-p)
+	(hs-show-block)
+      (end-of-line)
+      (hs-hide-block))))
 
 (use-package hideshowvis
   ;; https://www.emacswiki.org/emacs/hideshowvis.el
   :load-path "elisp/"
-  :hook (prog-mode . hideshowvis-minor-mode))
+  :hook (prog-mode . hideshowvis-minor-mode)
+  :bind (:map prog-mode-map
+	      ("C-<tab>" . aod.hs/toggle-line)
+	      ("<backtab>" . aod.hs/hideshow-all)))
    #+END_SRC
 
 ** selection
@@ -830,18 +849,33 @@ paredit        ; Introduce some paredit commands.
    #+BEGIN_SRC emacs-lisp
 (use-package lsp-mode
   :commands lsp
+  :init
+  ;; Not sure actually why I have this here
+  ;; (setq lsp-enable-indentation nil)
   :config
   (add-to-list 'lsp-language-id-configuration '(clojure-mode . "clojure-mode"))
-  :init
-  (setq lsp-enable-indentation nil))
+  )
 
 (use-package lsp-ui
   :commands lsp-ui-mode)
 
 (use-package company-lsp
   :commands company-lsp)
-
    #+END_SRC
+
+*** lsp clang
+    #+begin_src emacs-lisp
+(with-eval-after-load 'lsp-clangd
+  (unless lsp-clients-clangd-executable
+    (message "Trying to set clang executable")
+    (let ((vscodium-clang "~/.config/VSCodium/User/globalStorage/llvm-vs-code-extensions.vscode-clangd/install/11.0.0/clangd_11.0.0/bin/clangd"))
+      (message "here %s" vscodium-clang)
+      (if (file-exists-p vscodium-clang)
+	  (progn
+	    (setq lsp-clients-clangd-executable vscodium-clang)
+	    (message "Clang executable set to %s" vscodium-clang))
+	(warn "Clang could not be found in %s" vscodium-clang)))))
+    #+end_src
 ** Linting
    Flycheck: checking only when saving (not when editing the file - can cause slowness)
    #+BEGIN_SRC emacs-lisp
@@ -882,6 +916,11 @@ paredit        ; Introduce some paredit commands.
    #+END_SRC
 ** TODO Writing - spelling
    TBD
+** snippets (yasnippet)
+   #+begin_src emacs-lisp
+(use-package yasnippet
+  :hook (prog-mode . yas-minor-mode))
+   #+end_src
 * Utilities (vterm..)
 ** vterm
    - [ ] check --with-modules support
@@ -1057,6 +1096,28 @@ sudo apt-get install cmake libtool-bin -y
    #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode)
    #+END_SRC
+** CC: c/c++
+
+    #+begin_src emacs-lisp
+(use-package cc-mode
+  :config
+  (message "here, cc-mode")
+  :bind (:map c++-mode-map
+	      ("M-n" . end-of-defun)
+	      ("M-p" . beginning-of-defun)))
+    #+end_src
+
+    #+begin_src emacs-lisp
+(defun aod/cc-hook ()
+  ;; https://github.com/google/styleguide/blob/gh-pages/google-c-style.el
+  ;; download: it's under elisp/
+  (require 'google-c-style)
+  (google-set-c-style)
+  (c-set-style "Google"))
+
+(add-hook 'c-mode-common-hook #'aod/cc-hook)
+    #+end_src
+
 * Web
 ** restclient
    Associating with =.http= files
@@ -1239,7 +1300,18 @@ sudo apt-get install zeal
    #+begin_src emacs-lisp
 (use-package caps-lock)
    #+end_src
-   And then modify caps lock :)
+
+   #+begin_src emacs-lisp
+(defun aod/caps-lock ()
+  (interactive)
+  (let ((choices '((?r "reset" "setxkbmap -option")
+		   (?n "nocaps" "setxkbmap -option ctrl:nocaps")
+		   (?s "swapcaps" "setxkbmap -option ctrl:swapcaps"))))
+    (let ((choice (read-multiple-choice "caps lock mode:" choices)))
+      (shell-command (caddr choice)))))
+   #+end_src
+
+   The commands:
    #+begin_src sh :tangle no
 setxkbmap -option # reset
 setxkbmap -option ctrl:nocaps # ctrl & caps act as control
