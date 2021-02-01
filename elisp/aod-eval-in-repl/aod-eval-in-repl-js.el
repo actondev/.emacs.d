@@ -15,8 +15,9 @@
 	      ;; (point) will return 1, not 0. so decreasing (to get 0-based)
 	      (+ src-beginning (decf  x)))
 	    (with-temp-buffer
-	      (js2-mode)
 	      (insert src)
+	      (js2-mode)
+	      (js2-reparse)
 	      (goto-char src-point)
 	      ;; in case of const foo = (x) => {
 	      ;; // some body
