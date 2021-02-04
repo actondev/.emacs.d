@@ -30,6 +30,11 @@
 (prefer-coding-system 'utf-8)
 
 (put 'narrow-to-region 'disabled nil)
+
+;; showing help-at-point when idle
+(setq help-at-pt-display-when-idle 't)
+;; to actually take effect, the set timer must be called
+(help-at-pt-set-timer)
    #+END_SRC
 
 ** functions
@@ -937,12 +942,24 @@ paredit        ; Introduce some paredit commands.
    #+end_src
 ** epoch
    #+begin_src emacs-lisp
-(defun epoch-to-string (seconds)
-  (interactive (list
-		(read
-		 (word-at-point))))
-  (message "%s => %s" seconds (format-time-string "%F%r" (seconds-to-time seconds))))
+(defun epoch-at-point ()
+  (interactive)
+  (let* ((bounds (if (region-active-p)
+		     (car (region-bounds))
+		   (bounds-of-thing-at-point 'word)))
+	 (seconds (read (buffer-substring-no-properties (car bounds)
+							(cdr bounds)))))
+    (when (> seconds (+ (time-to-seconds (current-time))
+			(* 31622400 1000 ;; 1000 years in seconds: https://www.rapidtables.com/calc/time/seconds-in-year.html
+			   )))
+      (message "assuming epoch in milliseconds")
+      (setq seconds (/ seconds 1000)))
+    (message "%s => %s" seconds (format-time-string "%F%r" (seconds-to-time seconds)))
+    (unless buffer-read-only
+      (put-text-property (car bounds) (cdr bounds)
+			 'help-echo (format-time-string "%F%r" (seconds-to-time seconds))))))
    #+end_src
+
 * Utilities (vterm..)
 ** vterm
    - [ ] check --with-modules support
