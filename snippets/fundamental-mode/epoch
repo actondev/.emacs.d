@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: epoch timestamp
+# key: epoch
+# --
+
+`(round(time-to-seconds (org-read-date t t)))`$0

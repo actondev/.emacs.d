@@ -931,7 +931,17 @@ paredit        ; Introduce some paredit commands.
 ** snippets (yasnippet)
    #+begin_src emacs-lisp
 (use-package yasnippet
-  :hook (prog-mode . yas-minor-mode))
+  ;; :hook (prog-mode . yas-minor-mode)
+  :config
+  (yas-global-mode 1))
+   #+end_src
+** epoch
+   #+begin_src emacs-lisp
+(defun epoch-to-string (seconds)
+  (interactive (list
+		(read
+		 (word-at-point))))
+  (message "%s => %s" seconds (format-time-string "%F%r" (seconds-to-time seconds))))
    #+end_src
 * Utilities (vterm..)
 ** vterm
