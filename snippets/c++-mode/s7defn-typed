@@ -3,8 +3,8 @@
 # key: s7defnt
 # --
 
-constexpr char*  help_${1:$(replace-regexp-in-string "-" "_" yas-text )} = "(${1:function-name} ${2:args})";
-s7_pointer scm_$1(s7_scheme* sc, s7_pointer args) {
+constexpr const char* help_${1:$(replace-regexp-in-string "-" "_" yas-text )} = "(${1:function-name} ${2:args})";
+s7_pointer scm_${1:$(replace-regexp-in-string "-" "_" yas-text )}(s7_scheme* sc, s7_pointer args) {
   $0
   ${2:$(mapconcat (lambda (x)
     (if (string= x "&optional")

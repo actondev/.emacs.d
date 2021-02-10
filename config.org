@@ -223,7 +223,6 @@
 	      ("C-M-n" . org-down-element)))    
    #+end_src
 
-
 ** habits
    #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'org
@@ -352,6 +351,21 @@ but `delete-file' is ignored."
     (org-babel-tangle '(4))))
    #+END_SRC
 
+** github/gitlab style line links
+   #+begin_src emacs-lisp
+;;   see https://www.emacswiki.org/emacs/RegularExpression for regex
+(defun aod.org/ad-open-file-git-line (orig path &optional in-emacs line search)
+  "Makes it possible to open github/gitlab style links that point to certain lines
+example: some-file.el#L10 -> links to some-file.el at line 10"
+  (if (string-match "^\\(.+\\)#L\\([0-9]+\\)" path)
+      (let ((just-path (match-string 1 path))
+	    (line (match-string 2 path)))
+	(funcall orig just-path nil (read line)))
+    (funcall orig just-path in-emacs line search)))
+
+(with-eval-after-load 'org
+  (advice-add 'org-open-file :around #'aod.org/ad-open-file-git-line))
+   #+end_src
 * Helm
   #+BEGIN_SRC emacs-lisp
 (setq aod.helm/C-SPC-set-mark-p nil)
@@ -474,6 +488,9 @@ sudo apt-get install silversearcher-ag
   ;; speed!
   (setq projectile-indexing-method 'hybrid)
   (setq projectile-completion-system 'helm)
+  (defun aod.projectile/set-root (root)
+    (interactive "Droot: ")
+    (setq projectile-project-root root))
   ;; https://github.com/bbatsov/projectile/issues/1302#issuecomment-433894379
   ;; windows fix
   ;; (setq projectile-git-submodule-command nil)
