@@ -435,4 +435,10 @@ org-babel-get-src-block-info
 org-babel-merge-params ;; is where :var is handled differently etc
 
 (org-element-property :parameters (org-element-context))
+
+
+(org-entry-get (point) "header-args")
+(org-entry-get-with-inheritance "header-args")
+(org--property-global-value "header-args")
+org-file-properties
   #+end_src

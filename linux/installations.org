@@ -1,0 +1,22 @@
+* COMMENT Git Extensions
+  nahh
+  https://github.com/gitextensions/gitextensions/wiki/How-To:-run-Git-Extensions-on-Linux
+  #+begin_src sh
+sudo apt install kdiff3
+sudo apt install mono-complete
+  #+end_src
+
+* Flameshot (screenshot)
+  https://github.com/flameshot-org/flameshot
+  <2021-02-18 Thu> versions:
+  - apt info: 0.6.0
+  - github: 0.8.5
+  #+begin_src sh
+apt info flameshot # 0.6.0  <2021-02-18 Thu>
+sudo apt-get install flameshot
+
+sudo apt-get remove flameshot
+
+$(cd ~/Downloads && wget https://github.com/flameshot-org/flameshot/releases/download/v0.8.5/flameshot-0.8.5-1.ubuntu-20.04.amd64.deb)
+sudo dpkg -i ~/Downloads/flameshot-0.8.5-1.ubuntu-20.04.amd64.deb
+  #+end_src

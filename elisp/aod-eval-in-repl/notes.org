@@ -159,3 +159,8 @@ let foo = (x, y) => {
 
 foo(x, y);
   #+end_src
+* DONE minor mode: help-echo src block properties
+  <2021-02-19 Fri> DONE with font-lock-add-keywords
+  (aod.eir/opts)
+  define minor mode to help-echo a src block calculated properties
+  face: org-block-begin-line

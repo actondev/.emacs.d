@@ -333,4 +333,5 @@ Will send \"echo 1 is not 2\" to the repl"
 (require 'aod-eval-in-repl-python)
 (require 'aod-eval-in-repl-sql)
 (require 'aod-eval-in-repl-js)
+(require 'aod-eval-in-repl-mode)
 (provide 'aod-eval-in-repl)

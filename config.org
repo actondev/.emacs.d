@@ -1021,7 +1021,8 @@ sudo apt-get install cmake libtool-bin -y
   :config
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
-  )
+  (set-face-attribute 'magit-branch-current nil
+		      :underline t))
   #+END_SRC
 
   Ediff: great diff tool that can be used in magit :)
@@ -1147,6 +1148,10 @@ sudo apt-get install cmake libtool-bin -y
    #+begin_src emacs-lisp
 (use-package js2-mode
   :mode "\\.js\\'")
+   #+end_src
+** TypeScript
+   #+begin_src emacs-lisp
+(use-package typescript-mode)
    #+end_src
 ** etc (yaml..)
    #+BEGIN_SRC emacs-lisp
