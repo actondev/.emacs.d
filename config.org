@@ -361,7 +361,7 @@ example: some-file.el#L10 -> links to some-file.el at line 10"
       (let ((just-path (match-string 1 path))
 	    (line (match-string 2 path)))
 	(funcall orig just-path nil (read line)))
-    (funcall orig just-path in-emacs line search)))
+    (funcall orig path in-emacs line search)))
 
 (with-eval-after-load 'org
   (advice-add 'org-open-file :around #'aod.org/ad-open-file-git-line))
