@@ -218,6 +218,7 @@
   ;; org-goto with helm?
   (setq org-goto-interface 'outline-path-completion)
   (setq org-outline-path-complete-in-steps nil)
+  (setq org-ellipsis "▼")
   :bind (:map org-mode-map
 	      ("C-M-p" . org-up-element)
 	      ("C-M-n" . org-down-element)))    
@@ -955,7 +956,14 @@ paredit        ; Introduce some paredit commands.
 (use-package yasnippet
   ;; :hook (prog-mode . yas-minor-mode)
   :config
-  (yas-global-mode 1))
+  (yas-global-mode 1)
+  :init
+  ;; the yas-global-mode doesn't really get executed
+  ;; so.. either add a hook (prog-mode & org-mode ??)
+  ;; or in the init block.. that makes startup a bit
+  ;; slower though
+  (require 'yasnippet)
+  )
    #+end_src
 ** epoch
    #+begin_src emacs-lisp
