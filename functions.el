@@ -66,3 +66,6 @@ then the .el file is loaded without parsing the .org file.
 	(org-babel-load-file path)))))
 
 
+(defun shell-command-disown (command)
+  (interactive "sCommand: ")
+  (shell-command  (format "(%s &> /dev/null &)" command) nil nil))

@@ -532,6 +532,7 @@ new helm-ag-command-option %s"
 (use-package neotree
   :config
   (setq neo-smart-open t)
+  (setq neo-window-fixed-size nil)
   (add-hook 'neo-after-create-hook 'display-line-numbers-disable-hook)
   :bind(
 	("<f8>" . neotree-toggle)
