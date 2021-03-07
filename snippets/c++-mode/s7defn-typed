@@ -17,16 +17,16 @@ s7_pointer scm_${1:$(replace-regexp-in-string "-" "_" yas-text )}(s7_scheme* sc,
 }
 
 void bind_${1:$(replace-regexp-in-string "-" "_" yas-text )}(s7_scheme* sc, s7_pointer env) {
-  s7_pointer type_ret = s7_make_symbol(sc, "null?");
+  s7_pointer sig_ret = s7_make_symbol(sc, "null?");
   ${2:$(mapconcat (lambda (x)
-    (format "s7_pointer type_%s = s7_make_symbol(sc, \\"...?\\");" (replace-regexp-in-string "-" "_" x)))
+    (format "s7_pointer sig_%s = s7_make_symbol(sc, \\"...?\\");" (replace-regexp-in-string "-" "_" x)))
       (split-string yas-text)
   "\n"
   )}
     s7_pointer sig = s7_make_signature(sc, ${2:$(1+ (length (split-string yas-text)))},
-    	       	   type_ret,
+    	       	   sig_ret,
                	   ${2:$(mapconcat (lambda (x)
-		   		   (format "type_%s" (replace-regexp-in-string "-" "_" x))
+		   		   (format "sig_%s" (replace-regexp-in-string "-" "_" x))
 		   		   )
 		   (split-string yas-text)
 		   ",\n"
