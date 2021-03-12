@@ -2,4 +2,4 @@
 # name: org-src-session
 # key: :session
 # --
-:session `(insert (read-buffer "Insert buffer name: " nil nil (lambda (x) (string-match "^\*.+\*$" x))))`
+:session `(read-buffer "Insert buffer name: " nil nil (lambda (x) (string-match "^\*.+\*$" x)))`

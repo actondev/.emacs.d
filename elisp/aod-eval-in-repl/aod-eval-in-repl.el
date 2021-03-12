@@ -288,6 +288,21 @@ Will send \"echo 1 is not 2\" to the repl"
       (aod.eir/get-region-to-eval lang opts)
       (org-element-at-point)))))
 
+(defun aod.eir/kill-org-src-processed-text ()
+  "Puts the processed text (after :replace is parsed) into the kill ring.
+Note that this text might end up into the OS's clipboard. See `kill-new'
+(which is internally used) about its behavior"
+  (interactive)
+  (let* ((src-block-info (org-babel-get-src-block-info 'light))
+	 (opts (aod.eir/parse-opts (nth 2 src-block-info))))
+    (let ((src (if (region-active-p)
+		   (buffer-substring-no-properties
+		    (mark) (point))
+		 (nth 1 src-block-info))))
+      (kill-new (aod.eir/process-string
+		 src
+		 opts)))))
+
 (defun aod.eir/eval-org-src ()
   (interactive)
   (let* ((src-block-info (org-babel-get-src-block-info 'light))

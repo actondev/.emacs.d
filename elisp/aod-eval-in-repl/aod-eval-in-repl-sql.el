@@ -12,13 +12,12 @@
     (forward-paragraph)
     (list (mark) (point))))
 
-;; TODO these should not be here, they're about parsing typeorm output
 (defun aod.eir/sql-replace-params (text)
   (let ((values
 	 (mapcar (lambda (x)
 		   ;; (message "x is %S" x)
-		   (replace-regexp-in-string ",$" "" x))
-		 (split-string text))))
+		   (replace-regexp-in-string ",$" "" (s-trim x)))
+		 (split-string text "[\n\r]+"))))
     (let ((i 0))
       (mapconcat (lambda (x)
 		   (setq i (+ i 1))
@@ -28,6 +27,8 @@
 		 " "))))
 
 (defun aod.eir/sql-yank-replace-params ()
+  "Of internal interest. Used alongside output of typeorm's getQueryAndParameters() to
+generate tha appropriate :replace statement (ie $1=\"'this'\" etc)"
   (interactive)
   (insert (aod.eir/sql-replace-params (substring-no-properties (car kill-ring)))))
 
