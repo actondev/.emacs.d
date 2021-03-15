@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: header-args-top
+# key: header
+# condition: (not (search-backward "*" nil t))
+# --
+
+#+PROPERTY: header-args:${1:sh :session} $0
