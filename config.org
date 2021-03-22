@@ -1187,7 +1187,10 @@ sudo apt-get install cmake libtool-bin -y
 
 (add-hook 'c-mode-common-hook #'aod/cc-hook)
     #+end_src
-
+** groovy
+   #+begin_src emacs-lisp
+(use-package groovy-mode)
+   #+end_src
 * Web
 ** restclient
    Associating with =.http= files

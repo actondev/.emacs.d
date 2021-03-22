@@ -462,3 +462,5 @@ C-M-k kill-sexp Kill balanced expression forward
 
 C-M-SPC mark-sexp Put the mark at the end of the sexp.
     #+end_quote
+* TODO org-mode inheriting properties
+  see org-use-property-inheritance
