@@ -980,10 +980,10 @@ paredit        ; Introduce some paredit commands.
 			   )))
       (message "assuming epoch in milliseconds")
       (setq seconds (/ seconds 1000)))
-    (message "%s => %s" seconds (format-time-string "%F%r" (seconds-to-time seconds)))
+    (message "%s => %s" seconds (format-time-string "%F %r" (seconds-to-time seconds)))
     (unless buffer-read-only
       (put-text-property (car bounds) (cdr bounds)
-			 'help-echo (format-time-string "%F%r" (seconds-to-time seconds))))))
+			 'help-echo (format-time-string "%F %r" (seconds-to-time seconds))))))
    #+end_src
 
 * Utilities (vterm..)
