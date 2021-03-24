@@ -71,7 +71,7 @@ time is displayed."
     could add button in specific buffers (per window) for certain actions?
     eg
     + in cider : addbutton for clear cider buffer
-  + so-long
+  + [X] so-long (There is a complete section later with comments about this)
     https://www.emacswiki.org/emacs/SoLong
     optimization for long lines bringing emacs to its knees
 * Spelling
@@ -389,11 +389,11 @@ typedef struct {
    #+END_SRC
 * DONE <2020-11-13 Fri> quelpa and fucking paredit
   Solution: =el-get=
-Cloning https://github.com/actondev/eval-in-repl.git to /home/actondev/.emacs.d/quelpa/build/eval-in-repl/
+  Cloning https://github.com/actondev/eval-in-repl.git to /home/actondev/.emacs.d/quelpa/build/eval-in-repl/
 
   Cloning https://github.com/magnars/dash.el.git
-Cloning https://mumble.net/~campbell/git/paredit.git to /home/actondev/.emacs.d/quelpa/build/paredit/
-Entering debugger...
+  Cloning https://mumble.net/~campbell/git/paredit.git to /home/actondev/.emacs.d/quelpa/build/paredit/
+  Entering debugger...
 * <2020-11-24 Tue> vterm : helm-show-kill-ring
   cannot paste from helm kill ring into vterm
 
@@ -450,17 +450,57 @@ org-file-properties
   - C-M-b
 
     #+begin_quote
-C-M-n forward-list Move forward over a parenthetical group
+    C-M-n forward-list Move forward over a parenthetical group
 
-C-M-p backward-list Move backward over a parenthetical group
+    C-M-p backward-list Move backward over a parenthetical group
 
-C-M-f forward-sexp Move forward over a balanced expression
+    C-M-f forward-sexp Move forward over a balanced expression
 
-C-M-b backward-sexp Move backward over a balanced expression
+    C-M-b backward-sexp Move backward over a balanced expression
 
-C-M-k kill-sexp Kill balanced expression forward
+    C-M-k kill-sexp Kill balanced expression forward
 
-C-M-SPC mark-sexp Put the mark at the end of the sexp.
+    C-M-SPC mark-sexp Put the mark at the end of the sexp.
     #+end_quote
 * TODO org-mode inheriting properties
   see org-use-property-inheritance
+* long lines
+  summary:
+  #+begin_src emacs-lisp
+(global-so-long-mode 1)  
+  #+end_src
+  introduced in emacs 27.1
+
+  Avoid performance issues in files with very long lines.
+  - https://emacs.stackexchange.com/questions/598/how-do-i-prevent-extremely-long-lines-making-emacs-slow
+  - https://github.com/codygman/figure-out-emacs-long-lines-issue/blob/master/figuring-out-emacs-display-issues.org
+  other possible things to consider:
+ 
+  - (add-hook 'backtrace-mode-hook 'so-long-minor-mode)
+    https://www.reddit.com/r/emacs/comments/ccoksw/solong_mitigating_slowness_due_to_extremely_long
+
+  if the file is indeed aweful (
+  #+begin_src sh
+wget https://github.com/Wilfred/ReVo-utilities/blob/a4bdc40dd2656c496defc461fc19c403c8306d9f/revo-export/dictionary.json?raw=true -O one_line.json  
+  #+end_src
+
+  then try
+  #+begin_src emacs-lisp
+(require 'longlines)
+(longlines-mode)
+  #+end_src
+
+  saw this in so-long.el. gives a warning though that =Package
+  longlines is deprecated=. quoting so-long.el
+  #+begin_quote
+  performance may still degrade as you get deeper into the long
+  lines.  In such circumstances you may find that `longlines-mode' is
+  the most helpful facility.
+  #+end_quote
+
+  longlines-mode help:
+  #+begin_quote
+  When Long Lines mode is enabled, long lines are wrapped if they
+  extend beyond ‘fill-column’ - makes the file readonly
+  #+end_quote
+  

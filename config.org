@@ -18,7 +18,10 @@
 ;;(define-key cua--cua-keys-keymap [C-z] nil)
 (global-visual-line-mode 1) ;; word/line wrap
 (winner-mode t) ;; C-c left will undo window position changes
+
+;; when (later) using a doom theme, this gets set to doom-themes-visual-bell-fn
 (setq ring-bell-function 'ignore)
+
 (global-display-line-numbers-mode 1)
 (setq inhibit-startup-screen 1)
 (delete-selection-mode 1) ;; delete selected region if starting typing
@@ -35,6 +38,9 @@
 (setq help-at-pt-display-when-idle 't)
 ;; to actually take effect, the set timer must be called
 (help-at-pt-set-timer)
+
+;; to save slowdowns from long lines. added in emacs 27.1
+(global-so-long-mode 1)
    #+END_SRC
 
 ** functions
@@ -966,7 +972,7 @@ paredit        ; Introduce some paredit commands.
   (require 'yasnippet)
   )
    #+end_src
-** epoch
+** epoch, ms, seconds etc
    #+begin_src emacs-lisp
 (defun epoch-at-point ()
   (interactive)
@@ -984,6 +990,35 @@ paredit        ; Introduce some paredit commands.
     (unless buffer-read-only
       (put-text-property (car bounds) (cdr bounds)
 			 'help-echo (format-time-string "%F %r" (seconds-to-time seconds))))))
+
+(defun milliseconds-at-point ()
+  (interactive)
+  (let* ((bounds (if (region-active-p)
+		     (car (region-bounds))
+		   (bounds-of-thing-at-point 'word)))
+	 (ms (read (buffer-substring-no-properties (car bounds)
+						   (cdr bounds))))
+	 (duration-string (let ((org-duration-format 'h:mm:ss))
+			    (org-duration-from-minutes (/ ms 1000.0 60.0)))))
+    (message "%s ms => %s (h:mm:ss)" ms duration-string)
+    (unless buffer-read-only
+      (put-text-property (car bounds) (cdr bounds)
+			 'help-echo duration-string))))
+
+(defun seconds-at-point ()
+  (interactive)
+  (let* ((bounds (if (region-active-p)
+		     (car (region-bounds))
+		   (bounds-of-thing-at-point 'word)))
+	 (seconds (read (buffer-substring-no-properties (car bounds)
+							(cdr bounds))))
+	 (duration-string (let ((org-duration-format 'h:mm:ss))
+			    (org-duration-from-minutes (/ seconds 60.0)))))
+    (message "%s s => %s (h:mm:ss)" seconds duration-string)
+    ;; (unless buffer-read-only
+    ;;   (put-text-property (car bounds) (cdr bounds)
+    ;; 			 'help-echo duration-string))
+    ))
    #+end_src
 
 * Utilities (vterm..)
@@ -1162,9 +1197,10 @@ sudo apt-get install cmake libtool-bin -y
    #+begin_src emacs-lisp
 (use-package typescript-mode)
    #+end_src
-** etc (yaml..)
+** etc (yaml, csv
    #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode)
+(use-package csv-mode)
    #+END_SRC
 ** CC: c/c++
 
@@ -1190,6 +1226,17 @@ sudo apt-get install cmake libtool-bin -y
 ** groovy
    #+begin_src emacs-lisp
 (use-package groovy-mode)
+   #+end_src
+** python
+   #+begin_src emacs-lisp
+(with-eval-after-load 'org
+  (org-babel-do-load-languages 'org-babel-load-languages
+			       '((python . t)))
+  (setq org-babel-python-command (or
+				  (executable-find "python3")
+				  (executable-find "python")
+				  (prong (warn "Could not find python executable")
+					 nil))))
    #+end_src
 * Web
 ** restclient
