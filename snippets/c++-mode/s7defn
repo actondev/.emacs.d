@@ -4,7 +4,7 @@
 # --
 
 constexpr char*  help_${1:$(replace-regexp-in-string "-" "_" yas-text )} = "(${1:function-name} ${2:args})";
-s7_pointer scm_$1(s7_scheme* sc, s7_pointer args) {
+s7_pointer scm_${1:$(replace-regexp-in-string "-" "_" yas-text )}(s7_scheme* sc, s7_pointer args) {
   $0
   ${2:$(mapconcat (lambda (x)
     (if (string= x "&optional")
@@ -18,6 +18,9 @@ s7_pointer scm_$1(s7_scheme* sc, s7_pointer args) {
 
 void bind_${1:$(replace-regexp-in-string "-" "_" yas-text )}(s7_scheme* sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "$1"),
-            s7_make_function(sc, "$1", scm_${1:$(replace-regexp-in-string "-" "_" yas-text )}, 0, 0, true,
-                             help_${1:$(replace-regexp-in-string "-" "_" yas-text )}));
+            s7_make_function(sc, "$1",
+	    			 scm_${1:$(replace-regexp-in-string "-" "_" yas-text )},
+				 ${3:N-req-args}, ${4:N-opt-args}, ${5:rest-args?}, // req, opt, rest?
+				 help_${1:$(replace-regexp-in-string "-" "_" yas-text )})
+				 );
 }

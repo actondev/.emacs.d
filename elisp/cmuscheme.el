@@ -274,9 +274,13 @@ order.  Return nil if no start file found."
   (interactive "r")
   ;; oor, add a hook to comint-send-region
   ;; well.. there are no hooks, so.. defadvice??
-  (pulse-momentary-highlight-region start end 'next-error)
   (comint-send-region (scheme-proc) start end)
-  (comint-send-string (scheme-proc) "\n"))
+  (comint-send-string (scheme-proc) "\n")
+  ;; it seems that using directly pulse it causes comint to hang?
+  (if (require 'nav-flash nil 'noerror)
+      ;; tip: customize nav-flash-delay (ex value: 0.2)
+      (nav-flash-show start end)
+    (pulse-momentary-highlight-region start end 'next-error)))
 
 (defun scheme-send-definition ()
   "Send the current definition to the inferior Scheme process."

@@ -6,17 +6,32 @@
 
 (require 'cmuscheme)
 
+(defgroup aod.s7 nil
+  "Repl functionality for s7"
+  :group 'scheme)
+
+(defcustom aod.s7/send-whole-ns-form t
+  "Send the whole ns form (including :require etc) or only the ns name.
+When the former, it means the the required namespaces are in away 'reloaded' (imported
+functions are updated if they got redefined in the required namespace)
+When the latter, it only changes the current ns where the repl performs its evaluations."
+  :type 'boolean
+  :group 'cmuscheme)
+
 (defun aod.s7/get-ns ()
   "Get the namespace name to send on the repl.
 NOTE: you need to have the (ns) in the beginning of the
 line. This is to not mistake things after ;; comments"
-  (save-excursion
+  (save-mark-and-excursion
     (beginning-of-buffer)
-    ;; matching any non whitespace character after the "(ns "
-    ;; \s didn't match new line for some reason..?
-    (if (re-search-forward "^\(ns \\([^ \t\r\n]+\\)" nil t)
-	(match-string-no-properties 1)
-      nil)))
+    ;; note: sexp-at-point returns a form! not a string
+    (let ((ns-form (sexp-at-point)))
+      (if (and ns-form (string-match "\(ns \\([^ \t\r\n]+\\)" (format "%s" ns-form)))
+          (progn
+            (if aod.s7/send-whole-ns-form
+                ns-form
+              (format "(ns %s)" (match-string-no-properties 1))))
+        nil))))
 
 (defun aod.s7/switch-to-ns ()
   "Switches to the namespace of the currently open buffer."
@@ -24,11 +39,13 @@ line. This is to not mistake things after ;; comments"
   (if-let ((ns (aod.s7/get-ns)))
       (progn
 	(message (format "switching to ns %s" ns))
-	(scheme-send-string (format "(ns %s)" ns)))
+	(scheme-send-string ns)
+        )
     ;; else
     (progn
       (message "switching to (rootlet)")
-      (scheme-send-string "(set! *ns* (rootlet))"))))
+      (scheme-send-string "(set! *ns* (rootlet))")
+      )))
 
 (defun aod.s7/top-level-sexp-region ()
   "Gets the top level sexp (start end)"
