@@ -504,3 +504,6 @@ wget https://github.com/Wilfred/ReVo-utilities/blob/a4bdc40dd2656c496defc461fc19
   extend beyond ‘fill-column’ - makes the file readonly
   #+end_quote
   
+* TODO smooth scrolling?
+  https://github.com/io12/good-scroll.el
+  the built-in pixel-scroll-mode feels slow

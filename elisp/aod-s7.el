@@ -91,4 +91,9 @@ Here we just send ounce the trimmed top level sexp"
   (let ((region (aod.s7/last-sexp-region)))
     (apply #'scheme-send-region region)))
 
+(defun aod.s7/defn->cpp (fn-name)
+  (->> fn-name
+       (replace-regexp-in-string "-" "_")
+       (replace-regexp-in-string "!" "_bang")))
+
 (provide 'aod-s7)
