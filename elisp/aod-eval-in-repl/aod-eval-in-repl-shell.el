@@ -44,6 +44,9 @@
 
 (cl-defmethod aod.eir/send-string (string &context (major-mode vterm-mode))
   "term-send-string seems to work with vterm. Is there another command that should be used instead?"
+  (when vterm-copy-mode
+    (message "disabling vterm-copy-mode")
+    (vterm-copy-mode -1))
   (term-send-string (current-buffer) string))
 
 

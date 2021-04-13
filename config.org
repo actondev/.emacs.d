@@ -558,6 +558,12 @@ new helm-ag-command-option %s"
 	       (ibuffer-do-sort-by-alphabetic))))
   )
    #+END_SRC
+** Get frame by name
+   #+begin_src emacs-lisp
+(defun get-frame-by-name (name)
+  (find-if (lambda (frame) (equal (frame-parameter frame 'name) name))
+	   (frame-list)))
+   #+end_src
 * Appearance
 ** Cursor
    #+BEGIN_SRC emacs-lisp
@@ -1066,7 +1072,15 @@ sudo apt-get install cmake libtool-bin -y
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   (set-face-attribute 'magit-branch-current nil
-		      :underline t))
+		      :underline t)
+  (defun ediff-copy-both-to-C ()
+    (interactive)
+    (ediff-copy-diff ediff-current-difference nil 'C nil
+                     (concat
+                      (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                      (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+  (defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+  (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map))
   #+END_SRC
 
   Ediff: great diff tool that can be used in magit :)
