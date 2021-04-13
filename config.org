@@ -558,6 +558,12 @@ new helm-ag-command-option %s"
 	       (ibuffer-do-sort-by-alphabetic))))
   )
    #+END_SRC
+** Get frame by name
+   #+begin_src emacs-lisp
+(defun get-frame-by-name (name)
+  (find-if (lambda (frame) (equal (frame-parameter frame 'name) name))
+	   (frame-list)))
+   #+end_src
 * Appearance
 ** Cursor
    #+BEGIN_SRC emacs-lisp

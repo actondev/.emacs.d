@@ -164,3 +164,11 @@ foo(x, y);
   (aod.eir/opts)
   define minor mode to help-echo a src block calculated properties
   face: org-block-begin-line
+* replacing functions in dynamic scope
+  https://endlessparentheses.com/understanding-letf-and-how-it-replaces-flet.html
+  #+begin_src emacs-lisp
+(cl-letf (((symbol-function 'foo) (lambda ()
+				    (progn
+				      (message "replaced :)")))))
+  (do-something-that-calls-foo))
+  #+end_src
