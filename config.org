@@ -449,6 +449,32 @@ multiple files"
    #+BEGIN_SRC sh
 sudo apt-get install silversearcher-ag
    #+END_SRC
+* Avy
+  #+begin_src emacs-lisp
+(defun aod/avy ()
+  (interactive)
+  (let ((choices (list (list ?t "with timer" 'avy-goto-char-timer)
+		       (list ?l "line" 'avy-goto-line)
+		       (list ?w "word" 'avy-goto-word-1)
+		       (list ?c "char" 'avy-goto-char)
+		       ;; (list ?R "copy region" 'avy-copy-region)
+		       )))
+    (let ((choice (read-multiple-choice "avy action:" choices)))
+      (call-interactively (caddr choice)))))
+
+(use-package avy
+  :config
+  (key-chord-define-global ",v" 'aod/avy)
+  (key-chord-define-global "vt" 'avy-goto-char-timer)
+  (setq avy-keys (list
+		  ?a ?b ?c ?d ?e ?f ?g ?h ?i ?j ?k ?l ?m ?n ?o ?p ?q ?r ?s ?t ?u ?v ?w ?x ?y ?z)))
+
+'(defhydra aod/avy-hydra ()
+   "avy"
+   ("t" avy-goto-char-timer "timer")
+   ("l" avy-goto-line "line")
+   ("R" avy-copy-region "copy region"))
+  #+end_src
 * Window management
 ** Resizing (windresize)
    #+BEGIN_SRC emacs-lisp
@@ -1305,6 +1331,7 @@ sudo apt-get install zeal
   (key-chord-define-global ",g" 'helm-projectile-ag) ;; aG
   )
 
+;; TODO remove it. use avy
 (defun key-chord-ace-jump ()
   ;; ace: c (c for jump : left hand middle finger)
   (key-chord-define-global "cj" 'ace-jump-mode)
