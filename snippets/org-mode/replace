@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: org-src-replace
+# key: :replace
+# --
+:replace `(mapconcat
+		'identity
+		(helm-comp-read "Local variables: " (mapcar
+			  (lambda (x)
+			    (symbol-name (car x)))
+			  (aod/local-variables))
+		:marked-candidates t)
+		" ")`

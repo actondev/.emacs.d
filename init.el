@@ -1,3 +1,4 @@
+(defmacro comment (&rest a))
 (setq start-time (float-time))
 
 (defun msg-time (text)
@@ -36,5 +37,3 @@
 (load-org-cached "elisp.org")
 
 (message (format "%s%s" "Startup time: " (emacs-init-time)))
-
-(defmacro comment (&rest a))

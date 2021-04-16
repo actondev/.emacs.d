@@ -473,7 +473,6 @@ sudo apt-get install silversearcher-ag
 
 (use-package avy
   :config
-  (key-chord-define-global ",v" 'aod/avy)
   (setq avy-keys (list
 		  ?a ?b ?c ?d ?e ?f ?g ?h ?i ?j ?k ?l ?m ?n ?o ?p ?q ?r ?s ?t ?u ?v ?w ?x ?y ?z)))
   #+end_src
@@ -1055,6 +1054,37 @@ paredit        ; Introduce some paredit commands.
     ))
    #+end_src
 
+* Hacking around
+** custom local variables
+   #+begin_src emacs-lisp
+(defun aod/local-variables ()
+  "Getting 'custom' local variables (eg REMOTE_ENDPOINT).
+Setting them into buffers for working with org-mode & repls"
+  (interactive)
+  (let ((res
+	 (delq nil
+	       (mapcar
+		(lambda (x)
+  		  ;; Most elements look like (SYMBOL . VALUE), describing one variable.
+		  ;; For a symbol that is locally unbound, just the symbol appears in the value
+		  (when (not (symbolp x))
+		    (let ((name (symbol-name (car x))))
+		      (when (or (s-uppercase? name)
+				(s-match "^\*" name))
+			x))))
+		(buffer-local-variables)))))
+    (if (called-interactively-p 'interactive)
+	(message "%S" res)
+      res)))
+   #+end_src
+** reading buffer with modes
+   #+begin_src emacs-lisp
+(defun aod/read-buffer-with-modes (prompt modes)
+  (read-buffer prompt nil nil
+	       (lambda (x)
+		 (with-current-buffer x
+		   (memq major-mode modes)))))
+   #+end_src
 * Utilities (vterm..)
 ** vterm
    - [ ] check --with-modules support
@@ -1405,6 +1435,7 @@ sudo apt-get install zeal
   (key-chord-editing)
   ;; (key-chord-ace-jump)
   (key-chord-dot)
+  (key-chord-define-global ",v" 'aod/avy)
   )
    #+END_SRC
 

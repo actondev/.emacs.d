@@ -35,10 +35,49 @@ Returns the src-block-info without evaluating anything.
   "Returns the session name from the org-mode src block info.
 org-mode has a 'none' session if nothing is explicitly set. In that
 case this function returns nil"
-  (let* ((session (cdr (assq :session opts))))
-    (if (string= session "none")
-	nil
-      session)))
+  (let* ((session (cdr (assq :session opts)))
+	 (res (cond ((string= session "none")
+		     (progn "here, none?"
+			    nil))
+		    ((and ;; aha! intern-soft can return nil and then boundp returns t
+		      (intern-soft session)
+		      (boundp (intern-soft session)))
+		     (symbol-value (intern-soft session)))
+		    (t session))))
+    res))
+
+(defun aod.eir/shell-or-term-buffers ()
+  (let ((buffers)
+	(modes '(shell-mode term-mode vterm-mode comint-mode)))
+    (dolist (buf (buffer-list) buffers)
+      (with-current-buffer buf
+        (when (memq major-mode modes)
+          (push buf buffers))))
+    buffers))
+
+(comment "how can I make a keymap that lowercase->uppsercase to
+read from the mini buffer?"
+ (defvar aod.eir/caps-lock-keymap
+   (make-sparse-keymap (keymap
+			(mapcar (lambda (c)
+				  (cons c #'backward-char)
+				  )
+				
+				(-iota (- 122 97) 97)))))
+ (mapcar (lambda (c)
+	   (cons c backward-char)
+	   )
+	 
+	 (-iota (- 122 97) 97))
+
+ (read-from-minibuffer "Input: " nil aod.eir/caps-lock-keymap)
+ )
+
+(defun aod.eir/setq-local-repl-name (local-var buffer)
+  (interactive (list
+		(read-string "Variable name: ")
+		(aod/read-buffer-with-modes "Buffer: " '(shell-mode term-mode vterm-mode comint-mode))))
+  (eval `(setq-local ,(intern local-var) ,buffer)))
 
 (defvar aod.eir/default-session-alist
   '((python . "*Python*")
@@ -71,7 +110,9 @@ opts are in the format of `(nth 2 (org-babel-get-src-block-info))` output"
     ;; I'm usually naming session like STAGING, PROD, DEV or something
     ;; so, if there are 3 capitaler letter, prompt for validation
     ;; TODO make this a defcustom
-    (if (string-match-p "[A-Z]\\{3,\\}" session)
+    (if (and (string-match-p "[A-Z]\\{3,\\}" session)
+	     ;; TODO disabling this
+	     nil)
 	(y-or-n-p (format "Confirm: eval in %s: %s" session (truncate-string-to-width string trunc-length 0 nil "..")))
       t)))
 
