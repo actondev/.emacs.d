@@ -10,9 +10,8 @@
 		(aod.eir/get-opts opts :replace))))))
 
 (defconst aod-repl/org-src-block-regexp
-  "^[ \t]*#\\+begin_src\\(\\([^\n]+\\)\\)?\n\\([^\000]+?\\)#\\+end_src[ \t]*$"
-  "Copied & modified from org-block-regexp.
-TODO what is the [^\000] regexp??")
+  "^[ \t]*#\\+begin_src\\([^\n]*\\)?\n\\([\0-\377[:nonascii:]]+?\\)\n[ \t]*#\\+end_src[ \t]*$"
+  "org src block regexp")
 
 (defun aod-repl/org-src-block-matcher (limit)
   (let ((case-fold-search t))
@@ -26,18 +25,20 @@ TODO what is the [^\000] regexp??")
 					      ,#'aod-repl/help-echo-src-block
 					      ;; or (lambda (window buffer char) ...)
 					      ;; or (lambda (&rest args) ... )
-					      ) prepend)))
-  "The font-lock for begin_src headers.")
+					      )
+				       prepend))))
 
 (defun aod-repl/-org-mode-init ()
   (message "aod-repl/-org-mode-init")
-  (font-lock-add-keywords nil aod-repl/font-lock-keywords))
+  ;; https://stackoverflow.com/a/10035494/8720686
+  (font-lock-add-keywords nil aod-repl/font-lock-keywords 'append)
+  (make-local-variable 'font-lock-extra-managed-props)
+  (push 'help-echo font-lock-extra-managed-props))
 
 (defun aod-repl/-org-mode-deinit ()
   "Remove font-lock keywords for extra lisp highlithing."
   (message "aod-repl/-org-mode-deinit")
-  (font-lock-remove-keywords nil aod-repl/font-lock-keywords)
-  (remove-text-properties (point-min) (point-max) '(help-echo)))
+  (font-lock-remove-keywords nil aod-repl/font-lock-keywords))
 
 (define-minor-mode aod-repl/org-mode
   "Minor mode that adds help-echo in the begin_src lines"
@@ -52,27 +53,5 @@ TODO what is the [^\000] regexp??")
     (when font-lock-mode
       (with-no-warnings
         (font-lock-fontify-buffer)))))
-
-;; (define-minor-mode aod-repl/org-mode2
-;;   "Minor mode that adds help-echo in the begin_src lines"
-;;   :group 'aod-repl/org
-;;   (if aod-repl/org-mode2
-;;       (progn ;; init
-;; 	(message "adding face relative")
-;; 	(setq-local aod-repl/-face-cookie (face-remap-add-relative 'org-block
-;; 								   '(:background "#fff")
-;; 								   '(:help-echo "org mode")
-;; 								   ;;'help-echo "aod org mode2" ;;#'aod-repl/help-echo-src-block
-;; 								   ))
-;; 	)
-;;     (progn ;; deinit
-;;       (message "removing face relative")
-;;       (face-remap-remove-relative  aod-repl/-face-cookie)))
-;;   (if (fboundp 'font-lock-flush)
-;;       (font-lock-flush)
-;;     (when font-lock-mode
-;;       (with-no-warnings
-;;         (font-lock-fontify-buffer))))
-;;   )
 
 (provide 'aod-eval-in-repl-mode)

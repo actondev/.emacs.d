@@ -107,3 +107,76 @@
  version-control t)       ; use versioned backups
 
   #+END_SRC
+* <2021-04-18 Sun> org repl mode, orgc-block-regexp etc
+
+** orgc-block-regexp
+   #+begin_src emacs-lisp
+;; is the orgc-block-regexp
+"^[ \t]*#\\+begin_?\\([^ \n]+\\)\\(\\([^\n]+\\)\\)?\n\\([^\000]+?\\)#\\+end_?\\1[ \t]*$" 
+;; some modifications
+"^[ \t]*#\\+begin_src\\(\\([^\n]+\\)\\)?\n\\([^\000]+?\\)#\\+end_src[ \t]*$"
+"^[ \t]*#\\+begin_src\\([^\n]*\\)?\n\\([^\000]+?\\)#\\+end_src[ \t]*$"
+;; What ist this [^\000] regexp??
+;; this last one seems the most correct
+"^[ \t]*#\\+begin_src\\([^\n]*\\)?\n\\([\0-\377[:nonascii:]]+?\\)\n[ \t]*#\\+end_src[ \t]*$"  
+   #+end_src
+** font-lock
+   - https://stackoverflow.com/a/10035494/8720686
+
+   #+begin_src emacs-lisp
+(font-lock-add-keywords nil aod-repl/font-lock-keywords)
+;; .. the keywords was adding help-echo
+;; then..
+(font-lock-remove-keywords nil aod-repl/font-lock-keywords)
+   #+end_src
+
+   That wasn't working and had manually to
+   #+begin_src emacs-lisp
+(remove-text-properties (point-min) (point-max) '(help-echo))   
+   #+end_src
+
+   But, that's cause I had to also 
+   #+begin_src emacs-lisp
+(make-local-variable 'font-lock-extra-managed-props)
+(push 'help-echo font-lock-extra-managed-props)   
+   #+end_src
+** org-fontify-meta-lines-and-blocks-1
+   - [[file:/usr/share/emacs/27.1/lisp/org/org.el.gz::defun org-fontify-meta-lines-and-blocks]]
+   - added in org-font-lock-extra-keywords
+     at org-set-font-lock-defaults [[file:/usr/share/emacs/27.1/lisp/org/org.el.gz::defun org-set-font-lock-defaults ()]]
+     #+begin_src emacs-lisp
+(let org-font-lock-extra-keywords (list 
+;; ..
+'(org-fontify-meta-lines-and-blocks)
+))
+
+;;;
+
+(setq-local font-lock-defaults
+		'(org-font-lock-keywords t nil nil backward-paragraph))
+     #+end_src
+
+     that function calls
+     (org-src-font-lock-fontify-block lang block-start block-end)
+     [[file:/usr/share/emacs/27.1/lisp/org/org-src.el.gz::defun org-src-font-lock-fontify-block (lang start end)]]
+
+* setq-local, and interactive: making CAPS_LOCKED_LOCAL_VARS
+  #+begin_src emacs-lisp
+(comment "how can I make a keymap that lowercase->uppsercase to
+read from the mini buffer?"
+	 (defvar aod.eir/caps-lock-keymap
+	   (make-sparse-keymap (keymap
+				(mapcar (lambda (c)
+					  (cons c #'backward-char)
+					  )
+					
+					(-iota (- 122 97) 97)))))
+	 (mapcar (lambda (c)
+		   (cons c backward-char)
+		   )
+		 
+		 (-iota (- 122 97) 97))
+
+	 (read-from-minibuffer "Input: " nil aod.eir/caps-lock-keymap)
+	 )  
+  #+end_src

@@ -46,33 +46,6 @@ case this function returns nil"
 		    (t session))))
     res))
 
-(defun aod.eir/shell-or-term-buffers ()
-  (let ((buffers)
-	(modes '(shell-mode term-mode vterm-mode comint-mode)))
-    (dolist (buf (buffer-list) buffers)
-      (with-current-buffer buf
-        (when (memq major-mode modes)
-          (push buf buffers))))
-    buffers))
-
-(comment "how can I make a keymap that lowercase->uppsercase to
-read from the mini buffer?"
- (defvar aod.eir/caps-lock-keymap
-   (make-sparse-keymap (keymap
-			(mapcar (lambda (c)
-				  (cons c #'backward-char)
-				  )
-				
-				(-iota (- 122 97) 97)))))
- (mapcar (lambda (c)
-	   (cons c backward-char)
-	   )
-	 
-	 (-iota (- 122 97) 97))
-
- (read-from-minibuffer "Input: " nil aod.eir/caps-lock-keymap)
- )
-
 (defun aod.eir/setq-local-repl-name (local-var buffer)
   (interactive (list
 		(read-string "Variable name: ")
@@ -344,12 +317,21 @@ Note that this text might end up into the OS's clipboard. See `kill-new'
 		 src
 		 opts)))))
 
-(defun aod.eir/eval-org-src ()
-  (interactive)
+(defun aod.eir/read-buffer ()
+  (let ((modes '(shell-mode term-mode vterm-mode comint-mode)))
+    (read-buffer "Repl buffer: " nil nil
+		 (lambda (x)
+		   (with-current-buffer x
+		     (memq major-mode modes))))))
+
+;; or, send string..
+(defun aod.eir/eval-org-src (arg)
+  (interactive "P")
   (let* ((src-block-info (org-babel-get-src-block-info 'light))
 	 (opts (aod.eir/parse-opts (nth 2 src-block-info)))
 	 (lang (intern-soft (nth 0 src-block-info)))
-	 (session (aod.eir/session-name lang opts)))
+	 (session (if arg (aod.eir/read-buffer)
+		    (aod.eir/session-name lang opts))))
     (unless (aod.eir/-session-exists-p session)
       (let* (;;using org-babel-read and not eval cause
 	     ;; "../" and (read-directory-name "dir ")

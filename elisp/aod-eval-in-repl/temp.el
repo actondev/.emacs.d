@@ -68,3 +68,26 @@
 
 
 ;; copy between two searches
+
+
+;; (define-minor-mode aod-repl/org-mode2
+;;   "Minor mode that adds help-echo in the begin_src lines"
+;;   :group 'aod-repl/org
+;;   (if aod-repl/org-mode2
+;;       (progn ;; init
+;; 	(message "adding face relative")
+;; 	(setq-local aod-repl/-face-cookie (face-remap-add-relative 'org-block
+;; 								   '(:background "#fff")
+;; 								   '(:help-echo "org mode")
+;; 								   ;;'help-echo "aod org mode2" ;;#'aod-repl/help-echo-src-block
+;; 								   ))
+;; 	)
+;;     (progn ;; deinit
+;;       (message "removing face relative")
+;;       (face-remap-remove-relative  aod-repl/-face-cookie)))
+;;   (if (fboundp 'font-lock-flush)
+;;       (font-lock-flush)
+;;     (when font-lock-mode
+;;       (with-no-warnings
+;;         (font-lock-fontify-buffer))))
+;;   )
