@@ -180,3 +180,7 @@ read from the mini buffer?"
 	 (read-from-minibuffer "Input: " nil aod.eir/caps-lock-keymap)
 	 )  
   #+end_src
+* TODO repl & edit src block
+  when entering the "edit src block" (with ~C-c '~) the local variable =org-src--babel-info= is set
+  - in org-edit-src-code
+    =(setq org-src--babel-info babel-info)=

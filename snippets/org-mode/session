@@ -2,4 +2,8 @@
 # name: org-src-session
 # key: :session
 # --
-:session `(read-buffer "Insert buffer name: " nil nil (lambda (x) (string-match "^\*.+\*$" x)))`
+:session `(read-buffer "Repl buffer: " nil nil
+	       (lambda (x)
+	        (let ((modes '(shell-mode term-mode vterm-mode comint-mode)))
+ 		 (with-current-buffer x
+		   (memq major-mode modes)))))`
