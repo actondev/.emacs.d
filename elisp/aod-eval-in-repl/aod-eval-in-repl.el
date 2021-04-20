@@ -367,6 +367,14 @@ Note that this text might end up into the OS's clipboard. See `kill-new'
 (cl-defgeneric aod.eir/eof (lang string)
   (error "unknown way to send EOF string"))
 
+(defun aod.eir/setq-local-region (symbol)
+  (interactive "Ssymbol: ")
+  (when (region-active-p)
+    (let ((text (buffer-substring-no-properties (mark) (point))))
+      (eval `(setq-local ,symbol ,text))
+      (kill-region (mark) (point))
+      (insert (format "%s" symbol)))))
+
 (require 'aod-eval-in-repl-shell)
 (require 'aod-eval-in-repl-python)
 (require 'aod-eval-in-repl-sql)

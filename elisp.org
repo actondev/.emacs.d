@@ -337,17 +337,21 @@ echo dev run
 
 * Workgroups
   #+BEGIN_SRC emacs-lisp :results silent
-(defun aod.wg/load-session (session)
+(defun aod.wg/load-session (session-file)
   (interactive (list
-		(read-file-name "session:"
+		(read-file-name "session file:"
 				(format "%s/.wg/" (projectile-project-root)))))
-  (wg-open-session session))
+  (require 'workgroups2)
+  (wg-open-session session-file))
 
-(defun aod.wg/save-session (session)
+(defun aod.wg/save-session (session-file)
   (interactive (list
-		(read-file-name "session:"
+		(read-file-name "session file:"
 				(format "%s/.wg/" (projectile-project-root)))))
-  (wg-save-session-as session))
+  (let ((dir (file-name-directory session-file)))
+    (make-directory dir 'create-parents))
+  (require 'workgroups2)
+  (wg-save-session-as session-file))
   #+END_SRC
 * Meson build system
   Adding new =files()=
