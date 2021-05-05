@@ -32,12 +32,18 @@
 	(opts-with-vars (org-babel-process-params (seq-filter (lambda (x)
 								(eq (car x) :var))
 							      opts))))
-    (aod.eir/-start-repl-shell session shell-type)
-    (let ((assignment-statement
-	   (org-babel-expand-body:generic
-	    "" opts (org-babel-variable-assignments:shell opts-with-vars))))
-      (aod.eir/eval lang session assignment-statement opts)
-      )))
+    ;; TODO have a base start-repl and then wrap the result
+    ;; this should be start-repl-impl
+    (let ((created-buffer (save-window-excursion (aod.eir/-start-repl-shell session shell-type))))
+      (let ((assignment-statement
+	     (org-babel-expand-body:generic
+	      "" opts (org-babel-variable-assignments:shell opts-with-vars))))
+	(aod.eir/eval lang session assignment-statement opts)
+	(switch-to-buffer-other-window created-buffer)
+	;; (if (<= (length (aw-window-list)) 1)
+	;;     (switch-to-buffer-other-window created-buffer)
+	;;   (ace-display-buffer created-buffer ()))
+	))))
 
 (cl-defmethod aod.eir/send-string (string &context (major-mode term-mode))
   (term-send-string (current-buffer) string))
