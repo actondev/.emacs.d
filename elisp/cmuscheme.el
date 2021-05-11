@@ -248,6 +248,9 @@ is run).
   (interactive (list (if current-prefix-arg
 			 (read-string "Run Scheme: " scheme-program-name)
 		       scheme-program-name)))
+  (when (get-buffer "*scheme*")
+    (with-current-buffer "*scheme*"
+      (erase-buffer)))
   (if (not (comint-check-proc "*scheme*"))
       (let ((cmdlist (split-string-and-unquote cmd)))
 	(set-buffer (apply 'make-comint "scheme" (car cmdlist)
