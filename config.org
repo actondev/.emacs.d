@@ -70,6 +70,7 @@
 (global-set-key (kbd "C-/") 'toggle-comment-on-line)
 (global-set-key (kbd "C-?") 'comment-or-uncomment-region)
 
+(require 'outline)
 (global-set-key (kbd "M-n") 'outline-next-visible-heading)
 (global-set-key (kbd "M-p") 'outline-previous-visible-heading)
    #+END_SRC
@@ -534,29 +535,38 @@ sudo apt-get install silversearcher-ag
 
 (use-package ag)
 
-(use-package helm-projectile
-  :commands (helm-projectile-find-file
-	     helm-projectile-ag))
-
-(defun aod.ag/toggle-vcs-ignore ()
+(defun aod.ag/vcs-ignore (ignore-p)
   "ag has a bug with .gitignore. encountered this in openFrameworks
 see https://github.com/ggreer/the_silver_searcher/issues/862
 
 So, when some files are not found, the .gitignore should be kept"
-  (interactive)
-  (let ((flag "--skip-vcs-ignores"))
-    (if (member flag ag-arguments)
+  (interactive (list nil))
+  (require 'ag)
+  (require 'helm-ag)
+  (let* ((flag "--skip-vcs-ignores")
+	 (ignore (cond (ignore-p (if (and (numberp ignore-p)
+					  (= -1 ignore-p))
+				     nil
+				   t))
+		       (t (not (member flag ag-arguments))))))
+    (if ignore
 	(progn
 	  (setq ag-arguments (remove-if (lambda (x) (string-equal x flag))
 					ag-arguments))
 	  (setq helm-ag-command-option nil))
       (progn
-	(push flag ag-arguments)
+	(add-to-list 'ag-arguments flag)
 	(setq helm-ag-command-option flag)))
     (message "new ag-arguments: %s
-new helm-ag-command-option %s"
+    new helm-ag-command-option %s"
 	     ag-arguments
-	     helm-ag-command-option)))
+	     helm-ag-command-option)
+    ))
+
+(use-package helm-projectile
+  :commands (helm-projectile-find-file
+	     helm-projectile-ag)
+  :config (aod.ag/vcs-ignore t))
 
 (defun display-line-numbers-disable-hook (_)
   "Disable display-line-numbers locally."
@@ -1085,6 +1095,38 @@ Setting them into buffers for working with org-mode & repls"
 		 (with-current-buffer x
 		   (memq major-mode modes)))))
    #+end_src
+** network, nmap
+   #+begin_src emacs-lisp
+(defun aod/ssh-local-hosts ()
+  "Scans local network for hosts with port 22 open"
+  (let* ((host-out (shell-command-to-string "hostname -I")))
+    (string-match "\\([^ ]+\\)" host-out)
+    (let* ((host-ip (match-string 0 host-out))
+	   (_ (message "scanning for hosts in %s/24" host-ip))
+	   ;; T5: insane mode (fastest)
+	   (nmap-out (shell-command-to-string (format "nmap -p22 -T5 %s/24" host-ip))))
+      (with-temp-buffer
+	(insert nmap-out)
+	(beginning-of-buffer)
+	(let ((dict nil))
+	  (while (re-search-forward "Nmap scan report for \\([^ ]+\\) (\\([0-9.]+\\))"
+				    nil 'no-error)
+	    (push (cons (match-string-no-properties 1)
+			(match-string-no-properties 2))
+		  dict))
+	  dict)))))
+
+(defun aod/read-or-insert-ssh-local-host ()
+  (interactive)
+  (let* ((hosts (aod/ssh-local-hosts))
+	 (sel (helm-comp-read "host: " (mapcar (lambda  (x)
+						 (cons (format "%s (%s)" (car x) (cdr x))
+						       (cdr x)))
+					       hosts))))
+    (if (interactive-p)
+	(insert sel)
+      sel)))
+   #+end_src
 * Utilities (vterm..)
 ** vterm
    - [ ] check --with-modules support
@@ -1193,7 +1235,11 @@ sudo apt-get install cmake libtool-bin -y
 
 ** Scheme
    #+BEGIN_SRC emacs-lisp
-(add-to-list 'auto-mode-alist '("\\.sls\\'" . scheme-mode))   
+(add-to-list 'auto-mode-alist '("\\.sls\\'" . scheme-mode))
+(defun aod/scheme-name->cpp (name)
+  (->> name
+       (replace-regexp-in-string "-" "_")
+       (replace-regexp-in-string "!" "_bang")))
    #+END_SRC
 
 *** COMMENT Geiser
@@ -1248,6 +1294,15 @@ sudo apt-get install cmake libtool-bin -y
   )
     #+END_SRC
 
+*** s7bi pd
+
+    #+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.s7pd\\'" . scheme-mode))
+(use-package s7bi-pd
+  :load-path "elisp/"
+  :commands (aod/s7bi-pd-mode)
+  )
+    #+END_SRC
 *** windows path
     #+BEGIN_SRC emacs-lisp :tangle (when (eq system-type 'windows-nt) "yes")
 (add-to-list 'exec-path "c:/Program Files/Chez Scheme 9.5.2/bin/ta6nt/")
@@ -1294,6 +1349,12 @@ sudo apt-get install cmake libtool-bin -y
   (c-set-style "Google"))
 
 (add-hook 'c-mode-common-hook #'aod/cc-hook)
+    #+end_src
+
+    #+begin_src emacs-lisp
+(with-eval-after-load 'gdb
+  (setq gdb-many-windows t
+	gdb-show-main t))
     #+end_src
 ** groovy
    #+begin_src emacs-lisp
