@@ -62,6 +62,13 @@
 (cl-defmethod aod.eir/send-input (&context (major-mode vterm-mode))
   (vterm-send-return))
 
+(cl-defmethod aod.eir/last-output (&context (major-mode vterm-mode))
+  (vterm-previous-prompt 1)
+  (let ((p (point)))
+    (vterm-next-prompt 1)
+    (let ((output (buffer-substring-no-properties (point) p)))
+      output)))
+
 (provide 'aod-eval-in-repl-shell)
 
 

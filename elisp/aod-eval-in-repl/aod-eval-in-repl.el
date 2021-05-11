@@ -108,6 +108,11 @@ with defmethod and using the &context"
 (cl-defgeneric aod.eir/send-input ()
   (comint-send-input))
 
+(cl-defgeneric aod.eir/last-output ()
+  "Default implementation to send a string. Other logic can be implemented
+with defmethod and using the &context"
+  (error "Not implemented"))
+
 (cl-defgeneric aod.eir/get-region-to-eval (lang &optional opts)
   "By default eval current line. Other implementations (eg sql)
 get the current paragraph."

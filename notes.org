@@ -89,6 +89,10 @@ pwd
   |                        |
   | $ $ /home/actondev/dev |
 
+  #+begin_src sh :session *shell*
+echo hi from shell
+  #+end_src
+
   The problem is that upon initializing the session, $test is not defined
 
   This is how we can get the assignments
@@ -515,3 +519,7 @@ wget https://github.com/Wilfred/ReVo-utilities/blob/a4bdc40dd2656c496defc461fc19
   #+end_src
 
 * Get frame by name
+* <2021-04-21 Wed> ideas
+  - visual fill column
+    https://www.youtube.com/watch?v=9i_9hse_Y08
+    width, center text vars
