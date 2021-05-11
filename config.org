@@ -462,7 +462,7 @@ sudo apt-get install silversearcher-ag
   (let ((choices '((?C "char (default)" avy-goto-char)
 		   (?L "line" avy-goto-line)
 		   (?W "word" avy-goto-word-1)
-		   ;; (?T "char timer" avy-goto-char-timer)
+		   (?S "search" avy-goto-char-timer)
 		   )))
     (let ((choice (aod/read-multiple-choice "avy action:" choices 'allow)))
       (if (listp choice)
