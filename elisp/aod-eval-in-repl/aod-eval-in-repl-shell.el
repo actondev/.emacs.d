@@ -39,11 +39,7 @@
 	     (org-babel-expand-body:generic
 	      "" opts (org-babel-variable-assignments:shell opts-with-vars))))
 	(aod.eir/eval lang session assignment-statement opts)
-	(switch-to-buffer-other-window created-buffer)
-	;; (if (<= (length (aw-window-list)) 1)
-	;;     (switch-to-buffer-other-window created-buffer)
-	;;   (ace-display-buffer created-buffer ()))
-	))))
+	(aod.window/place-buffer created-buffer)))))
 
 (cl-defmethod aod.eir/send-string (string &context (major-mode term-mode))
   (term-send-string (current-buffer) string))

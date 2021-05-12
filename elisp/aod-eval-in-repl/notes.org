@@ -1,6 +1,14 @@
 * aod-eval-in-repl
   My mod of org-babel-eval-in-repl & eval-in-repl packages
 
+* Demo
+  #+begin_src sh :session *shell1*
+echo hi shell1
+  #+end_src
+
+  #+begin_src sh :session *shell2*
+echo hi shell2
+  #+end_src
 * Shell & sql
   #+begin_src sh :session *psql* :shell-type term
 # to use postgres:
