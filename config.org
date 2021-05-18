@@ -333,6 +333,7 @@
     (require 'aod-eval-in-repl))
   :bind (:map org-mode-map
 	      ("C-<return>" . aod.eir/eval-org-src)
+	      ("C-S-<return>" . aod.eir/eval-org-src-block)
 	      ))
     #+end_src
 ** exporting to html

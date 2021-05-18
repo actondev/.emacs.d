@@ -330,7 +330,8 @@ Note that this text might end up into the OS's clipboard. See `kill-new'
 		     (memq major-mode modes))))))
 
 ;; or, send string..
-(defun aod.eir/eval-org-src (arg)
+(defun aod.eir/eval-org-src (arg &optional whole-block)
+  "Evals current line, or sexp or selected region"
   (interactive "P")
   (let* ((src-block-info (org-babel-get-src-block-info 'light))
 	 (opts (aod.eir/parse-opts (nth 2 src-block-info)))
@@ -338,6 +339,7 @@ Note that this text might end up into the OS's clipboard. See `kill-new'
 	 (session (if arg (aod.eir/read-buffer)
 		    (aod.eir/session-name lang opts))))
     (unless (aod.eir/-session-exists-p session)
+      ;; initializing repl (session)
       (let* (;;using org-babel-read and not eval cause
 	     ;; "../" and (read-directory-name "dir ")
 	     ;; both appear as strings. ie "../" doesn't seem
@@ -353,17 +355,24 @@ Note that this text might end up into the OS's clipboard. See `kill-new'
 	(aod.eir/eval lang session
 		      (aod.eir/init-body session opts)
 		      opts)))
-    (let* ((region (aod.eir/-org-region-to-eval lang opts))
+    ;; evaluating
+    (let* ((region (if whole-block
+		       (cl-subseq (org-src--contents-area (org-element-at-point))
+				  0 2)
+		     (aod.eir/-org-region-to-eval lang opts)))
 	   (string (aod.eir/process-string
 		    (apply #'buffer-substring-no-properties region)
 		    opts)))
-      ;; TODO is this ok here?
-      ;; also, make a param for the delay value
       (when (require 'nav-flash nil 'noerror)
 	(let ((nav-flash-delay 0.1))
 	  (apply #'nav-flash-show region)))
       (when (aod.eir/validate-eval-p lang session string opts)
 	(aod.eir/eval lang session string opts)))))
+
+(defun aod.eir/eval-org-src-block (arg)
+  "Evaluates the whole src block"
+  (interactive "P")
+  (aod.eir/eval-org-src arg t))
 
 (defun aod.eir/-remove-surrounding-stars (string)
   "Sometimes it's 'needed' (more like advised) to pass a session name with stars - eg calling (shell \"*shell-session*\") -, but other times the stars are added by them. eg from term, python etc"
