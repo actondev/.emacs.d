@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: org-src-template
+# key: :template
+# --
+:template `(mapconcat
+		'identity
+		(helm-comp-read "Templates: " (mapcar
+		(lambda (x) (car x))
+		aod.eir/templates)
+		:marked-candidates t)
+		" ")`
