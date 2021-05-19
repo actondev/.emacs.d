@@ -4,9 +4,11 @@
     (save-excursion
       (goto-char char)
       (let ((opts (aod.eir/opts)))
-	(format ":session %s
+	(format ":session %s :dir %s
 :replace %s"
 		(aod.eir/-sesion-name-from-opts opts)
+		(if-let ((dir (aod.eir/get-opts opts :dir)))
+		    (car dir))
 		(aod.eir/get-opts opts :replace))))))
 
 (defconst aod-repl/org-src-block-regexp

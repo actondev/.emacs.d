@@ -9,6 +9,20 @@ echo hi shell1
   #+begin_src sh :session *shell2*
 echo hi shell2
   #+end_src
+* Templates
+
+  #+begin_src emacs-lisp
+(setq-local aod.eir/templates
+	    '((foo . ((:replace . "z=1") )))
+	    )
+  #+end_src
+
+  #+RESULTS:
+  | foo | (:replace . z=1) |
+
+  #+begin_src sh :template foo :replace x="y"
+echo x z # echoes y 1
+  #+end_src
 * Shell & sql
   #+begin_src sh :session *psql* :shell-type term
 # to use postgres:

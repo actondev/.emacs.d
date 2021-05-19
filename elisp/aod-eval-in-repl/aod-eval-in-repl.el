@@ -149,7 +149,7 @@ get the current paragraph."
     (aod.eir/backward-whitespace)
     (list (mark) (point))))
 
-(defvar aod.eir/opts-multi-keys '(:replace :init)
+(defvar aod.eir/opts-multi-keys '(:replace :init :template)
   "Keys that support multiple space-separated statements, like the `:var'
 ie `:var a=1 b=2` gets parsed to give ((:var . \"a=1\") (:var \"b=2\")
 Without this parsing it would give ((:var . \"a=1 b=2\"")
@@ -163,6 +163,12 @@ Without this parsing it would give ((:var . \"a=1 b=2\"")
 		      (aod.eir/parse-opts (nth 2 (org-babel-get-src-block-info 'light))))))
 	(aod.eir/process-string src opts)))))
 
+(defvar aod.eir/templates
+  '()
+  "a-list where the templates are stored. modified as a dir-local is a good idea!
+Example: ((foo . ((:replace . \"x=1\"))))
+And then add `:template foo` to your src header")
+
 (defun aod.eir/parse-opts (opts)
   "Parses opts for `aod.eir/opts-multi-keys'"
   (let (results)
@@ -174,7 +180,25 @@ Without this parsing it would give ((:var . \"a=1 b=2\"")
 		    ;; 	    (split-string (cdr pair) " "))
 		    ;; TODO remove the org-* functions from here
 		    (mapcar (lambda (v)
-			      (push (cons key (org-trim v)) results))
+			      (let ((value (org-trim v)))
+				;; here it'd be key :replace value x="y"
+				;; or key :template value foo
+				(pcase key
+				  (:template
+				   ;; we resolve the template and merge it
+				   (let* ((template-symbol (intern-soft value))
+					  (template-value (assq template-symbol aod.eir/templates)))
+				     (if template-value
+					 (progn
+					   ;; (message "template %s is %s" template-symbol template-value)
+					   (mapcar (lambda (template-option)
+						     (push template-option results)
+						     )
+						   (cdr template-value)))
+				       (warn "template %s is not defined" template-symbol)
+				       )))
+				  ;; otherwise, just put them into the results
+				  (_ (push (cons key value) results)))))
 			    ;; 32 is space
 			    (org-babel-balanced-split (cdr pair) 32)
 			    ;;(split-string (cdr pair) "(?![^(]*\)) ")
@@ -187,9 +211,12 @@ Without this parsing it would give ((:var . \"a=1 b=2\"")
 (ert-deftest aod.eir/parse-opts ()
   (let ((aod.eir/opts-multi-keys '(:foo :bar))
 	(opts '((:meh . 1) (:foo . "a=1 b=2") (:bar . "c=3 d=4"))))
-    (should (equal (aod.eir/parse-opts opts) '((:meh . 1) (:foo . "a=1") (:foo . "b=2") (:bar . "c=3") (:bar . "d=4")))))
-  
-  )
+    (should (equal (aod.eir/parse-opts opts) '((:meh . 1) (:foo . "a=1") (:foo . "b=2") (:bar . "c=3") (:bar . "d=4"))))))
+
+(ert-deftest aod.eir/parse-opts-with-template ()
+  (let ((aod.eir/templates '((foo . ((:replace . "foo=\"bar\"") ))))
+	(opts '((:replace . "x=1") (:template . "foo"))))
+    (should (equal (aod.eir/parse-opts opts) '((:replace . "x=1") (:replace . "foo=\"bar\""))))))
 
 (ert-deftest aod.eir/parse-and-get-opts ()
   (let ((aod.eir/opts-multi-keys '(:replace))
@@ -270,8 +297,8 @@ Will send \"echo 1 is not 2\" to the repl"
 
 (ert-deftest aod.eir/process-string ()
   (let ((string "echo aa is bb")
-	(opts '((:replace . "(\"aa\" \"three\")") (:replace . "(\"bb\" (+ 1 2))"))))
-    (should (equal (aod.eir/process-string 'default-lang string opts) "echo three is 3"))))
+	(opts '((:replace . "aa=\"three\"") (:replace . "bb=(+ 1 2)"))))
+    (should (equal (aod.eir/process-string string opts) "echo three is 3"))))
 
 (defun aod.eir/block-processed-contents (name)
   (org-save-outline-visibility nil ;; use markers?
