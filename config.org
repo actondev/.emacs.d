@@ -1581,6 +1581,17 @@ setxkbmap -option # reset
 setxkbmap -option ctrl:nocaps # ctrl & caps act as control
 setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
    #+end_src
+** hercules
+   #+begin_src emacs-lisp
+(use-package general)
+(use-package hercules)
+   #+end_src
+** aod-do
+   #+begin_src emacs-lisp
+(use-package aod-do
+  :load-path "elisp/"
+  :commands (aod-do/define))
+   #+end_src
 * Presentation? (command-log)
   #+BEGIN_SRC emacs-lisp
 (use-package command-log-mode
