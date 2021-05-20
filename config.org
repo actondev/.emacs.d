@@ -1,7 +1,6 @@
 #+PROPERTY: header-args :results silent :tangle yes
 
 * Some defaults
-
 ** general
    #+BEGIN_SRC emacs-lisp
 (menu-bar-mode 1) ;; show menu: useful things there some times!
@@ -101,6 +100,21 @@
       auto-save-interval 200            ; number of keystrokes between auto-saves (default: 300)
       )   
    #+END_SRC
+** compile
+   #+begin_src emacs-lisp
+(setq compilation-scroll-output t)
+   #+end_src
+   Another option is =(setq compilation-scroll-output 'first-error)=
+*** COMMENT troubleshoot
+    #+begin_example emacs-lisp
+ ;; had a problem with not scrolling..?
+ (add-hook 'compilation-finish-functions
+	   (lambda (buffer msg)
+	     (message "compilation finished??")
+	     (with-current-buffer buffer
+	       (message "point max? %s" (point-max))
+	       (goto-char (point-max)))))
+    #+end_example
 * Package source, use-package etc
   #+BEGIN_SRC emacs-lisp
 (setq package-enable-at-startup nil)
