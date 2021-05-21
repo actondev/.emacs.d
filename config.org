@@ -1,7 +1,6 @@
 #+PROPERTY: header-args :results silent :tangle yes
 
 * Some defaults
-
 ** general
    #+BEGIN_SRC emacs-lisp
 (menu-bar-mode 1) ;; show menu: useful things there some times!
@@ -101,6 +100,21 @@
       auto-save-interval 200            ; number of keystrokes between auto-saves (default: 300)
       )   
    #+END_SRC
+** compile
+   #+begin_src emacs-lisp
+(setq compilation-scroll-output t)
+   #+end_src
+   Another option is =(setq compilation-scroll-output 'first-error)=
+*** COMMENT troubleshoot
+    #+begin_example emacs-lisp
+ ;; had a problem with not scrolling..?
+ (add-hook 'compilation-finish-functions
+	   (lambda (buffer msg)
+	     (message "compilation finished??")
+	     (with-current-buffer buffer
+	       (message "point max? %s" (point-max))
+	       (goto-char (point-max)))))
+    #+end_example
 * Package source, use-package etc
   #+BEGIN_SRC emacs-lisp
 (setq package-enable-at-startup nil)
@@ -591,6 +605,16 @@ So, when some files are not found, the .gitignore should be kept"
 	)
   )
    #+END_SRC
+** projectile & dir locals
+   #+begin_src emacs-lisp
+(defun aod-project/reload-dir-locals ()
+  (interactive)
+  (dolist (buf (projectile-project-buffers))
+    (when (buffer-file-name buf)
+      (with-current-buffer buf
+	(message "hacking dir-locals into %s" buf)
+	(hack-dir-local-variables-non-file-buffer)))))
+   #+end_src
 * Buffer management
 ** ibuffer : grouping by project
    #+BEGIN_SRC emacs-lisp
@@ -1580,6 +1604,18 @@ sudo apt-get install zeal
 setxkbmap -option # reset
 setxkbmap -option ctrl:nocaps # ctrl & caps act as control
 setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
+   #+end_src
+** hercules
+   #+begin_src emacs-lisp
+(use-package general)
+(use-package hercules)
+   #+end_src
+** aod-do
+   #+begin_src emacs-lisp
+(use-package aod-do
+  :load-path "elisp/"
+  :demand t
+)
    #+end_src
 * Presentation? (command-log)
   #+BEGIN_SRC emacs-lisp

@@ -17,17 +17,15 @@ or the read input character (if `allow-other-char' is non-nil)
 
 See `read-multiple-choice' for usage example
 "
-  (let* ((full-prompt
-          (format
-           "%s (%s): "
-           prompt
-           (mapconcat
-            (lambda (elem)
-              (let ((name (cadr elem)))
-		(format "[%c] %s" (car elem) name)))
-	    choices
-            ", ")))
-         tchar buf wrong-char answer)
+  (let* ((full-prompt (format
+		       "%s (%s): "
+		       prompt
+		       (mapconcat
+			(lambda (elem)
+			  (let ((name (cadr elem)))
+			    (format "[%c] %s" (car elem) name)))
+			choices ", ")))
+         tchar wrong-char answer)
     (save-window-excursion
       (save-excursion
 	(while (not tchar)
@@ -54,13 +52,7 @@ See `read-multiple-choice' for usage example
                      (not (assq tchar choices))
 		     (not allow-other-char))
 	    (setq tchar nil
-		  wrong-char t)
-            ;; (when wrong-char
-            ;;   (ding))
-	    ;; removed with-help-window
-            ))))
-    (when (buffer-live-p buf)
-      (kill-buffer buf))
+		  wrong-char t)))))
     (or (assq tchar choices)
 	(and allow-other-char tchar))))
 
