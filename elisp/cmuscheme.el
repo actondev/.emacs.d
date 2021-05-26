@@ -248,15 +248,12 @@ is run).
   (interactive (list (if current-prefix-arg
 			 (read-string "Run Scheme: " scheme-program-name)
 		       scheme-program-name)))
-  (comment
-   (when (get-buffer "*scheme*")
-     (with-current-buffer "*scheme*"
-       (erase-buffer))
-     ))
   ;; TODO option to kill existing instance or not
-  (when-let* ((buffer (get-buffer "*scheme*"))
-	      (proc (get-buffer-process buffer))) ; Blast any old process.
-    (delete-process proc))
+  (when-let* ((buffer (get-buffer "*scheme*")))
+    (when (get-buffer-process buffer)
+      (delete-process (get-buffer-process buffer)))
+    (with-current-buffer "*scheme*"
+      (erase-buffer)))
   (let ((cmdlist (split-string-and-unquote cmd)))
     (set-buffer (apply 'make-comint "scheme" (car cmdlist)
 		       (scheme-start-file (car cmdlist)) (cdr cmdlist)))

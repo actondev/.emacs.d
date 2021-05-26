@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: s7bind-cpp
+# key: s7bind
+# condition: (string-match-p ".*\.cpp" (buffer-file-name))
+# --
+
+s7_pointer bind(s7_scheme* sc, s7_pointer args) {
+  s7_pointer env = s7_inlet(sc, s7_nil(sc));
+  s7_gc_protect(sc, env);
+
+  $0// do stuff
+
+  s7_define_constant(sc, "$1", env);
+  return env;
+}

@@ -184,3 +184,7 @@ read from the mini buffer?"
   when entering the "edit src block" (with ~C-c '~) the local variable =org-src--babel-info= is set
   - in org-edit-src-code
     =(setq org-src--babel-info babel-info)=
+* TODO evaluate, results on drawer?
+  https://github.com/diadochos/org-babel-eval-in-repl/issues/37
+  - org-babel-execute-src-block
+  - 
