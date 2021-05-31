@@ -154,6 +154,14 @@ get the current paragraph."
 ie `:var a=1 b=2` gets parsed to give ((:var . \"a=1\") (:var \"b=2\")
 Without this parsing it would give ((:var . \"a=1 b=2\"")
 
+;; org-lint: do not trigger error for :replace, :template etc
+(require 'ob-core)
+(dolist (key aod.eir/opts-multi-keys)
+  (let ((sym (if (keywordp key)
+		 (intern (substring (symbol-name key) 1))
+	       key)))
+    (add-to-list 'org-babel-header-arg-names sym)))
+
 (defun aod.eir/block-contents-replaced (name &optional opts)
   (org-save-outline-visibility nil ;; use markers?
     (save-excursion

@@ -7,7 +7,9 @@
 		 (const :tag "term (term-mode)" term)
 		 (const :tag "vterm (vterm-mode)" vterm)))
 
-;;; Code:
+;; org-lint: do not trigger error for :shell-type
+(require 'ob-core)
+(add-to-list 'org-babel-header-arg-names 'shell-type)
 
 (cl-defgeneric aod.eir/-start-repl-shell (shell-name shell-type)
   "Default shell creation: using shell-mode. Other implementations include term & vterm"
