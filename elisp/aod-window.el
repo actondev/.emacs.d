@@ -7,7 +7,7 @@
   (select-window x)
   (pcase aod.window/placement
     ('left (split-window-right))
-    ('top (split-window-below))
+    ('up (split-window-below))
     ('down (split-window-below)
 	   (windmove-down))
     ('right (split-window-right)
