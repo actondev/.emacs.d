@@ -256,20 +256,24 @@ This is to avoid running the evaluation if the regex isn't found!"
       (let ((var (org-trim (match-string 1 assignment)))
 	    (ref (org-trim (substring assignment (match-end 0)))))
 	(cons (org-babel-read var)
-	      (lambda ()
-		(let ((out (org-babel-read ref)))
-		  (if (equal out ref)
-		      (cond ((and (not (string-prefix-p "(" ref))
-				  (string-suffix-p ")" ref))
-			     ;; it's a noweb call
-			     (org-babel-ref-resolve ref))
-			    ((org-babel-find-named-block ref)
-			     (aod.eir/block-processed-contents ref))
-			    (t (progn
-				 ;; org-babel-read will not resolve variables
-				 ;; but I want here to use :replace psql=var-holding-the-sql-conn-stirng
-				 (eval (read ref)))))
-		    out)))))
+	      (if (string-match "\"\\(.+\\)\"" ref)
+		  ;; if passed a string "blah", do not "read" it. might loose some info
+		  (match-string 1 ref)
+		;; otherwise, return a lambda: either it's a sexp or a named block
+		(lambda ()
+		  (let ((out (org-babel-read ref)))
+		    (if (equal out ref)
+			(cond ((and (not (string-prefix-p "(" ref))
+				    (string-suffix-p ")" ref))
+			       ;; it's a noweb call
+			       (org-babel-ref-resolve ref))
+			      ((org-babel-find-named-block ref)
+			       (aod.eir/block-processed-contents ref))
+			      (t (progn
+				   ;; org-babel-read will not resolve variables
+				   ;; but I want here to use :replace psql=var-holding-the-sql-conn-stirng
+				   (eval (read ref)))))
+		      out))))))
     ;; if no = , then return the symbol's value
     ;; buut remember, we actually return the string that we replace and it's replacement function
     (cons assignment
@@ -292,11 +296,13 @@ Will send \"echo 1 is not 2\" to the repl"
 	    (let ((what (car replace))
 		  ;; the with might be a noweb ref call
 		  ;; in which case, org-babel-ref-resolve must be called
-		  (with-fn (cdr replace))
+		  (with (cdr replace))
 		  (case-fold-search nil))
 	      (when (string-match what string)
-		(let ((with (funcall with-fn)))
-		  (setq string (replace-regexp-in-string what (format "%s" with) string 'fixed 'literal))))))
+		(when (functionp with)
+		  ;; result of funcall might be a number or something..
+		  (setq with (format "%s" (funcall with))))
+		(setq string (replace-regexp-in-string what with string 'fixed)))))
 	  ;; in sql I had $1=.. $2=.. [..] $11=.. $12=...
 	  ;; and $11 was replace first by $1 and then had a trailing 1
 	  ;; temp solution: first replacing $12 and then the previous (in reverse)
@@ -307,6 +313,13 @@ Will send \"echo 1 is not 2\" to the repl"
   (let ((string "echo aa is bb")
 	(opts '((:replace . "aa=\"three\"") (:replace . "bb=(+ 1 2)"))))
     (should (equal (aod.eir/process-string string opts) "echo three is 3"))))
+
+(ert-deftest aod.eir/process-string-regexp ()
+  (let ((string "Date('foo')")
+	(opts '(
+		(:replace . "(identity \"Date('\\\\(.+\\\\)')\")=\"Date.parse('\\1')\"")
+		)))
+    (should (equal (aod.eir/process-string string opts) "Date.parse('foo')"))))
 
 (defun aod.eir/block-processed-contents (name)
   (org-save-outline-visibility nil ;; use markers?
