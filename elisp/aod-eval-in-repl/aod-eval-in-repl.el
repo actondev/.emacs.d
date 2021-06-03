@@ -177,6 +177,20 @@ Without this parsing it would give ((:var . \"a=1 b=2\"")
 Example: ((foo . ((:replace . \"x=1\"))))
 And then add `:template foo` to your src header")
 
+(defun aod.eir/-parse-template (name)
+  (let (results)
+    (let* ((template-symbol (intern-soft name))
+	   (template-value (assq template-symbol aod.eir/templates)))
+      (if template-value
+	  (progn
+	    (mapcar (lambda (template-option)
+		      (message "template option is %s" template-option)
+		      (push template-option results))
+		    (cdr template-value)))
+	(warn "template %s is not defined" template-symbol)))
+    (message "in parset templ, results: %s" results)
+    results))
+
 (defun aod.eir/parse-opts (opts)
   "Parses opts for `aod.eir/opts-multi-keys'"
   (let (results)
@@ -194,17 +208,21 @@ And then add `:template foo` to your src header")
 				(pcase key
 				  (:template
 				   ;; we resolve the template and merge it
+				   ;; (aod.eir/-parse-template value)
+				   ;; (message "now results are %s " results)
 				   (let* ((template-symbol (intern-soft value))
 					  (template-value (assq template-symbol aod.eir/templates)))
 				     (if template-value
 					 (progn
 					   ;; (message "template %s is %s" template-symbol template-value)
 					   (mapcar (lambda (template-option)
+						     ;; (message "template option is %s" template-option)
 						     (push template-option results)
 						     )
 						   (cdr template-value)))
 				       (warn "template %s is not defined" template-symbol)
-				       )))
+				       ))
+				   )
 				  ;; otherwise, just put them into the results
 				  (_ (push (cons key value) results)))))
 			    ;; 32 is space
@@ -252,6 +270,7 @@ external resource and find its value using `org-babel-ref-resolve'.
 Return a list with two elements: the regex string to replace, and a
 FUNCTION that when called returns the Emacs Lisp representation of the value of the value to replace with.
 This is to avoid running the evaluation if the regex isn't found!"
+  (message "---parse replacement-- %s --" assignment)
   (if (string-match "\\(.+?\\)=" assignment)
       (let ((var (org-trim (match-string 1 assignment)))
 	    (ref (org-trim (substring assignment (match-end 0)))))
@@ -292,6 +311,7 @@ Will send \"echo 1 is not 2\" to the repl"
 		   (lambda (x)
 		     (aod.eir/parse-replacement x))
 		   (aod.eir/get-opts opts :replace))))
+    (message "replaces: %s" replaces)
     (mapc (lambda (replace)
 	    (let ((what (car replace))
 		  ;; the with might be a noweb ref call
@@ -322,6 +342,7 @@ Will send \"echo 1 is not 2\" to the repl"
     (should (equal (aod.eir/process-string string opts) "Date.parse('foo')"))))
 
 (defun aod.eir/block-processed-contents (name)
+  (message "aod.eir/block-processed-contents %s" name)
   (org-save-outline-visibility nil ;; use markers?
     (save-excursion
       (goto-char (org-babel-find-named-block name))
