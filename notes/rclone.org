@@ -1,0 +1,45 @@
+#+PROPERTY: header-args:sh :session *rclone* :shell-type vterm
+
+#+begin_src sh
+rclone listremotes
+
+rclone listremotes
+#+end_src
+* Dropbox
+  #+begin_src sh
+mkdir -p ~/cloud/my-dropbox/
+  #+end_src
+** Setting it up
+   #+begin_src sh
+rclone config
+
+#new
+n
+#name
+my-dropbox
+# storagenumber or name
+dropbox
+
+#client id (enter for default)
+
+# edit edvanced?
+n
+# headless machine?
+n
+# then on another session and here put the result
+# eg {"access_token":"lala","token_type":"bearer","expiry":"0001-01-01T00:00:00Z"}
+
+# ok?
+y
+
+# quit config
+q
+   #+end_src
+
+   #+begin_src sh :session *rclone-auth*
+rclone authorize dropbox
+   #+end_src
+** Copying stuff remote->local
+   #+begin_src sh
+rclone copy my-dropbox:dev ~/cloud/my-dropbox/dev
+   #+end_src

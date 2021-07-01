@@ -267,6 +267,7 @@
 			       '(
 				 (shell . t)
 				 (scheme . t)
+				 (dot . t)
 				 ;;	  (python . t)
 				 ;;	  (sql . t)
 				 ;;	  (python . t)
@@ -388,6 +389,10 @@ example: some-file.el#L10 -> links to some-file.el at line 10"
 
 (with-eval-after-load 'org
   (advice-add 'org-open-file :around #'aod.org/ad-open-file-git-line))
+   #+end_src
+** org hooks
+   #+begin_src emacs-lisp
+(add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
    #+end_src
 * Helm
   #+BEGIN_SRC emacs-lisp
