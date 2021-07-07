@@ -982,8 +982,9 @@ paredit        ; Introduce some paredit commands.
 (use-package lsp-ui
   :commands lsp-ui-mode)
 
-(use-package company-lsp
-  :commands company-lsp)
+;; <2021-07-07 Mi> not working
+;; (use-package company-lsp
+;;   :commands company-lsp)
    #+END_SRC
 
 *** lsp clang

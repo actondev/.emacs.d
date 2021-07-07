@@ -10,7 +10,7 @@ var/
 !elisp/*.el
 
 # ignoring tangled sh
-*.sh
+#*.sh
 
 # hidden files
 .*
