@@ -38,7 +38,8 @@
 (defun aod-do/restore ()
   (interactive)
   (set-buffer aod-do/saved-buffer)
-  (set-window-configuration aod-do/saved-window-excursion))
+  (set-window-configuration aod-do/saved-window-excursion)
+  (transient-quit-one))
 
 (defvar-local aod-do/action
   (lambda ()

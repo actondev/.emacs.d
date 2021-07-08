@@ -1102,7 +1102,31 @@ paredit        ; Introduce some paredit commands.
     ;; 			 'help-echo duration-string))
     ))
    #+end_src
+* UI
+** hydra
+   #+begin_src emacs-lisp
+(use-package hydra)
+   #+end_src
+** transient
+   #+begin_src emacs-lisp
+(use-package transient
+  :commands (define-transient-command transient-define-prefix transient-define-suffix)
+  :config
+  (defun aod.transient/param (marker transient-params)
+    "Extract from TRANSIENT-PARAMS the argument with MARKER."
+    (cl-find-if
+     (lambda (an-arg) (string-prefix-p marker an-arg))
+     transient-params))
 
+  (defun aod.transient/param-value (marker transient-params)
+    "Extract from TRANSIENT-PARAMS the argument with MARKER."
+    (cl-some
+     (lambda (an-arg) (when (string-prefix-p marker an-arg)
+			(replace-regexp-in-string marker
+                                                  ""
+                                                  an-arg)))
+     transient-params)))
+   #+end_src
 * Hacking around
 ** custom local variables
    #+begin_src emacs-lisp

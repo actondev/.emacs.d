@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: s7ns-hpp
+# key: s7ns
+# condition: (string-match-p ".*\.hpp" (buffer-file-name))
+# --
+
+#pragma once
+#include <s7.h>
+
+namespace s7bi {
+namespace $0 {
+
+s7_pointer bind(s7_scheme* sc, s7_pointer args);
+}
+}
