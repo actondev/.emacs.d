@@ -988,6 +988,14 @@ paredit        ; Introduce some paredit commands.
    #+END_SRC
 
 *** lsp clang
+    To get the latest clang:
+    #+begin_src sh :tangle no
+wget https://apt.llvm.org/llvm.sh
+
+chmod +x llvm.sh
+sudo ./llvm.sh
+    #+end_src
+
     #+begin_src emacs-lisp
 (with-eval-after-load 'lsp-clangd
   (unless lsp-clients-clangd-executable
@@ -1387,10 +1395,11 @@ sudo apt-get install cmake libtool-bin -y
    #+begin_src emacs-lisp
 (use-package typescript-mode)
    #+end_src
-** etc (yaml, csv
+** etc (modes for syntax highligtin)
    #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode)
 (use-package csv-mode)
+(use-package meson-mode)
    #+END_SRC
 ** CC: c/c++
 
