@@ -188,3 +188,7 @@ read from the mini buffer?"
   https://github.com/diadochos/org-babel-eval-in-repl/issues/37
   - org-babel-execute-src-block
   - 
+* DONE <2021-07-14 Wed> text overlay highlight
+  https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-faces-but-with-other-texts/
+
+  added aod/highlight-regexp-with-string
