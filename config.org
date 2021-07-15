@@ -799,6 +799,12 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
    (list
     (intern (read-string "Overlay name: "))))
   (remove-overlays nil nil overlay-name t))
+
+(defun aod/highlight-multiple (overlay-name face &rest args)
+  "example args ('my-overlay 'highlight \"regexp1\" \"text1\" \"regexp2\" \"text2\" ...)"
+  (when args
+    (aod/highlight-regexp-with-string overlay-name (car args) (cadr args) face)
+    (apply #'aod/highlight-multiple overlay-name face (cddr args))))
    #+end_src
 * editing etc
 ** linear ranges (tiny)
