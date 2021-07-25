@@ -770,6 +770,41 @@ So, when some files are not found, the .gitignore should be kept"
 ;; (add-hook 'find-file-hook #'aod.devops/color-buffer)
 (add-hook 'after-change-major-mode-hook #'aod.devops/color-buffer)
    #+end_src
+** highlight regexp with string (overlay)
+   #+begin_src emacs-lisp
+(defun aod/highlight-regexp-with-string (overlay-name regexp string &optional face)
+  "Display each match of REGEXP as STRING with face FACE.
+Uses OVERLAY-NAME (symbol) as the overlay name.
+Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-faces-but-with-other-texts/"
+  (interactive
+   (list
+    (read-string "Overlay name: ")
+    (read-regexp "Regexp: ")
+    (intern (read-string "Replacement: "))
+    regexp string  (hi-lock-read-face-name)))
+  (setq face (or face 'highlight))
+  (save-excursion
+    (goto-char (point-min))
+    (let ((case-fold-search nil))
+      (while (re-search-forward regexp nil t)
+        (let ((ov (make-overlay (match-beginning 0) (match-end 0))))
+          (overlay-put ov overlay-name t)
+          (overlay-put ov 'display string)
+          (overlay-put ov 'face face))))))
+
+(defun aod/unhighlight (overlay-name)
+  "Calls remove-overlays with the overlay-name (symbol)"
+  (interactive
+   (list
+    (intern (read-string "Overlay name: "))))
+  (remove-overlays nil nil overlay-name t))
+
+(defun aod/highlight-multiple (overlay-name face &rest args)
+  "example args ('my-overlay 'highlight \"regexp1\" \"text1\" \"regexp2\" \"text2\" ...)"
+  (when args
+    (aod/highlight-regexp-with-string overlay-name (car args) (cadr args) face)
+    (apply #'aod/highlight-multiple overlay-name face (cddr args))))
+   #+end_src
 * editing etc
 ** linear ranges (tiny)
    #+BEGIN_SRC emacs-lisp
