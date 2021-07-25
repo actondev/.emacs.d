@@ -45,11 +45,16 @@
   (lambda ()
     (message "no action has been set!")))
 
+(defvar aod-do/action-global nil
+  "Set this to override the aod-do/action-interactive to call this instead of aod-do/action")
+
 (defun aod-do/action-interactive ()
   (interactive)
   (setq aod-do/saved-window-excursion (current-window-configuration))
   (setq aod-do/saved-buffer (current-buffer))
-  (funcall aod-do/action))
+  (if aod-do/action-global
+      (funcall aod-do/action-global)
+    (funcall aod-do/action)))
 
 (key-chord-define-global "/d" #'aod-do/action-interactive)
 

@@ -6,7 +6,7 @@
 
 #include <s7.h>
 
-namespace s7bi {
+namespace s7ty {
 namespace ${1:the-ns} {
 
 s7_pointer bind(s7_scheme* sc, s7_pointer args) {
@@ -15,7 +15,7 @@ s7_pointer bind(s7_scheme* sc, s7_pointer args) {
 
   $0// do stuff
 
-  s7_define_constant(sc, "s7bi.$1.c", env);
+  s7_define_constant(sc, "s7ty.$1.c", env);
   return env;
 }
 }

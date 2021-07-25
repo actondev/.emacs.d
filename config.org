@@ -563,8 +563,9 @@ sudo apt-get install silversearcher-ag
 
 (use-package ag)
 
-(defun aod.ag/vcs-ignore (ignore-p)
-  "ag has a bug with .gitignore. encountered this in openFrameworks
+(defun aod.ag/vcs-ignore (&optional ignore-p)
+  "TODO make it toggle
+ag has a bug with .gitignore. encountered this in openFrameworks
 see https://github.com/ggreer/the_silver_searcher/issues/862
 
 So, when some files are not found, the .gitignore should be kept"
@@ -572,15 +573,14 @@ So, when some files are not found, the .gitignore should be kept"
   (require 'ag)
   (require 'helm-ag)
   (let* ((flag "--skip-vcs-ignores")
-	 (ignore (cond (ignore-p (if (and (numberp ignore-p)
-					  (= -1 ignore-p))
-				     nil
-				   t))
-		       (t (not (member flag ag-arguments))))))
+	 (ignore (cond ((numberp ignore-p) (if (= -1 ignore-p)
+					       nil
+					     t))
+		       (t (progn (message "here") (not (member flag ag-arguments)))))))
     (if ignore
 	(progn
-	  (setq ag-arguments (remove-if (lambda (x) (string-equal x flag))
-					ag-arguments))
+	  (setq ag-arguments (cl-remove-if (lambda (x) (string-equal x flag))
+					   ag-arguments))
 	  (setq helm-ag-command-option nil))
       (progn
 	(add-to-list 'ag-arguments flag)
@@ -588,8 +588,7 @@ So, when some files are not found, the .gitignore should be kept"
     (message "new ag-arguments: %s
     new helm-ag-command-option %s"
 	     ag-arguments
-	     helm-ag-command-option)
-    ))
+	     helm-ag-command-option)))
 
 (use-package helm-projectile
   :commands (helm-projectile-find-file
