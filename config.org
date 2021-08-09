@@ -544,6 +544,11 @@ sudo apt-get install silversearcher-ag
    + =C-c C-a= : collapse all
      + [ ] set <S-tab> for collapse all?
 
+   Projetile MR <2021-07-30 Fri> https://github.com/bbatsov/projectile/pull/1696
+  # until it's merged:
+  # :load-path "~/dev/actondev/projectile/" ;; trailing slash is important
+  # :ensure nil
+
    #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :config
@@ -551,15 +556,15 @@ sudo apt-get install silversearcher-ag
   ;; speed!
   (setq projectile-indexing-method 'hybrid)
   (setq projectile-completion-system 'helm)
-  (defun aod.projectile/set-root (root)
-    (interactive "Droot: ")
-    (setq projectile-project-root root))
   ;; https://github.com/bbatsov/projectile/issues/1302#issuecomment-433894379
   ;; windows fix
   ;; (setq projectile-git-submodule-command nil)
   ;; oor install tr with "choco install tr"
   ;; oor msys2 paths (see heading)
   )
+(defun aod.projectile/set-root (root)
+  (interactive "Droot: ")
+  (setq projectile-project-root root))
 
 (use-package ag)
 
@@ -1152,7 +1157,10 @@ sudo ./llvm.sh
 ** transient
    #+begin_src emacs-lisp
 (use-package transient
-  :commands (define-transient-command transient-define-prefix transient-define-suffix)
+  :commands (define-transient-command
+	      transient-define-prefix
+	      transient-define-suffix
+	      transient-define-argument)
   :config
   (defun aod.transient/param (marker transient-params)
     "Extract from TRANSIENT-PARAMS the argument with MARKER."

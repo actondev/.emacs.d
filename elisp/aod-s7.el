@@ -10,7 +10,8 @@
   "Repl functionality for s7"
   :group 'scheme)
 
-(defcustom aod.s7/send-whole-ns-form t
+;; update <2021-08-05 Thu> : keeps this nil
+(defcustom aod.s7/send-whole-ns-form nil
   "Send the whole ns form (including :require etc) or only the ns name.
 When the former, it means the the required namespaces are in away 'reloaded' (imported
 functions are updated if they got redefined in the required namespace)
@@ -25,12 +26,14 @@ line. This is to not mistake things after ;; comments"
   (save-mark-and-excursion
     (beginning-of-buffer)
     ;; note: sexp-at-point returns a form! not a string
-    (let ((ns-form (sexp-at-point)))
-      (if (and ns-form (string-match "\(ns \\([^ \t\r\n]+\\)" (format "%s" ns-form)))
+    ;; also: format %s removes the doulbe quote strings
+    ;; but %S makes "escapes" dots: . becomes \.
+    (let ((ns-string (format "%s" (sexp-at-point))))
+      (if (and ns-string (string-match "\(ns \\([^ \t\r\n]+\\)" ns-string))
           (progn
             (if aod.s7/send-whole-ns-form
-                ns-form
-              (format "(ns %s)" (match-string-no-properties 1))))
+                ns-string
+              (format "(ns %s)" (match-string-no-properties 1 ns-string))))
         nil))))
 
 (defun aod.s7/switch-to-ns ()

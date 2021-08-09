@@ -275,7 +275,7 @@ This is to avoid running the evaluation if the regex isn't found!"
       (let ((var (org-trim (match-string 1 assignment)))
 	    (ref (org-trim (substring assignment (match-end 0)))))
 	(cons (org-babel-read var)
-	      (if (string-match "\"\\(.+\\)\"" ref)
+	      (if (string-match "^\"\\(.+\\)\"$" ref)
 		  ;; if passed a string "blah", do not "read" it. might loose some info
 		  (match-string 1 ref)
 		;; otherwise, return a lambda: either it's a sexp or a named block
@@ -288,10 +288,10 @@ This is to avoid running the evaluation if the regex isn't found!"
 			       (org-babel-ref-resolve ref))
 			      ((org-babel-find-named-block ref)
 			       (aod.eir/block-processed-contents ref))
-			      (t (progn
-				   ;; org-babel-read will not resolve variables
-				   ;; but I want here to use :replace psql=var-holding-the-sql-conn-stirng
-				   (eval (read ref)))))
+			      (t
+			       ;; org-babel-read will not resolve variables
+			       ;; but I want here to use :replace psql=var-holding-the-sql-conn-stirng
+			       (eval (read ref))))
 		      out))))))
     ;; if no = , then return the symbol's value
     ;; buut remember, we actually return the string that we replace and it's replacement function

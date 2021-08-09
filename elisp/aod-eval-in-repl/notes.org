@@ -65,6 +65,10 @@ echo a is $a b is $b and dir is $(pwd)
   #+begin_src sh :session *demo-replace* :replace aa="hello" bb="there"
 echo aa bb
   #+end_src
+
+  #+begin_src sh :session *demo-replace* :replace bb=(read-string "bb: ")
+echo aa bb
+  #+end_src
 * elaboreexample: replace multiline noweb
   #+name: json
   #+begin_src js :replace TIMESTAMP=(time-convert nil 'integer)
