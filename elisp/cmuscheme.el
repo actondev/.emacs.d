@@ -252,8 +252,14 @@ is run).
   (when-let* ((buffer (get-buffer "*scheme*")))
     (when (get-buffer-process buffer)
       (delete-process (get-buffer-process buffer)))
-    (with-current-buffer "*scheme*"
-      (erase-buffer)))
+    (let ((default-directory-out default-directory))
+      (with-current-buffer "*scheme*"
+	(unless (string-equal default-directory default-directory-out)
+	  ;; the scheme process would be in a different working dir than it'd expect!
+	  ;; happens when switching between different projects
+	  (message "changing default-directory to %s" default-directory-out)
+	  (setq-local default-directory default-directory-out))
+	(erase-buffer))))
   (let ((cmdlist (split-string-and-unquote cmd)))
     (set-buffer (apply 'make-comint "scheme" (car cmdlist)
 		       (scheme-start-file (car cmdlist)) (cdr cmdlist)))
