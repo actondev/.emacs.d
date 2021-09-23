@@ -3,7 +3,7 @@
 # key: s7defnt
 # --
 
-constexpr const char* help_${1:$(replace-regexp-in-string "-" "_" yas-text )} = "(${1:function-name} ${2:args})";
+#define HELP_${1:$(aod/scheme-name->cpp yas-text )} "(${1:function-name} ${2:args})"
 s7_pointer scm_${1:$(replace-regexp-in-string "-" "_" yas-text )}(s7_scheme* sc, s7_pointer args) {
   $0
   ${2:$(mapconcat (lambda (x)
@@ -34,6 +34,6 @@ void bind_${1:$(replace-regexp-in-string "-" "_" yas-text )}(s7_scheme* sc, s7_p
     s7_define(sc, env, s7_make_symbol(sc, "$1"),
             s7_make_typed_function(sc, "$1", scm_${1:$(replace-regexp-in-string "-" "_" yas-text )},
 	    			       ${3:N-req-args}, ${4:N-opt-args}, ${5:rest-args?}, // req, opt, rest?
-				       help_${1:$(replace-regexp-in-string "-" "_" yas-text)},
+				       HELP_${1:$(aod/scheme-name->cpp  yas-text )},
 				       sig));
 }
