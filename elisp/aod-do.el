@@ -16,10 +16,10 @@
 
 (defun aod-do/eval-safep (orig-fun &rest args)
   (catch 'done
-    (dolist (dir aod-do/eval-safe-directories)
-      (when (string-match-p dir default-directory)
-	(message "safe directory match with %s default-directory %s " dir default-directory)
-	(throw 'done t)))
+    ;; (dolist (dir aod-do/eval-safe-directories)
+    ;;   (when (string-match-p dir default-directory)
+    ;; 	(message "safe directory match with %s default-directory %s " dir default-directory)
+    ;; 	(throw 'done t)))
     (message "Calling original hack-one-local-variable-eval-safep in default-directory %s " default-directory)
     (apply orig-fun args)))
 
@@ -47,6 +47,20 @@
 
 (defvar aod-do/action-global nil
   "Set this to override the aod-do/action-interactive to call this instead of aod-do/action")
+
+(defvar aod-do/registered-actions (list ()))
+
+(defun aod-do/register-action (action)
+  (add-to-list 'aod-do/registered-actions action))
+
+(defun aod-do/set-global-action ()
+  (interactive)
+  (let ((choice (completing-read "Action: " (mapcar (lambda (el)
+						      (if (null el)
+							  "nil"
+							(format "#'%s" el)))
+						    aod-do/registered-actions))))
+    (setq aod-do/action-global (eval (read choice)))))
 
 (defun aod-do/action-interactive ()
   (interactive)
