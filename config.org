@@ -1149,6 +1149,63 @@ sudo ./llvm.sh
     ;; 			 'help-echo duration-string))
     ))
    #+end_src
+** demo: hex/dec etc
+   #+begin_src emacs-lisp
+(defun hex->dec (hex)
+  "eg 7f => 127, 017f => 383"
+  (interactive (list (if (region-active-p)
+			 (buffer-substring-no-properties
+			  (caar (region-bounds))
+			  (cdar (region-bounds)))
+		       (buffer-substring-no-properties
+			(point)
+			(+ 2 (point))))))
+  (message "hex %s => dec %s" hex (string-to-number hex 16))
+  )
+
+(defun int-to-binary-string (i)
+  "convert an integer into it's binary representation in string format"
+  (let ((res ""))
+    (while (not (= i 0))
+      (setq res (concat (if (= 1 (logand i 1)) "1" "0") res))
+      (setq i (lsh i -1)))
+    (if (string= res "")
+        (setq res "0"))
+    res))
+
+(defun format-binary (b)
+  (let ((s ""))
+    (while (> b 0)
+      (setq s (concat (number-to-string (logand b 1)) s))
+      (setq b (lsh b -1)))
+    (if (string= "" s) "0" s)))
+
+(defun hex->bin (hex)
+  (interactive (list (if (region-active-p)
+			 (buffer-substring-no-properties
+			  (caar (region-bounds))
+			  (cdar (region-bounds)))
+		       (buffer-substring-no-properties
+			(point)
+			(+ 2 (point))))))
+  (message "hex %s => dec %s bin %s" hex
+	   (string-to-number hex 16)
+	   (format-binary (string-to-number hex 16)))
+  )
+
+
+(defun bin->dec (bin)
+  (interactive (list (if (region-active-p)
+			 (buffer-substring-no-properties
+			  (caar (region-bounds))
+			  (cdar (region-bounds)))
+		       (buffer-substring-no-properties
+			(point)
+			(+ 2 (point))))))
+  (message "bin %s => dec %s" bin (string-to-number bin 2))
+  )
+   #+end_src
+   #+end_src
 * UI
 ** hydra
    #+begin_src emacs-lisp
@@ -1276,7 +1333,7 @@ It is bound to C-c C-c.
 sudo apt-get install cmake libtool-bin -y
    #+end_src
 
-* (Ma)git
+* Magit
   #+BEGIN_SRC emacs-lisp
 (use-package magit
   ;; show-all is meant for org-mode. ediff would show org-mode files folded
@@ -1315,6 +1372,15 @@ sudo apt-get install cmake libtool-bin -y
 		      :foreground "#CCC")
   )
   #+END_SRC
+
+** show untracked files
+   #+begin_src sh
+git config --global status.showUntrackedFiles all
+# revert:
+git config --global status.showUntrackedFiles normal
+# see more at
+man git-commit | grep untracked
+   #+end_src
 * Languages
 ** Clojure
    #+BEGIN_SRC emacs-lisp
@@ -1449,7 +1515,7 @@ sudo apt-get install cmake libtool-bin -y
 (use-package cc-mode
   :config
   (message "here, cc-mode")
-  :bind (:map c++-mode-map
+  :bind (:map c-mode-base-map
 	      ("M-n" . end-of-defun)
 	      ("M-p" . beginning-of-defun)))
     #+end_src
