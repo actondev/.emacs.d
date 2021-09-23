@@ -394,6 +394,24 @@ example: some-file.el#L10 -> links to some-file.el at line 10"
    #+begin_src emacs-lisp
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
    #+end_src
+** helper: changing default-directory
+   #+begin_src emacs-lisp
+(defun aod/set-local-default-directory (arg)
+  (interactive "P")
+  (message "arg %s" arg)
+  (if (and arg (boundp 'aod/original-default-directory))
+      (progn
+	(message "Reverting to %s" aod/original-default-directory)
+	(setq-local default-directory aod/original-default-directory))
+    (progn
+      (unless (boundp 'aod/original-default-directory)
+	(setq-local aod/original-default-directory default-directory)))
+    (if-let ((dir (read-directory-name "Directory: ")))
+	(setq-local default-directory dir)
+      (when (boundp 'aod/original-default-directory)
+	(message "Reverting to %s" aod/original-default-directory)
+	(setq-local default-directory aod/original-default-directory)))))
+   #+end_src
 * Helm
   #+BEGIN_SRC emacs-lisp
 (setq aod.helm/C-SPC-set-mark-p nil)
