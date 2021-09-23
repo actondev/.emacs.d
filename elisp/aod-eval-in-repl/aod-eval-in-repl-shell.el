@@ -1,6 +1,6 @@
 ;;; aod-eval-in-repl-shell.el --- Extensible evaluation in repl with focus in org-mode  -*- lexical-binding: t; -*-
 
-(defcustom aod.eir/shell-type 'shell
+(defcustom aod.eir/shell-type 'vterm
   "The default shell type to be used for newly spawned shells (ie shell, eshell, term, vterm etc). It's replaced by passing :shell-type in the org-mode src header."
   :group 'aod-eval-in-repl-shell
   :type '(choice (const :tag "shell (shell-mode)" shell)
