@@ -63,6 +63,11 @@
       (read-buffer "Insert buffer name: "))))
   (insert buffer)
   nil)
+
+(defun insert-timestamp ()
+  (interactive)
+  (let ((org-time-stamp-formats '("%Y-%m-%d" . "%Y-%m-%d %H:%M")))
+    (call-interactively #'org-time-stamp)))
    #+END_SRC
 ** bindings
    #+BEGIN_SRC emacs-lisp
