@@ -1326,6 +1326,8 @@ Setting them into buffers for working with org-mode & repls"
 
    #+BEGIN_SRC emacs-lisp
 (use-package vterm
+  :config
+  (setq vterm-max-scrollback 10000) ; 1000 (1k) was the default, max allowed is 100k
   :bind (:map vterm-mode-map
 	      ;; hm.. when in copy mode, enter will
 	      ;; - copy region (kill-ring-save)
