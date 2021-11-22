@@ -1229,6 +1229,21 @@ sudo ./llvm.sh
   )
    #+end_src
    #+end_src
+** uuid-at-point
+   #+begin_src emacs-lisp
+(defun uuid-at-point ()
+  (save-excursion
+    (search-backward-regexp "[^0-9a-f\-][0-9a-f]")
+    (forward-char)
+    (let ((start (point)))
+      (search-forward-regexp "[0-9a-f][^0-9a-f\-]")
+      (backward-char)
+      (let ((region-string (buffer-substring-no-properties start (point)))
+	    (uuid-regex "^[0-9a-f]\\{8\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{12\\}$"))
+	(if (string-match-p uuid-regex region-string)
+	    region-string
+	  (error "no uuid at point"))))))
+   #+end_src
 * UI
 ** hydra
    #+begin_src emacs-lisp
