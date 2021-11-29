@@ -23,8 +23,7 @@
   ;; vterm messes with the window configuration
   (vterm shell-name))
 
-(cl-defmethod aod.eir/start-repl ((lang (eql sh)) session &optional opts)
-  "Starts a repl for sh/shell"
+(defun aod.eir/start-repl-shell-handler (lang session &optional opts)
   (let ((shell-type (or (intern-soft (cdr (assq :shell-type opts)))
 			aod.eir/shell-type))
 	;; opts might have multiple :var keys, so we cannot use just assoc or
@@ -36,12 +35,24 @@
 							      opts))))
     ;; TODO have a base start-repl and then wrap the result
     ;; this should be start-repl-impl
-    (let ((created-buffer (save-window-excursion (aod.eir/-start-repl-shell session shell-type))))
+    ;; save-mark-and-excursion because sometimes cursor gets fucked up
+    ;; noticed this when having same org file open in 2 buffers
+    ;; and repl has not started, things up?
+    (let ((created-buffer (save-mark-and-excursion
+			    (save-window-excursion (aod.eir/-start-repl-shell session shell-type)))))
       (let ((assignment-statement
 	     (org-babel-expand-body:generic
 	      "" opts (org-babel-variable-assignments:shell opts-with-vars))))
 	(aod.eir/eval lang session assignment-statement opts)
 	(aod.window/place-buffer created-buffer)))))
+
+(cl-defmethod aod.eir/start-repl ((lang (eql sh)) session &optional opts)
+  "Starts a repl for sh/shell"
+  (aod.eir/start-repl-shell-handler lang session opts))
+
+(cl-defmethod aod.eir/start-repl ((lang (eql shell)) session &optional opts)
+  "Starts a repl for sh/shell"
+  (aod.eir/start-repl-shell-handler lang session opts))
 
 (cl-defmethod aod.eir/send-string (string &context (major-mode term-mode))
   (term-send-string (current-buffer) string))
