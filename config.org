@@ -126,7 +126,9 @@
 
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")))
+			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+			 ;;("org" . "https://orgmode.org/elpa/") ; better from gnu elpa, org-plus-contrib is at nongnu as org-contrib
+			 ))
   #+END_SRC
 
 ** use-package
@@ -225,12 +227,23 @@
 (add-to-list 'load-path (relative-from-init "elisp"))
    #+END_SRC
 * Org customizations
+  Note: (org-version) <2021-12-08 Wed>
+  - 9.3 (emacs 27.1 elisp)
+  - 9.4.6 https://orgmode.org/elpa/
+  - 9.5.1 https://elpa.gnu.org/packages/
 ** configs with use-package
    #+begin_src emacs-lisp
+;; removing from built-in: needed?
+;; see https://www.reddit.com/r/emacs/comments/r11nqd/how_to_install_orgmode_now_that_org_emacs_lisp/
+;; https://github.com/jwiegley/use-package/issues/319#issuecomment-845214233
+(assq-delete-all 'org package--builtins)
+(assq-delete-all 'org package--builtin-versions)
+
 (use-package org
   :ensure t
   ;; ignore org-mode from upstream and use a manually installed version
-  :pin manual
+  ;; was on :pin manual to use the built-in org?
+  :pin gnu
   :config
   (setq org-src-preserve-indentation t)
   ;; there are bugs with this if t
@@ -249,7 +262,10 @@
 	      ("C-M-p" . org-up-element)
 	      ("C-M-n" . org-down-element)))    
    #+end_src
-
+** org-contrib
+#+begin_src emacs-lisp
+(use-package org-contrib)
+#+end_src
 ** habits
    #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'org
@@ -1523,7 +1539,8 @@ man git-commit | grep untracked
   :commands (aod/s7bi-pd-mode)
   )
     #+END_SRC
-*** windows path
+*** COMMENT windows path
+<2021-12-08 Wed> =:tangle (when )= doesn't work
     #+BEGIN_SRC emacs-lisp :tangle (when (eq system-type 'windows-nt) "yes")
 (add-to-list 'exec-path "c:/Program Files/Chez Scheme 9.5.2/bin/ta6nt/")
     #+END_SRC
@@ -1813,10 +1830,12 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
   Usage:
   - global-command-log-mode
   - clm/open-command-log-buffer
-* Windows
+* COMMENT Windows
   :PROPERTIES:
   :header-args: :tangle (when (eq system-type 'windows-nt) "yes")
   :END:
+
+<2021-12-08 Wed> =:tangle (when )= doesn't work
 ** MSYS2 bash
    (hm.. git bash is better)
 
@@ -2022,10 +2041,12 @@ powershell -Command Add-MpPreference -ExclusionExtension ".elc"
 (load-file (relative-from-init "elisp/dired-fix.el"))
    #+END_SRC
 
-* Linux
+* COMMENT Linux
   :PROPERTIES:
   :header-args: :tangle (when (eq system-type 'gnu/linux) "yes") :results silent
   :END:
+
+<2021-12-08 Wed> =:tangle (when )= doesn't work
 ** Open as sudo
    https://emacsredux.com/blog/2013/04/21/edit-files-as-root/
    #+BEGIN_SRC emacs-lisp
