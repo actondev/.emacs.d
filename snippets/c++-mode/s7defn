@@ -15,7 +15,6 @@ s7_pointer scm_${1:$(aod/scheme-name->cpp yas-text )}(s7_scheme* sc, s7_pointer 
   )}
   return s7_nil(sc);
 }
-
 void bind_${1:$(aod/scheme-name->cpp yas-text )}(s7_scheme* sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "$1"),
             s7_make_function(sc, "$1",
