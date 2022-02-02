@@ -245,11 +245,15 @@
   ;; was on :pin manual to use the built-in org?
   :pin gnu
   :config
-  (setq org-src-preserve-indentation t)
-  ;; there are bugs with this if t
-  ;; see https://lists.gnu.org/archive/html/emacs-orgmode/2019-12/msg00311.html
-  ;; fixed at https://code.orgmode.org/bzg/org-mode/commit/298d6332222258316aaa6b74699127eb97073ce2
-  (setq-default org-src-tab-acts-natively nil)
+  (setq org-src-preserve-indentation t
+	org-startup-folded t
+	org-adapt-indentation t
+
+	;; there were bugs with this if t
+	;; see https://lists.gnu.org/archive/html/emacs-orgmode/2019-12/msg00311.html
+	;; fixed at https://code.orgmode.org/bzg/org-mode/commit/298d6332222258316aaa6b74699127eb97073ce2
+	org-src-tab-acts-natively t
+	)
   (setq org-log-note-clock-out t)
   (setq org-image-actual-width 400)
   ;; for <sTAB to work
