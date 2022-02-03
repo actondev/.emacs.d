@@ -523,3 +523,7 @@ wget https://github.com/Wilfred/ReVo-utilities/blob/a4bdc40dd2656c496defc461fc19
   - visual fill column
     https://www.youtube.com/watch?v=9i_9hse_Y08
     width, center text vars
+
+* helm-find-files & cache
+  - =C-c C-u= runs helm-refresh (run this when in a helm dialog!)
+    fixes some inotify issues etc
