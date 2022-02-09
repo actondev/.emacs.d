@@ -270,7 +270,7 @@ external resource and find its value using `org-babel-ref-resolve'.
 Return a list with two elements: the regex string to replace, and a
 FUNCTION that when called returns the Emacs Lisp representation of the value of the value to replace with.
 This is to avoid running the evaluation if the regex isn't found!"
-  (message "---parse replacement-- %s --" assignment)
+  ;; (message "---parse replacement-- %s --" assignment)
   (if (string-match "\\(.+?\\)=" assignment)
       (let ((var (org-trim (match-string 1 assignment)))
 	    (ref (org-trim (substring assignment (match-end 0)))))
@@ -311,7 +311,7 @@ Will send \"echo 1 is not 2\" to the repl"
 		   (lambda (x)
 		     (aod.eir/parse-replacement x))
 		   (aod.eir/get-opts opts :replace))))
-    (message "replaces: %s" replaces)
+    ;; (message "replaces: %s" replaces)
     (mapc (lambda (replace)
 	    (let ((what (car replace))
 		  ;; the with might be a noweb ref call
