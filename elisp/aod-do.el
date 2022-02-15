@@ -70,7 +70,5 @@
       (funcall aod-do/action-global)
     (funcall aod-do/action)))
 
-(key-chord-define-global "/d" #'aod-do/action-interactive)
-
 (provide 'aod-do)
 

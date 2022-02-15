@@ -192,3 +192,19 @@ read from the mini buffer?"
   https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-faces-but-with-other-texts/
 
   added aod/highlight-regexp-with-string
+
+* helm: exit with no input (nil)
+  no idea
+  #+begin_src emacs-lisp
+;; TODO how to exit with nil/empty string?
+(define-key helm-map (kbd "C-q")
+  (lambda () (interactive)
+    (message "here?")
+    (setq helm-exit-status 0)
+    (message "minibuff before %s" (minibuffer-contents))
+    (delete-minibuffer-contents)
+    (message "minibuff %s" (minibuffer-contents))
+    ;; (helm-exit-minibuffer)
+    (exit-minibuffer)
+    ))
+  #+end_src

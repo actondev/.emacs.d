@@ -23,18 +23,27 @@
   (widen)
   (org-shifttab 3)
   (call-interactively #'org-previous-visible-heading)
-  (org-show-entry)
+  (unless (org-in-commented-heading-p)
+    (org-show-entry))
   (ignore-errors
     (org-narrow-to-subtree))
-
-  (aod.org/hide-others)
-  )
+  (aod.org/hide-others))
+(defun aod.org/present-next ()
+  (interactive)
+  (message "next")
+  (widen)
+  (org-shifttab 3)
+  (call-interactively #'org-next-visible-heading)
+  (unless (org-in-commented-heading-p)
+    (org-show-entry))
+  (ignore-errors
+    (org-narrow-to-subtree))
+  (aod.org/hide-others))
 
 (setq aod-org/present-mode-map
       ;; nil
       (make-sparse-keymap)
       )
-
 (define-minor-mode aod-org/present-mode
   "Toggle org present mode. In this mode You only see the current
   heading of the org file. M-n and M-p go to next/previous
@@ -51,27 +60,9 @@
       (widen))
     ))
 
-(setq aod-org/present-mode-map
-      ;; nil
-      (make-sparse-keymap)
-      )
-
 (define-key aod-org/present-mode-map (kbd "SPC") 'aod.org/present-next)
 (define-key aod-org/present-mode-map (kbd "S-SPC") 'aod.org/present-prev)
 (define-key aod-org/present-mode-map (kbd "M-<") 'aod.org/present-home)
-
-(defun aod.org/present-next ()
-  (interactive)
-  (message "next")
-  (widen)
-  (org-shifttab 3)
-  (call-interactively #'org-next-visible-heading)
-  (org-show-entry)
-  (ignore-errors
-    (org-narrow-to-subtree))
-
-  (aod.org/hide-others)
-  )
 
 (defhydra aod.hydra/org-present
   (
@@ -88,7 +79,7 @@
   "Org present"
   ("q" nil "quit")
   ("S-SPC" aod.org/present-prev "Prev")
-  ("<mouse-3>" aod.org/present-prev)
+  ;; ("<mouse-3>" aod.org/present-prev)
   ("SPC" aod.org/present-next "Next")
-  ("<mouse-1>" aod.org/present-next)
+  ;; ("<mouse-1>" aod.org/present-next)
   )

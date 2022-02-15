@@ -3,17 +3,17 @@
 # key: s7defn*
 # --
 
-#define ARGS_${1:$(aod/scheme-name->cpp yas-text )}_star "${2:args}"
-#define HELP_${1:$(aod/scheme-name->cpp yas-text)}_star "(${1:function-name} " ARGS_${1:$(aod/scheme-name->cpp yas-text)}_star ")"
-s7_pointer scm_${1:$(aod/scheme-name->cpp yas-text )}_star(s7_scheme* sc, s7_pointer args) {
+#define ARGS_${1:$(aod/scheme-name->cpp yas-text )} "${2:args}"
+#define HELP_${1:$(aod/scheme-name->cpp yas-text)} "(${1:function-name} " ARGS_${1:$(aod/scheme-name->cpp yas-text)} ")"
+s7_pointer scm_${1:$(aod/scheme-name->cpp yas-text )}(s7_scheme* sc, s7_pointer args) {
   $0
   return s7_nil(sc);
 }
-void bind_${1:$(aod/scheme-name->cpp yas-text )}_star(s7_scheme* sc, s7_pointer env) {
+void bind_${1:$(aod/scheme-name->cpp yas-text )}(s7_scheme* sc, s7_pointer env) {
   s7_define(sc, env, s7_make_symbol(sc, "$1"),
             s7_make_function_star(sc,
 				  "$1",
-				  scm_${1:$(aod/scheme-name->cpp  yas-text )}_star,
-                                  ARGS_${1:$(aod/scheme-name->cpp  yas-text )}_star,
-				  HELP_${1:$(aod/scheme-name->cpp  yas-text )}_star));
+				  scm_${1:$(aod/scheme-name->cpp  yas-text )},
+                                  ARGS_${1:$(aod/scheme-name->cpp  yas-text )},
+				  HELP_${1:$(aod/scheme-name->cpp  yas-text )}));
 }

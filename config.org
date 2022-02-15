@@ -77,6 +77,9 @@
 (require 'outline)
 (global-set-key (kbd "M-n") 'outline-next-visible-heading)
 (global-set-key (kbd "M-p") 'outline-previous-visible-heading)
+
+;; making C-i not conflict with tab: not working?
+;; (setq local-function-key-map (delq '(kp-tab . [9]) function-key-map))
    #+END_SRC
 ** backups
    - https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
@@ -143,26 +146,16 @@
 (setq use-package-verbose 'verbose)
    #+END_SRC
 
-** COMMENT quelpa (for git forks)
-   needed on <2020-11-13 Fri> for the =eval-in-repl= fork about =term= supports
-   but fuck it, the recursive dependecies were fetched from melpa. I just wanted my fork to be from git
-   and the dependencies resolved from elpa
-
+** quelpa (for git forks)
    #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'quelpa)
   (with-temp-buffer
     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
     (eval-buffer)
     ;;(quelpa-self-upgrade)
-))
+    ))
 (setq quelpa-checkout-melpa-p nil)
 (setq quelpa-update-melpa-p nil)
-
-;; (quelpa
-;;  '(quelpa-use-package
-;;    :fetcher git
-;;    :url "https://github.com/quelpa/quelpa-use-package.git"))
-;; (require 'quelpa-use-package)
 
 (use-package quelpa-use-package
   :demand t
@@ -170,7 +163,7 @@
   ;; i think (quelpa-use-package-activate-advice) made things fail
   ;; ie helm not being installed later on
   ;; :config (quelpa-use-package-activate-advice)
-)
+  )
    #+END_SRC
 
    and the =:quelpa= argument in =use-package= accepts a melpa recipe format:
@@ -207,10 +200,11 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-(setq straight-vc-git-default-clone-depth 1)
-;; (setq straight-use-package-by-default t)
+;;(setq straight-vc-git-default-clone-depth 1)
+;; (setq straight-use-package-by-default nil)
 (straight-use-package 'use-package)
    #+END_SRC
+
 ** el-get
    #+begin_src emacs-lisp
 (use-package el-get
@@ -262,6 +256,7 @@
   (setq org-goto-interface 'outline-path-completion)
   (setq org-outline-path-complete-in-steps nil)
   (setq org-ellipsis "▼")
+  (unbind-key "C-," org-mode-map) ;; agenda (conflicts with C-, etc (my map)
   :bind (:map org-mode-map
 	      ("C-M-p" . org-up-element)
 	      ("C-M-n" . org-down-element)))    
@@ -293,6 +288,7 @@
 				 (shell . t)
 				 (scheme . t)
 				 (dot . t)
+				 (plantuml . t)
 				 ;;	  (python . t)
 				 ;;	  (sql . t)
 				 ;;	  (python . t)
@@ -302,6 +298,10 @@
 				 )
 			       ))
    #+END_SRC
+** plantuml
+   #+begin_src emacs-lisp
+(setq org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar")
+   #+end_src
 
 ** (org-babel) eval-in-repl
 
@@ -1070,7 +1070,7 @@ paredit        ; Introduce some paredit commands.
 ;;   :commands company-lsp)
    #+END_SRC
 
-*** lsp clang
+*** COMMENT lsp clang
     To get the latest clang:
     #+begin_src sh :tangle no
 wget https://apt.llvm.org/llvm.sh
@@ -1195,6 +1195,18 @@ sudo ./llvm.sh
    #+end_src
 ** demo: hex/dec etc
    #+begin_src emacs-lisp
+(defun dec->hex (dec)
+  "eg 7f => 127, 017f => 383"
+  (interactive (list (string-to-number (if (region-active-p)
+					   (buffer-substring-no-properties
+					    (caar (region-bounds))
+					    (cdar (region-bounds)))
+					 (buffer-substring-no-properties
+					  (point)
+					  (+ 2 (point)))))))
+  (message "dec %s => hex %x" dec dec)
+  (format "%x" dec))
+
 (defun hex->dec (hex)
   "eg 7f => 127, 017f => 383"
   (interactive (list (if (region-active-p)
@@ -1278,6 +1290,11 @@ sudo ./llvm.sh
 	      transient-define-suffix
 	      transient-define-argument)
   :config
+  (defun aod.transient/flag (transient-name flag)
+    (cl-find-if (lambda (el)
+		  (string-equal flag el))
+		(transient-args transient-name)))
+  
   (defun aod.transient/param (marker transient-params)
     "Extract from TRANSIENT-PARAMS the argument with MARKER."
     (cl-find-if
@@ -1482,6 +1499,48 @@ man git-commit | grep untracked
        (replace-regexp-in-string "!" "_bang")))
    #+END_SRC
 
+   custom hightlight
+   #+begin_src emacs-lisp
+ (defun scheme-add-keywords (face-name keyword-rules)
+   (let* ((keyword-list (mapcar #'(lambda (x)
+                                    (symbol-name (cdr x)))
+                                keyword-rules))
+          (keyword-regexp (concat "(\\("
+                                  (regexp-opt keyword-list)
+                                  "\\)[ \n]")))
+     (font-lock-add-keywords 'scheme-mode
+                             `((,keyword-regexp 1 ',face-name))))
+   (mapc #'(lambda (x)
+             (put (cdr x)
+                  'scheme-indent-function
+                  (car x)))
+         keyword-rules))
+   #+end_src
+
+   #+begin_src emacs-lisp
+(scheme-add-keywords
+ 'font-lock-keyword-face
+ '((1 . lambda*)
+   (1 . error)
+   (0 . comment)
+   ))
+   #+end_src
+
+** Repls (comint)
+#+begin_src emacs-lisp
+(use-package comint
+  :pin manual ;; built-in?
+  :ensure nil ;; ??
+  :bind
+  (:map comint-mode-map
+	("C-c C-l" . comint-clear-buffer)))
+#+end_src
+
+TODO
+#+begin_src emacs-lisp
+'(bind-key "C-c C-l" #'comint-clear-buffer comint-mode-map)
+#+end_src
+
 *** COMMENT Geiser
     Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
     #+BEGIN_SRC emacs-lisp
@@ -1559,7 +1618,9 @@ man git-commit | grep untracked
 ** JavaScript
    #+begin_src emacs-lisp
 (use-package js2-mode
-  :mode "\\.js\\'")
+  :mode "\\.js\\'"
+  :config
+  (setq js2-strict-missing-semi-warning nil))
    #+end_src
 ** TypeScript
    #+begin_src emacs-lisp
@@ -1592,12 +1653,6 @@ man git-commit | grep untracked
 
 (add-hook 'c-mode-common-hook #'aod/cc-hook)
     #+end_src
-
-    #+begin_src emacs-lisp
-(with-eval-after-load 'gdb
-  (setq gdb-many-windows t
-	gdb-show-main t))
-    #+end_src
 ** groovy
    #+begin_src emacs-lisp
 (use-package groovy-mode)
@@ -1613,6 +1668,91 @@ man git-commit | grep untracked
 				  (prong (warn "Could not find python executable")
 					 nil))))
    #+end_src
+
+* Debug
+** gdb
+- https://stackoverflow.com/questions/20990795/can-emacs-gdb-mode-display-expressions-in-separate-window
+#+begin_src emacs-lisp
+(use-package gdb-mi
+  :ensure nil
+  :config
+  (setq gdb-many-windows t
+	gdb-show-main t))
+
+'(with-eval-after-load 'gdb
+	 (setq gdb-many-windows t
+	       gdb-show-main t))
+#+end_src
+
+*** gdb hydra
+https://github.com/weirdNox/dotfiles/blob/c216e6c8d1cb96855c569768f42f8a4311eb27e2/config/.emacs.d/init.el#L440
+#+begin_src emacs-lisp
+(defhydra hydra-gdb (:exit nil :foreign-keys run)
+  "gdb"
+  ;; ("O" gdb :exit t)
+  ;; ("k" nox/gdb-kill :exit t)
+  ("R" gud-run "run" :exit t)
+  ("c" gud-cont "continue")
+  ;; ("s" nox/gdb-stop :exit t)
+  ("b" gud-break "break")
+  ("t" gud-tbreak "tbreak?")
+  ("r" gud-remove "remove")
+  ("n" gud-next "next")
+  ("N" gud-nexti "nexti")
+  ("i" gud-step "step")
+  ("I" gud-stepi "stepi")
+  ("o" gud-finish "finish")
+  ("u" gud-until "until")
+  ;; ("w" nox/gdb-watch :exit t)
+  ;; ("S" (lambda () (interactive) (setq nox/gdb-disassembly-show-source
+  ;;                                     (not nox/gdb-disassembly-show-source))))
+  ("q" ignore :exit t)
+  ("C-g" ignore :exit t))
+#+end_src
+
+*** COMMENT sr speedbar (speedbar in same frame)
+not useful
+speedbar is used by gdb for watched variabless.
+
+#+begin_src emacs-lisp
+(use-package sr-speedbar)
+#+end_src
+** dap
+  #+begin_src emacs-lisp
+(use-package dap-mode
+  :config
+  (require 'dap-cpptools)
+  (require 'dap-gdb-lldb)
+  (require 'dap-lldb)
+  (setq dap-lldb-debug-program '("/usr/bin/lldb-vscode-12")))
+  #+end_src
+  run =dap-cpptools-setup= and =dap-gdb-lldb-setup=
+  also (cause lldb-mi is needed)
+  #+begin_src sh
+sudo apt install lldb
+  #+end_src
+
+- ext install webfreak.debug
+  - https://www.reddit.com/r/emacs/comments/mxiqt6/how_to_setup_and_use_dapmode_for_c/
+  - https://github.com/emacs-lsp/dap-mode/issues/69
+  #+begin_src sh
+rsync -a /home/actondev/.vscode/extensions/webfreak.debug-0.25.1/ ~/.emacs.d/.extension/vscode/webfreak.debug/extension
+  #+end_src
+** weirdNox/emacs-gdb: rewrite
+https://github.com/weirdNox/emacs-gdb
+https://github.com/weirdNox/emacs-gdb#default-keybindings
+#+begin_src emacs-lisp
+(use-package gdb-mi :quelpa (gdb-mi :fetcher git
+                                    :url "https://github.com/weirdNox/emacs-gdb.git"
+                                    :files ("*.el" "*.c" "*.h" "Makefile"))
+  :init
+  (fmakunbound 'gdb)
+  (fmakunbound 'gdb-enable-debug))
+#+end_src
+** realgud
+#+begin_src emacs-lisp
+(use-package realgud)
+#+end_src
 * Web
 ** restclient
    Associating with =.http= files
@@ -1654,7 +1794,87 @@ sudo apt-get install zeal
   Note: js docs are acting weird
   Solution (<2021-01-28 Thu>): find react-main.01db16f317c6.js in =~/.local/share/zeal= and delete it (there were 2, deleted both)
 * Interface enhancmenets, key bindings
-** Key-chord
+** TODO god mode (testing)
+   #+begin_src emacs-lisp
+(use-package god-mode
+  :demand t
+  :config
+  (god-mode-all)
+  (add-to-list 'god-exempt-major-modes 'vterm-mode))
+   #+end_src
+
+   #+begin_src emacs-lisp
+(defun my-god-mode-update-cursor-type ()
+  (setq cursor-type
+	(cond (god-local-mode 'hollow)
+	      (buffer-read-only 'box)
+	      (t '(bar . 3)))))
+
+(add-hook 'god-mode-enabled-hook #'my-god-mode-update-cursor-type)
+(add-hook 'god-mode-disabled-hook #'my-god-mode-update-cursor-type)
+   #+end_src
+*** COMMENT debug
+    #+begin_src emacs-lisp
+(setq god-mode-enabled-hook nil)
+(setq god-mode-disabled-hook nil)
+    #+end_src
+*** god mode bindings
+**** general
+     #+begin_src emacs-lisp
+(global-set-key (kbd "<escape>") #'god-local-mode)
+(define-key god-local-mode-map (kbd "i") #'god-local-mode)
+;; apparently not possible: C-i is interpreted as tab..
+;;(global-set-key (kbd "C-i") #'god-local-mode)
+
+(add-hook 'vterm-mode-hook
+	    (lambda ()
+	      (interactive)
+	      (define-key vterm-mode-map (kbd "<escape>") #'god-local-mode)))
+     #+end_src
+**** navigating
+     #+begin_src emacs-lisp
+(define-key god-local-mode-map (kbd "[") #'backward-sexp)
+(define-key god-local-mode-map (kbd "]") #'forward-sexp)
+     #+end_src
+**** window
+     #+begin_src emacs-lisp
+(global-set-key (kbd "C-; C-w") #'windmove-up)
+(global-set-key (kbd "C-; C-a") #'windmove-left)
+(global-set-key (kbd "C-; C-s") #'windmove-down)
+(global-set-key (kbd "C-; C-d") #'windmove-right)
+
+(global-set-key (kbd "C-; C-q") #'delete-window)
+(global-set-key (kbd "C-; C-e") #'delete-other-windows)
+
+(defun aod-window/split-vertical+down ()
+  (interactive)
+  (split-window-vertically) (other-window 1))
+
+(defun aod-window/split-horizontal+right ()
+  (interactive)
+  (split-window-horizontally) (other-window 1))
+
+(global-set-key (kbd "C-; C-r") #'windresize)
+
+(global-set-key (kbd "C-; C-v") #'aod-window/split-vertical+down)
+(global-set-key (kbd "C-; C-h") #'aod-window/split-horizontal+right)
+     #+end_src
+**** helm & avy
+     #+begin_src emacs-lisp
+(global-set-key (kbd "C-, C-r") 'helm-all-mark-rings) ;; Rings
+(global-set-key (kbd "C-, C-m") 'helm-mini) ;; Mini
+(global-set-key (kbd "C-, C-s") 'helm-swoop) ;; Swoop
+(global-set-key (kbd "C-, C-t") 'helm-projectile-find-file) ;; projecTile
+(global-set-key (kbd "C-, C-v") 'aod/avy)
+;; helm-projectile-ag gives me bug in window, use projectile-ag? ..
+(global-set-key (kbd "C-, C-a") 'helm-projectile-ag)
+     #+end_src
+**** region expand/contract
+     #+begin_src emacs-lisp
+(global-set-key (kbd "C-, C-.") 'er/expand-region) ;; >: expand (. shifted)
+(global-set-key (kbd "C-, C-,") 'er/contract-region) ;; <: expand (, shifted)
+     #+end_src
+** COMMENT Key-chord
    #+BEGIN_SRC emacs-lisp
 (defun key-chord-helm ()
   ;; helm: , (right hand middle finger)
@@ -1750,6 +1970,7 @@ sudo apt-get install zeal
   :demand t
   :config
   (which-key-mode)
+  (which-key-enable-god-mode-support)
   (setq which-key-idle-delay 0.5) ;; default: 1
   )
    #+END_SRC
@@ -1823,8 +2044,10 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
    #+begin_src emacs-lisp
 (use-package aod-do
   :load-path "elisp/"
-  :demand t
-)
+  :demand t)
+
+;;(key-chord-define-global "/d" #'aod-do/action-interactive)
+(global-set-key (kbd "C-, C-d") 'aod-do/action-interactive)
    #+end_src
 * Presentation? (command-log)
   #+BEGIN_SRC emacs-lisp

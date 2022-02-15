@@ -191,7 +191,7 @@
 (define-transient-command s7bi/s7pd-transient ()
   "Test Transient Title"
   ["Arguments"
-   ("-s" "" "--switch")q
+   ("-s" "" "--switch")
    ("-a" "Another switch" "--another")
    ("y" "Yet Another switch" 'yet-another)
    (s7bi/s7pd-file-arg)]
