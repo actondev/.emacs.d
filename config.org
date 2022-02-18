@@ -40,6 +40,8 @@
 
 ;; to save slowdowns from long lines. added in emacs 27.1
 (global-so-long-mode 1)
+
+(setq find-file-visit-truename t)
    #+END_SRC
 
 ** functions
@@ -757,7 +759,14 @@ So, when some files are not found, the .gitignore should be kept"
   :config
   ;; border for modeline: had problem with org-mode src blocks (same color)
   (custom-set-faces
-   '(mode-line ((t (:box (:line-width 1 :color "dim gray")))))))
+   '(mode-line ((t (:box (:line-width 1 :color "dim gray"))))))
+  ;; till https://github.com/seagle0128/doom-modeline/issues/503
+  ;; (doom-modeline-def-modeline 'project
+  ;;   '(bar window-number modals buffer-default-directory)
+  ;;   '(misc-info battery irc mu4e gnus github debug minor-modes input-method major-mode process))
+  (doom-modeline-def-modeline 'dashboard
+    '(bar window-number modals buffer-default-directory-simple)
+    '(misc-info battery irc mu4e gnus github debug minor-modes input-method major-mode process)))
    #+END_SRC
 
    + [ ] TODO
@@ -1794,10 +1803,16 @@ sudo apt-get install zeal
   Note: js docs are acting weird
   Solution (<2021-01-28 Thu>): find react-main.01db16f317c6.js in =~/.local/share/zeal= and delete it (there were 2, deleted both)
 * Interface enhancmenets, key bindings
-** TODO god mode (testing)
+** god mode
+   - [ ] use after-init hook
    #+begin_src emacs-lisp
 (use-package god-mode
   :demand t
+  :init
+  ;; (add-hook 'after-init (require 'god-mode))
+  ;; (add-hook 'after-init #'god-mode-all)
+  ;; :commands (god-local-mode god-mode-all)
+  ;; :hook (after-init . god-mode-all)
   :config
   (god-mode-all)
   (add-to-list 'god-exempt-major-modes 'vterm-mode))
@@ -1838,6 +1853,9 @@ sudo apt-get install zeal
      #+end_src
 **** window
      #+begin_src emacs-lisp
+(with-eval-after-load 'paredit
+  ;; conflicts with C-; during god-mode
+  (unbind-key ";" paredit-mode-map))
 (global-set-key (kbd "C-; C-w") #'windmove-up)
 (global-set-key (kbd "C-; C-a") #'windmove-left)
 (global-set-key (kbd "C-; C-s") #'windmove-down)
@@ -1856,8 +1874,14 @@ sudo apt-get install zeal
 
 (global-set-key (kbd "C-; C-r") #'windresize)
 
+;; (global-set-key (kbd "C-; C-h") #'aod-window/split-horizontal+right)
+;; (global-set-key (kbd "C-; C-v") #'aod-window/split-vertical+down)
+
+;; alternative: f: right from d -> split right
+;; alternative: x: down from s -> split down
+(global-set-key (kbd "C-; C-f") #'aod-window/split-horizontal+right)
+(global-set-key (kbd "C-; C-x") #'aod-window/split-vertical+down)
 (global-set-key (kbd "C-; C-v") #'aod-window/split-vertical+down)
-(global-set-key (kbd "C-; C-h") #'aod-window/split-horizontal+right)
      #+end_src
 **** helm & avy
      #+begin_src emacs-lisp
@@ -1873,6 +1897,10 @@ sudo apt-get install zeal
      #+begin_src emacs-lisp
 (global-set-key (kbd "C-, C-.") 'er/expand-region) ;; >: expand (. shifted)
 (global-set-key (kbd "C-, C-,") 'er/contract-region) ;; <: expand (, shifted)
+     #+end_src
+**** other
+     #+begin_src emacs-lisp
+(global-set-key (kbd "C-, C-k") 'kill-buffer)
      #+end_src
 ** COMMENT Key-chord
    #+BEGIN_SRC emacs-lisp

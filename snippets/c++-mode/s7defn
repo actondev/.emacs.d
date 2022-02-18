@@ -6,20 +6,12 @@
 #define HELP_${1:$(aod/scheme-name->cpp yas-text )} "(${1:function-name} ${2:args})"
 s7_pointer scm_${1:$(aod/scheme-name->cpp yas-text )}(s7_scheme* sc, s7_pointer args) {
   $0
-  ${2:$(mapconcat (lambda (x)
-    (if (string= x "&optional")
-     "// optionals..."
-     (format "%s // car is %s\n" "args = s7_cdr(args);" x)))
-     (cdr (split-string yas-text))
-  "\n"
-  )}
   return s7_nil(sc);
 }
 void bind_${1:$(aod/scheme-name->cpp yas-text )}(s7_scheme* sc, s7_pointer env) {
-    s7_define(sc, env, s7_make_symbol(sc, "$1"),
-            s7_make_function(sc, "$1",
-	    			 scm_${1:$(aod/scheme-name->cpp  yas-text )},
-				 ${3:N-req-args}, ${4:N-opt-args}, ${5:rest-args?}, // req, opt, rest?
-				 HELP_${1:$(aod/scheme-name->cpp  yas-text )})
-				 );
+  s7_pointer fn = s7_make_function(sc, "$1",
+	    			  scm_${1:$(aod/scheme-name->cpp  yas-text )},
+				  ${3:N-req-args}, ${4:N-opt-args}, ${5:rest-args?}, // req, opt, rest?
+				  HELP_${1:$(aod/scheme-name->cpp  yas-text )});
+  s7_define(sc, env, s7_make_symbol(sc, "$1"), fn);
 }
