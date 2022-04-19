@@ -125,6 +125,11 @@
 	       (message "point max? %s" (point-max))
 	       (goto-char (point-max)))))
     #+end_example
+** mac modifiers
+   #+begin_src emacs-lisp
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier nil)
+   #+end_src
 * Package source, use-package etc
   #+BEGIN_SRC emacs-lisp
 (setq package-enable-at-startup nil)
