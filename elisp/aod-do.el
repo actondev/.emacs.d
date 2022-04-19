@@ -10,7 +10,6 @@
 ;;
 ;; (setq-local aod-do/action #'s7bi/body)
 
-(require 'key-chord)
 (defcustom aod-do/eval-safe-directories ()
   "List of safe directories to perform eval in dir-locals")
 
