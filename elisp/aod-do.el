@@ -54,11 +54,13 @@
 
 (defun aod-do/set-global-action ()
   (interactive)
-  (let ((choice (completing-read "Action: " (mapcar (lambda (el)
-						      (if (null el)
-							  "nil"
-							(format "#'%s" el)))
-						    aod-do/registered-actions))))
+  (let ((choice
+	 (completing-read "Action: "
+			  (mapcar (lambda (el)
+				    (if (null el)
+					"nil"
+				      (format "#'%s" el)))
+				  aod-do/registered-actions))))
     (setq aod-do/action-global (eval (read choice)))))
 
 (defun aod-do/action-interactive ()

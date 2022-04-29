@@ -254,6 +254,7 @@
 	;; see https://lists.gnu.org/archive/html/emacs-orgmode/2019-12/msg00311.html
 	;; fixed at https://code.orgmode.org/bzg/org-mode/commit/298d6332222258316aaa6b74699127eb97073ce2
 	org-src-tab-acts-natively t
+	org-context-in-file-links nil ;; org-store-link will just store file. add prefix arg to get also context
 	)
   (setq org-log-note-clock-out t)
   (setq org-image-actual-width 400)
@@ -1074,7 +1075,10 @@ paredit        ; Introduce some paredit commands.
   ;; (setq lsp-enable-indentation nil)
   :config
   (add-to-list 'lsp-language-id-configuration '(clojure-mode . "clojure-mode"))
-  )
+  (setq gc-cons-threshold 100000000 ;; was 800000 by default
+	read-process-output-max (* 1024 1024) ;; 1MB
+	;; the end
+	))
 
 (use-package lsp-ui
   :commands lsp-ui-mode)
@@ -1666,6 +1670,15 @@ TODO
   (c-set-style "Google"))
 
 (add-hook 'c-mode-common-hook #'aod/cc-hook)
+    #+end_src
+*** formatting
+    #+begin_src emacs-lisp
+(use-package clang-format)
+    #+end_src
+
+    a useful hook then is:
+    #+begin_src emacs-lisp :tangle nil
+(add-hook 'before-save-hook #'clang-format-buffer)
     #+end_src
 ** groovy
    #+begin_src emacs-lisp

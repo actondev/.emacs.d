@@ -42,3 +42,6 @@ transient/
 
 # etc
 *.log
+
+# native compilation?
+/eln-cache/
