@@ -587,6 +587,14 @@ sudo apt-get install silversearcher-ag
   :commands (workgroups-mode wg-open-session)
   )
   #+END_SRC
+** transpose-frame
+   - flip-frame: Flip vertically
+   - flop-frame: Flip horizontally
+
+
+   #+begin_src emacs-lisp
+(use-package transpose-frame)
+   #+end_src
 * Project management
 ** Projectile & neotree
    Useful neotree shortcuts
