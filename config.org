@@ -75,6 +75,7 @@
    #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-/") 'toggle-comment-on-line)
 (global-set-key (kbd "C-?") 'comment-or-uncomment-region)
+(global-set-key (kbd "C-S-b") 'recompile)
 
 (require 'outline)
 (global-set-key (kbd "M-n") 'outline-next-visible-heading)
@@ -112,7 +113,9 @@
    #+END_SRC
 ** compile
    #+begin_src emacs-lisp
-(setq compilation-scroll-output t)
+(with-eval-after-load 'compile
+  (setq compilation-scroll-output t)
+  (define-key compilation-mode-map (kbd "C-c C-c") #'kill-compilation))
    #+end_src
    Another option is =(setq compilation-scroll-output 'first-error)=
 *** COMMENT troubleshoot
@@ -692,8 +695,10 @@ So, when some files are not found, the .gitignore should be kept"
   (ibuffer .
 	   (lambda ()
 	     (ibuffer-projectile-set-filter-groups)
-	     (unless (eq ibuffer-sorting-mode 'alphabetic)
-	       (ibuffer-do-sort-by-alphabetic))))
+	     ;; TODO slow? not sure
+	     ;; (unless (eq ibuffer-sorting-mode 'alphabetic)
+	     ;;   (ibuffer-do-sort-by-alphabetic))
+	     ))
   )
    #+END_SRC
 ** Get frame by name
@@ -1085,6 +1090,9 @@ paredit        ; Introduce some paredit commands.
   (add-to-list 'lsp-language-id-configuration '(clojure-mode . "clojure-mode"))
   (setq gc-cons-threshold 100000000 ;; was 800000 by default
 	read-process-output-max (* 1024 1024) ;; 1MB
+	;; these 2 seem to make buffer code navigation quite slow!
+	lsp-lens-auto-enable nil
+	lsp-headerline-breadcrumb-enable nil
 	;; the end
 	))
 
