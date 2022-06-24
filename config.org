@@ -942,7 +942,9 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
   :bind (:map prog-mode-map
 	      ("C-<tab>" . aod.hs/toggle-line)
 	      ("<backtab>" . aod.hs/hideshow-all)
-	      ("<C-iso-lefttab>" . hs-hide-level)))
+	      ("<C-iso-lefttab>" . hs-hide-level)
+	      ("C-S-<tab>" . hs-hide-level)
+	      ))
    #+END_SRC
 
 ** selection
