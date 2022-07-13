@@ -6,5 +6,5 @@
 # --
 
 :PROPERTIES:
-:header-args: ${1:sh :session} $0
+:header-args:${1:sh:} :session *$0*
 :END:

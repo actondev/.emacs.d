@@ -1889,9 +1889,6 @@ sudo apt-get install zeal
      #+end_src
 **** window
      #+begin_src emacs-lisp
-(with-eval-after-load 'paredit
-  ;; conflicts with C-; during god-mode
-  (unbind-key ";" paredit-mode-map))
 (global-set-key (kbd "C-; C-w") #'windmove-up)
 (global-set-key (kbd "C-; C-a") #'windmove-left)
 (global-set-key (kbd "C-; C-s") #'windmove-down)
@@ -2332,12 +2329,14 @@ powershell -Command Add-MpPreference -ExclusionExtension ".elc"
 (load-file (relative-from-init "elisp/dired-fix.el"))
    #+END_SRC
 
-* COMMENT Linux
-  :PROPERTIES:
-  :header-args: :tangle (when (eq system-type 'gnu/linux) "yes") :results silent
-  :END:
-
+* Linux
 <2021-12-08 Wed> =:tangle (when )= doesn't work
+#+begin_src org-
+:PROPERTIES:
+:header-args: :tangle (when (eq system-type 'gnu/linux) "yes") :results silent
+:END:
+#+end_src
+
 ** Open as sudo
    https://emacsredux.com/blog/2013/04/21/edit-files-as-root/
    #+BEGIN_SRC emacs-lisp

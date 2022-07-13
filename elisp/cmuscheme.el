@@ -113,8 +113,8 @@
   (let ((m (make-sparse-keymap)))
     (define-key m "\M-\C-x" 'scheme-send-definition) ;gnu convention
     (define-key m "\C-x\C-e" 'scheme-send-last-sexp)
-    (define-key m "\C-c\C-l" 'scheme-load-file)
-    (define-key m "\C-c\C-k" 'scheme-compile-file)
+    ;; (define-key m "\C-c\C-l" 'scheme-load-file)
+    ;; (define-key m "\C-c\C-k" 'scheme-compile-file)
     (scheme-mode-commands m)
     m))
 
