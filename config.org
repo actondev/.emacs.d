@@ -448,7 +448,7 @@ example: some-file.el#L10 -> links to some-file.el at line 10"
 	(message "Reverting to %s" aod/original-default-directory)
 	(setq-local default-directory aod/original-default-directory)))))
    #+end_src
-* Helm
+* COMMENT Helm
   #+BEGIN_SRC emacs-lisp
 (setq aod.helm/C-SPC-set-mark-p nil)
 
@@ -524,6 +524,162 @@ multiple files"
    #+BEGIN_SRC sh
 sudo apt-get install silversearcher-ag
    #+END_SRC
+
+* vertico, consult etc: ala helm
+  
+** vertico
+   https://github.com/minad/vertico
+   #+begin_src emacs-lisp
+(use-package vertico
+  :init
+  (vertico-mode)
+  :config
+    ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  
+  (setq enable-recursive-minibuffers t)
+  ;;(define-key vertico-map "<" nil)
+  :bind (:map vertico-map
+	      ("C-l" . vertico-directory-up)
+	      ;; vertico was rebinding to history, instead I prefer to act as page-up page-down
+	      ("<prior>" . nil)
+	      ("<next>" . nil)
+
+	      ("M-n" . vertico-next-group)
+	      ("M-p" . vertico-previous-group)
+	      )
+  )
+   #+end_src
+   
+** orderless: fuzzy completion
+   #+begin_src emacs-lisp
+(use-package orderless
+  :init
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
+  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+   #+end_src
+
+** consult
+   tip:
+   #+begin_src sh
+sudo apt-get install ripgrep
+   #+end_src
+   
+   #+begin_src emacs-lisp
+(use-package consult
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+  ;; Optionally configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
+  :config
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key (kbd "M-."))
+  ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme
+   :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-recent-file
+   consult--source-project-recent-file
+   :preview-key (kbd "M-."))
+
+  :bind (
+	 ("C-S-v" . consult-yank-from-kill-ring)
+	 )
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  ;; (setq consult-narrow-key "<") ;; (kbd "C-+")
+
+  )
+   #+end_src
+
+** marginalia
+   #+begin_src emacs-lisp
+;; Enable richer annotations using the Marginalia package
+(use-package marginalia
+  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+
+  ;; The :init configuration is always executed (Not lazy!)
+  :init
+
+  ;; Must be in the :init section of use-package such that the mode gets
+  ;; enabled right away. Note that this forces loading the package.
+  (marginalia-mode))
+
+   #+end_src
+
+** embark
+   #+begin_src emacs-lisp
+(use-package embark
+  :ensure t
+
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ;; ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  ;; (setq prefix-help-command #'embark-prefix-help-command)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
+  ;; (setq embark-quit-after-action '((kill-buffer . t) (t . nil)))
+  (setq embark-quit-after-action nil)
+  )
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :ensure t
+  :after (embark consult)
+  :config
+  ;; (setq embark-quit-after-action '((kill-buffer . t) (t . nil)))
+  ;; (setq embark-quit-after-action nil)
+  ;; :demand t ; only necessary if you have the hook below
+  ;; if you want to have consult previews as you move around an
+  ;; auto-updating embark collect buffer
+  ;; :hook
+  ;; (embark-collect-mode . consult-preview-at-point-mode)
+  )
+   #+end_src
 * Avy
   #+begin_src emacs-lisp
 (use-package aod-read-multiple-choice
@@ -617,7 +773,7 @@ sudo apt-get install silversearcher-ag
   (projectile-mode 1)
   ;; speed!
   (setq projectile-indexing-method 'hybrid)
-  (setq projectile-completion-system 'helm)
+  ;; (setq projectile-completion-system 'helm)
   ;; https://github.com/bbatsov/projectile/issues/1302#issuecomment-433894379
   ;; windows fix
   ;; (setq projectile-git-submodule-command nil)
@@ -1916,7 +2072,7 @@ sudo apt-get install zeal
 (global-set-key (kbd "C-; C-x") #'aod-window/split-vertical+down)
 (global-set-key (kbd "C-; C-v") #'aod-window/split-vertical+down)
      #+end_src
-**** helm & avy
+**** COMMENT helm & avy
      #+begin_src emacs-lisp
 (global-set-key (kbd "C-, C-r") 'helm-all-mark-rings) ;; Rings
 (global-set-key (kbd "C-, C-m") 'helm-mini) ;; Mini
@@ -1926,14 +2082,20 @@ sudo apt-get install zeal
 ;; helm-projectile-ag gives me bug in window, use projectile-ag? ..
 (global-set-key (kbd "C-, C-a") 'helm-projectile-ag)
      #+end_src
+**** consult
+     #+begin_src emacs-lisp
+(global-set-key (kbd "C-, C-m") 'consult-buffer) ;; ala helm-mini
+(global-set-key (kbd "C-, C-t") 'project-find-file) ;; projecT
+(global-set-key (kbd "C-, C-r") 'consult-ripgrep)
+(global-set-key (kbd "C-, C-a") 'consult-ripgrep) ;; ala ag
+;; (global-set-key (kbd "C-, C-r") 'consult-recent-file)
+(global-set-key (kbd "C-, C-l") 'consult-line)
+(global-set-key (kbd "C-, C-i") 'consult-imenu)
+     #+end_src
 **** region expand/contract
      #+begin_src emacs-lisp
 (global-set-key (kbd "C-, C-.") 'er/expand-region) ;; >: expand (. shifted)
 (global-set-key (kbd "C-, C-,") 'er/contract-region) ;; <: expand (, shifted)
-     #+end_src
-**** other
-     #+begin_src emacs-lisp
-(global-set-key (kbd "C-, C-k") 'kill-buffer)
      #+end_src
 ** COMMENT Key-chord
    #+BEGIN_SRC emacs-lisp
@@ -2014,7 +2176,7 @@ sudo apt-get install zeal
   (add-hook 'minibuffer-setup-hook #'disable-key-chord-mode)
   (key-chord-mode 1)
 
-  (key-chord-helm)
+  ;; (key-chord-helm)
   (key-chord-windows-management)
   (key-chord-editing)
   ;; (key-chord-ace-jump)
