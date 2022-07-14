@@ -967,6 +967,11 @@ So, when some files are not found, the .gitignore should be kept"
 ;; (setq doom-modeline-icon (display-graphic-p))
 (setq doom-modeline-buffer-state-icon t)
    #+END_SRC
+** all-the-icons
+   #+begin_src emacs-lisp
+(use-package all-the-icons
+  :if (display-graphic-p))
+   #+end_src
 
    Note: after you have to run =all-the-icons-install-fonts= with M-x.
 *** minions: showing minor modes
@@ -1132,7 +1137,7 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
 	      ("C-<tab>" . aod.hs/toggle-line)
 	      ("<backtab>" . aod.hs/hideshow-all)
 	      ("<C-iso-lefttab>" . hs-hide-level)
-	      ("C-S-<tab>" . hs-hide-level)
+	      ("C-S-<tab>" . hs-hide-level) ;; for macos
 	      ))
    #+END_SRC
 
@@ -1165,8 +1170,14 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
   :bind(
 	("M-/" . undo-tree-visualize)
 	("C-z" . undo-tree-undo)
-	("C-S-z" . undo-tree-redo)))
+	("C-S-z" . undo-tree-redo))
+  :config
+  (defvar --undo-tree-history-directory (concat user-emacs-directory "undo-tree/"))
+  (if (not (file-exists-p --undo-tree-history-directory))
+      (make-directory --undo-tree-history-directory t))
+  (setq undo-tree-history-directory-alist `((".*" . ,--undo-tree-history-directory))))
    #+END_SRC
+
 ** Working with lisps
 *** paredit
     #+BEGIN_SRC emacs-lisp
@@ -1855,6 +1866,7 @@ TODO
 (use-package yaml-mode)
 (use-package csv-mode)
 (use-package meson-mode)
+(use-package cmake-mode)
    #+END_SRC
 ** CC: c/c++
 
