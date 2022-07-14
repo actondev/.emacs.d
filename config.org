@@ -151,12 +151,14 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
-(setq use-package-always-ensure t)
-(setq use-package-always-defer t)
-(setq use-package-verbose 'verbose)
+(setq use-package-always-ensure t
+      use-package-always-defer t
+      use-package-verbose 'verbose
+      use-package-minimum-reported-time 0.01
+      )
    #+END_SRC
 
-** quelpa (for git forks)
+** COMMENT quelpa (for git forks)
    #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'quelpa)
   (with-temp-buffer
@@ -215,7 +217,7 @@
 (straight-use-package 'use-package)
    #+END_SRC
 
-** el-get
+** COMMENT el-get
    #+begin_src emacs-lisp
 (use-package el-get
   :demand t
@@ -531,9 +533,10 @@ sudo apt-get install silversearcher-ag
    https://github.com/minad/vertico
    #+begin_src emacs-lisp
 (use-package vertico
-  :init
-  (vertico-mode)
+  ;; :hook (after-init . vertico-mode)
+  :defer 0
   :config
+  (vertico-mode)
     ;; Do not allow the cursor in the minibuffer prompt
   (setq minibuffer-prompt-properties
         '(read-only t cursor-intangible t face minibuffer-prompt))
@@ -623,6 +626,17 @@ sudo apt-get install ripgrep
   )
    #+end_src
 
+** consult completion
+   #+begin_src emacs-lisp
+;; Use `consult-completion-in-region' if Vertico is enabled.
+;; Otherwise use the default `completion--in-region' function.
+(setq completion-in-region-function
+      (lambda (&rest args)
+        (apply (if vertico-mode
+                   #'consult-completion-in-region
+                 #'completion--in-region)
+               args)))
+   #+end_src
 ** marginalia
    #+begin_src emacs-lisp
 ;; Enable richer annotations using the Marginalia package
@@ -668,23 +682,14 @@ sudo apt-get install ripgrep
 
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
-  :ensure t
   :after (embark consult)
-  :config
-  ;; (setq embark-quit-after-action '((kill-buffer . t) (t . nil)))
-  ;; (setq embark-quit-after-action nil)
-  ;; :demand t ; only necessary if you have the hook below
-  ;; if you want to have consult previews as you move around an
-  ;; auto-updating embark collect buffer
-  ;; :hook
-  ;; (embark-collect-mode . consult-preview-at-point-mode)
   )
    #+end_src
 * Avy
   #+begin_src emacs-lisp
 (use-package aod-read-multiple-choice
   :load-path "elisp/"
-  ;; without :demand t, and without bindigs
+  ;; without demand t, and without bindigs
   ;; commands should be set: this will actually load the function
   :commands (aod/read-multiple-choice))
 
@@ -729,7 +734,7 @@ sudo apt-get install ripgrep
    #+begin_src emacs-lisp
 (use-package aod-window
   :load-path "elisp/"
-  ;; without :demand t, and without bindigs
+  ;; without demand t, and without bindigs
   ;; commands should be set: this will actually load the function
   :commands (aod.window/place-buffer))
    #+end_src
@@ -755,13 +760,7 @@ sudo apt-get install ripgrep
 (use-package transpose-frame)
    #+end_src
 * Project management
-** Projectile & neotree
-   Useful neotree shortcuts
-   + =A= : stretch toggle
-   + =U= : go up to parent
-   + =C-c C-a= : collapse all
-     + [ ] set <S-tab> for collapse all?
-
+** COMMENT Projectile
    Projetile MR <2021-07-30 Fri> https://github.com/bbatsov/projectile/pull/1696
   # until it's merged:
   # :load-path "~/dev/actondev/projectile/" ;; trailing slash is important
@@ -818,12 +817,21 @@ So, when some files are not found, the .gitignore should be kept"
 	     helm-projectile-ag)
   :config (aod.ag/vcs-ignore t))
 
-(defun display-line-numbers-disable-hook (_)
-  "Disable display-line-numbers locally."
-  (display-line-numbers-mode -1))
+   #+END_SRC
+** neotree
+   Useful neotree shortcuts
+   + =A= : stretch toggle
+   + =U= : go up to parent
+   + =C-c C-a= : collapse all
+     + [ ] set <S-tab> for collapse all?
 
+   #+begin_src emacs-lisp
 (use-package neotree
   :config
+  (defun display-line-numbers-disable-hook (_)
+    "Disable display-line-numbers locally."
+    (display-line-numbers-mode -1))
+  
   (setq neo-smart-open t)
   (setq neo-window-fixed-size nil)
   (add-hook 'neo-after-create-hook 'display-line-numbers-disable-hook)
@@ -831,12 +839,12 @@ So, when some files are not found, the .gitignore should be kept"
 	("<f8>" . neotree-toggle)
 	)
   )
-   #+END_SRC
+   #+end_src
 ** projectile & dir locals
    #+begin_src emacs-lisp
 (defun aod-project/reload-dir-locals ()
   (interactive)
-  (dolist (buf (projectile-project-buffers))
+  (dolist (buf (project-buffers (project-current)))
     (when (buffer-file-name buf)
       (with-current-buffer buf
 	(message "hacking dir-locals into %s" buf)
@@ -869,12 +877,18 @@ So, when some files are not found, the .gitignore should be kept"
 (blink-cursor-mode t)
 (setq-default cursor-type 'box)
    #+END_SRC
-** Welcome screen
+** Welcome screen (dashboard)
    #+BEGIN_SRC emacs-lisp
 (use-package dashboard
+  ;; :init
+  ;; (add-hook 'after-init-hook (lambda ()
+  ;; 			       (require 'dashboard)))
   :demand t
+  
   :diminish dashboard-mode
   :config
+  (dashboard-setup-startup-hook)
+  
   ;;  (setq dashboard-banner-logo-title "your custom text")
   (setq dashboard-startup-banner 1) ;; integer is for text
   (setq dashboard-items '(
@@ -882,7 +896,7 @@ So, when some files are not found, the .gitignore should be kept"
                           (bookmarks . 10)
 			  (recents  . 10)
 			  ))
-  (dashboard-setup-startup-hook)
+  
   ;; fixing emacs client starting with scratch
   ;; https://www.reddit.com/r/emacs/comments/8i2ip7/emacs_dashboard_emacsclient/
   (if (= 1 (length command-line-args))
@@ -918,6 +932,7 @@ So, when some files are not found, the .gitignore should be kept"
    #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
   :demand t
+
   :config
   (load-theme 'doom-molokai t)
   (doom-themes-visual-bell-config)
@@ -930,8 +945,10 @@ So, when some files are not found, the .gitignore should be kept"
 ** doom-modeline
    #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
-  :hook (after-init . doom-modeline-mode)
+  ;; :hook (after-init . doom-modeline-mode)
+  :defer 0
   :config
+  (doom-modeline-mode)
   ;; border for modeline: had problem with org-mode src blocks (same color)
   (custom-set-faces
    '(mode-line ((t (:box (:line-width 1 :color "dim gray"))))))
@@ -958,7 +975,9 @@ So, when some files are not found, the .gitignore should be kept"
 
     #+BEGIN_SRC emacs-lisp
 (use-package minions
-  :demand t
+  ;; :hook (after-init . minions-mode)
+  :defer 0
+
   :config
   (minions-mode 1)
   (setq doom-modeline-minor-modes (featurep 'minions)))
@@ -1043,14 +1062,28 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
 (use-package tiny)
    #+END_SRC
 ** auto completion
-   #+BEGIN_SRC emacs-lisp
+*** company
+    #+BEGIN_SRC emacs-lisp
 (use-package company
-  :hook (after-init . global-company-mode)
+  ;; :hook (after-init . global-company-mode)
+  :defer 0
   :config
+  (global-company-mode)
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-ignore-case t))
-   #+END_SRC
-
+    #+END_SRC
+*** COMMENT corfu
+    #+begin_src emacs-lisp
+(use-package corfu
+  :custom
+  (corfu-auto t)          ;; Enable auto completion
+  ;; (corfu-separator ?_) ;; Set to orderless separator, if not using space
+  :bind
+  ;; Another key binding can be used, such as S-SPC.
+  ;; (:map corfu-map ("M-SPC" . corfu-insert-separator))
+  :init
+  (global-corfu-mode))
+    #+end_src
 ** Hiding/showing blocks
    + [[file:emacs-lisp/hideshowvis.el]]
      adds clickable + - icons in the left fringe for folding/unfolding (hiding/showing) code blocks
@@ -1327,14 +1360,13 @@ sudo ./llvm.sh
    #+begin_src emacs-lisp
 (use-package yasnippet
   ;; :hook (prog-mode . yas-minor-mode)
+  ;; :init
+  ;; (add-hook 'after-init-hook (lambda ()
+  ;; 			      (message "here yasnippet")
+  ;; 			     (require 'yasnippet)))
+  :defer 0
   :config
   (yas-global-mode 1)
-  :init
-  ;; the yas-global-mode doesn't really get executed
-  ;; so.. either add a hook (prog-mode & org-mode ??)
-  ;; or in the init block.. that makes startup a bit
-  ;; slower though
-  (require 'yasnippet)
   )
    #+end_src
 ** epoch, ms, seconds etc
@@ -1939,7 +1971,7 @@ sudo apt install lldb
   #+begin_src sh
 rsync -a /home/actondev/.vscode/extensions/webfreak.debug-0.25.1/ ~/.emacs.d/.extension/vscode/webfreak.debug/extension
   #+end_src
-** weirdNox/emacs-gdb: rewrite
+** COMMENT weirdNox/emacs-gdb: rewrite
 https://github.com/weirdNox/emacs-gdb
 https://github.com/weirdNox/emacs-gdb#default-keybindings
 #+begin_src emacs-lisp
@@ -1995,16 +2027,16 @@ sudo apt-get install zeal
   Note: js docs are acting weird
   Solution (<2021-01-28 Thu>): find react-main.01db16f317c6.js in =~/.local/share/zeal= and delete it (there were 2, deleted both)
 * Interface enhancmenets, key bindings
-** god mode
+* god mode
    - [ ] use after-init hook
    #+begin_src emacs-lisp
 (use-package god-mode
-  :demand t
-  :init
-  ;; (add-hook 'after-init (require 'god-mode))
-  ;; (add-hook 'after-init #'god-mode-all)
-  ;; :commands (god-local-mode god-mode-all)
-  ;; :hook (after-init . god-mode-all)
+  :defer 0
+  ;; :init
+  ;; (add-hook 'after-init-hook (lambda ()
+  ;; 			      (message "here god")
+  ;; 			      (require 'god-mode)))
+  
   :config
   (god-mode-all)
   (add-to-list 'god-exempt-major-modes 'vterm-mode))
@@ -2028,20 +2060,24 @@ sudo apt-get install zeal
 *** god mode bindings
 **** general
      #+begin_src emacs-lisp
-(global-set-key (kbd "<escape>") #'god-local-mode)
-(define-key god-local-mode-map (kbd "i") #'god-local-mode)
-;; apparently not possible: C-i is interpreted as tab..
-;;(global-set-key (kbd "C-i") #'god-local-mode)
+(with-eval-after-load 'god-mode
+  (global-set-key (kbd "<escape>") #'god-local-mode)
+  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
+  ;; apparently not possible: C-i is interpreted as tab..
+  ;;(global-set-key (kbd "C-i") #'god-local-mode)
 
-(add-hook 'vterm-mode-hook
+  (add-hook 'vterm-mode-hook
 	    (lambda ()
 	      (interactive)
 	      (define-key vterm-mode-map (kbd "<escape>") #'god-local-mode)))
+  )
      #+end_src
 **** navigating
      #+begin_src emacs-lisp
-(define-key god-local-mode-map (kbd "[") #'backward-sexp)
-(define-key god-local-mode-map (kbd "]") #'forward-sexp)
+(with-eval-after-load 'god-mode
+  (define-key god-local-mode-map (kbd "[") #'backward-sexp)
+  (define-key god-local-mode-map (kbd "]") #'forward-sexp)
+)
      #+end_src
 **** window
      #+begin_src emacs-lisp
@@ -2165,7 +2201,7 @@ sudo apt-get install zeal
 ;;  )
 
 (use-package key-chord
-  :demand t
+  :hook (after-init . key-chord-mode)
   :config
   ;; disable in mini buffers
   (setq key-chord-two-keys-delay .05
@@ -2190,7 +2226,8 @@ sudo apt-get install zeal
    Get a feedback about the current key sequences, what can i press afterwards?
    #+BEGIN_SRC emacs-lisp
 (use-package which-key
-  :demand t
+  ;; :hook (after-init . which-key-mode)
+  :defer 0
   :config
   (which-key-mode)
   (which-key-enable-god-mode-support)
@@ -2267,7 +2304,8 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
    #+begin_src emacs-lisp
 (use-package aod-do
   :load-path "elisp/"
-  :demand t)
+  :defer 0
+  )
 
 ;;(key-chord-define-global "/d" #'aod-do/action-interactive)
 (global-set-key (kbd "C-, C-d") 'aod-do/action-interactive)
