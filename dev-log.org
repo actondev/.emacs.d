@@ -208,3 +208,140 @@ read from the mini buffer?"
     (exit-minibuffer)
     ))
   #+end_src
+
+  
+* DONE macos: minibuffer focus
+  just using emacs-plus@29 (29.0.50)
+  #+begin_src emacs-lisp
+(global-set-key (kbd "<f9>") #'switch-to-minibuffer)
+(global-set-key (kbd "<f9>") #'abort-minibuffers)
+
+(global-set-key (kbd "C-<f9>") (lambda ()
+				 (interactive)
+				 (message "active minibuffer: minibuffer %s , window-buffer: %s"
+					  ;;1 2
+					    (active-minibuffer-window) (window-buffer)
+					  )
+				 ;; (other-window 1)
+				 (switch-to-minibuffer)
+				 ;;(other-window -1)
+				 '(message "now active minibuffer: minibuffer %s , window-buffer: %s"
+					  ;;1 2
+					    (active-minibuffer-window) (window-buffer)
+					  )
+				 ))
+
+(remove-hook 'minibuffer-setup-hook (lambda () (message (message "active minibuffer: minibuffer %s , window-buffer: %s"
+					  ;;1 2
+					    (active-minibuffer-window) (window-buffer)
+					  ))))
+
+(add-hook 'minibuffer-exit-hook (lambda () (message "minibuffer exit")))
+
+(defun my-advice (&rest args)
+  (message "select window %s, backtrace %s " (window-buffer)  (seq-take (cddr (backtrace-get-frames 'my-advice)) 3))
+  )
+
+(defun my-advice (&rest args)
+  (let ((trace-funs (mapcar (lambda (el)
+			      (let ((fun (backtrace-frame-fun el)))
+				(if (symbolp fun) fun
+				  'anonymous)))
+			    (backtrace-get-frames))))
+    (message "\n\nselected window %s\nbacktrace %s" (window-buffer)
+	     
+	     (take-after trace-funs 'my-advice)
+	     ;;(seq-take (cddr (backtrace-get-frames 'my-advice)) 3)
+	     ))
+  
+  )
+
+(my-advice)
+
+(advice-add 'select-window :after  #'my-advice)
+
+(advice-remove 'select-window  #'my-advice)
+
+(defun take-after (seq el)
+  (let ((found nil))
+    (while (and (not found))
+      seq
+      (when (eq (car seq) el)
+	(setq found t))
+      (setq seq (cdr seq))))
+  seq)
+
+(setq foo (mapcar #'backtrace-frame-fun (backtrace-get-frames)))
+
+foo
+
+(seq-filter #'symbolp foo)
+
+(seq-take (take-after foo 'mapcar) 5)
+
+(eq (car foo) 'backtrace-get-frames)
+
+(backtrace-frame-fun (car (backtrace-get-frames)))
+
+(type-of (car (backtrace-get-frames)))
+
+
+
+(add-to-list 'window-selection-change-functions #'my-advice)
+(remove #'my-advice window-selection-change-functions)
+
+  #+end_src
+
+  - window-selection-change-functions
+  - 
+  
+** log
+   - in messages
+   - running =M-x=
+   #+begin_quote
+Mark set [2 times]
+select window *Messages*
+select window  *Minibuf-1* [2 times]
+select window *vterm* [3 times]
+select window  *Minibuf-1*
+select window *vterm*
+select window  *Minibuf-1*
+select window *shell* [3 times]
+select window  *Minibuf-1*
+select window *shell*
+select window  *Minibuf-1*
+select window *shell* [4 times]
+select window  *Minibuf-1*
+select window *shell* [2 times]
+select window  *Minibuf-1*
+select window *shell* [2 times]
+select window  *Minibuf-1*
+select window *shell*
+select window  *Minibuf-1*
+select window *shell*
+select window *vterm* [4 times]
+select window *shell*
+select window *vterm* [2 times]
+select window *shell* [4 times]
+select window *vterm*
+select window *shell* [2 times]
+select window *vterm*
+select window *shell* [7 times]
+select window *vterm*
+select window *shell* [4 times]
+select window *vterm*
+select window *shell* [2 times]
+select window *vterm*
+select window *shell* [3 times]
+select window *vterm*
+select window *shell*
+select window *vterm* [7 times]
+
+-- until here --
+
+windmove-do-window-select: No window up from selected window
+active minibuffer: minibuffer #<window 4 on  *Minibuf-1*> , window-buffer: *vterm*
+   #+end_quote
+
+
+   

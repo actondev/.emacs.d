@@ -133,6 +133,11 @@
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier nil)
    #+end_src
+** native-comp
+   #+begin_src emacs-lisp
+(when (boundp 'byte-compile-warnings)
+      (setq byte-compile-warnings nil))
+   #+end_src
 * Package source, use-package etc
   #+BEGIN_SRC emacs-lisp
 (setq package-enable-at-startup nil)
@@ -678,6 +683,7 @@ sudo apt-get install ripgrep
                  (window-parameters (mode-line-format . none))))
   ;; (setq embark-quit-after-action '((kill-buffer . t) (t . nil)))
   (setq embark-quit-after-action nil)
+  (require 'embark-consult)
   )
 
 ;; Consult users will also want the embark-consult package.
