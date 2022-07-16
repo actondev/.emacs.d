@@ -550,7 +550,7 @@ sudo apt-get install silversearcher-ag
   (setq enable-recursive-minibuffers t)
   ;;(define-key vertico-map "<" nil)
   :bind (:map vertico-map
-	      ("C-l" . vertico-directory-up)
+	      ("C-l" . aod/vertico-file-up)
 	      ;; vertico was rebinding to history, instead I prefer to act as page-up page-down
 	      ("<prior>" . nil)
 	      ("<next>" . nil)
@@ -559,6 +559,26 @@ sudo apt-get install silversearcher-ag
 	      ("M-p" . vertico-previous-group)
 	      )
   )
+
+(defun aod/vertico-file-up (&optional n)
+  "Delete N directories before point."
+  (interactive "p")
+  (when (and (> (point) (minibuffer-prompt-end))
+	     ;; just comment out this part
+             ;; (eq (char-before) ?/)
+             (eq 'file (vertico--metadata-get 'category)))
+    (let ((path (buffer-substring (minibuffer-prompt-end) (point))) found)
+      (when (string-match-p "\\`~[^/]*/\\'" path)
+	;; if we are at ~/ => absolute path
+        (delete-minibuffer-contents)
+        (insert (expand-file-name path)))
+      (dotimes (_ n found)
+        (save-excursion
+          (let ((end (point)))
+            (goto-char (1- end))
+            (when (search-backward "/" (minibuffer-prompt-end) t)
+              (delete-region (1+ (point)) end)
+              (setq found t))))))))
    #+end_src
    
 ** orderless: fuzzy completion
