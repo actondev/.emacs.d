@@ -222,7 +222,7 @@
 (straight-use-package 'use-package)
    #+END_SRC
 
-** COMMENT el-get
+** el-get
    #+begin_src emacs-lisp
 (use-package el-get
   :demand t
