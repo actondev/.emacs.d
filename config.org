@@ -648,6 +648,9 @@ sudo apt-get install ripgrep
    consult--source-project-recent-file
    :preview-key (kbd "M-."))
 
+  ;; see https://github.com/minad/consult/issues/613
+  (when (fboundp #'minibuffer-complete-history)
+    (define-key consult-async-map [remap minibuffer-complete-history] 'consult-history))
   :bind (
 	 ("C-S-v" . consult-yank-from-kill-ring)
 	 )
