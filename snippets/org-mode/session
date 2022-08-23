@@ -5,5 +5,8 @@
 :session `(read-buffer "Repl buffer: " nil nil
 	       (lambda (x)
 	        (let ((modes '(shell-mode term-mode vterm-mode comint-mode)))
+		(when (consp x)
+		   (setq x (car x)))
  		 (with-current-buffer x
 		   (memq major-mode modes)))))`
+
