@@ -45,3 +45,5 @@ transient/
 
 # native compilation?
 /eln-cache/
+
+projects

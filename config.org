@@ -598,8 +598,27 @@ sudo apt-get install silversearcher-ag
   ;;       orderless-component-separator #'orderless-escapable-split-on-space)
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+        ;; completion-category-overrides '((file (styles basic partial-completion)))
+	;; completion-category-overrides '((file (styles orderless)))
+	completion-category-overrides nil
+	))
    #+end_src
+
+   NOTE: about completion-category-overrides, had issues with fuzzy
+   search when a file/dir would start with my search query. It would
+   not give results having the search query in the middle, only the
+   ones *starting* with it. If, however, no entry *starts* with the
+   search query, I'd get the other results.
+
+   https://github.com/oantolin/orderless
+   #+begin_quote
+Furthermore the basic completion style needs to be tried first (not as
+a fallback) for TRAMP hostname completion to work. In order to achieve
+that, we add an entry for the file completion category in the
+completion-category-overrides variable. In addition, the
+partial-completion style allows you to use wildcards for file
+completion and partial paths, e.g., /u/s/l for /usr/share/local.
+   #+end_quote
 
 ** consult
    tip:
@@ -747,7 +766,8 @@ sudo apt-get install ripgrep
 (use-package avy
   :config
   (setq avy-keys (list
-		  ?a ?b ?c ?d ?e ?f ?g ?h ?i ?j ?k ?l ?m ?n ?o ?p ?q ?r ?s ?t ?u ?v ?w ?x ?y ?z)))
+		  ?a ?b ?c ?d ?e ?f ?g ?h ?i ?j ?k ?l ?m ?n ?o ?p ?q ?r ?s ?t ?u ?v ?w ?x ?y ?z))
+  :bind (("M-s s" . avy-goto-char-timer)))
   #+end_src
 * Window management
 ** Resizing (windresize)
@@ -907,6 +927,16 @@ So, when some files are not found, the .gitignore should be kept"
 (defun get-frame-by-name (name)
   (find-if (lambda (frame) (equal (frame-parameter frame 'name) name))
 	   (frame-list)))
+   #+end_src
+* Navigating
+** cursor location history (go backwards/forwards): nice-jumper
+   #+begin_src emacs-lisp
+(use-package nice-jumper
+  :load-path "elisp/"
+  ;; bindings ala intellij
+  :config (nice-jumper-mode 1)
+  :bind (("M-[" . nice-jumper/backward)
+	 ("M-]" . nice-jumper/forward)))
    #+end_src
 * Appearance
 ** Cursor
@@ -1228,11 +1258,18 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
   (unbind-key "C-<right>" paredit-mode-map)
   (unbind-key "C-<left>" paredit-mode-map)
   :bind(:map paredit-mode-map
-	("M-]" . paredit-forward-slurp-sexp) ;; c ->
-	("M-[" . paredit-forward-barf-sexp) ;; c <-
-	("M-}" . paredit-backward-barf-sexp) ;; C-M >
-	("M-{" . paredit-backward-slurp-sexp) ;; C M <
-	))
+	     ;; Note: using M-] M-[ for nice-jumper (go backwards/forwards)
+	     ;;
+	     ;; ("M-]" . paredit-forward-slurp-sexp) ;; c ->
+	     ;; ("M-[" . paredit-forward-barf-sexp) ;; c <-
+	     ;; ("M-}" . paredit-backward-barf-sexp) ;; C-M >
+	     ;; ("M-{" . paredit-backward-slurp-sexp) ;; C M <
+	     ("M-<left>" . paredit-forward-slurp-sexp)
+	     ("M-<right>" . paredit-forward-barf-sexp)
+	     ("M-S-<left>" . paredit-backward-barf-sexp)
+	     ("M-S-<right>" . paredit-backward-slurp-sexp)
+	     ;;
+	     ))
     #+END_SRC
     Useful tricks
     + swapping parens to brackets etc
@@ -1653,7 +1690,12 @@ Setting them into buffers for working with org-mode & repls"
 (use-package vterm
   :config
   (setq vterm-max-scrollback 10000) ; 1000 (1k) was the default, max allowed is 100k
+  (defun aod-vterm/clear ()
+    (interactive)
+    (vterm-clear)
+    (vterm-clear-scrollback))
   :bind (:map vterm-mode-map
+	      ("C-c C-l" . aod-vterm/clear)
 	      ;; hm.. when in copy mode, enter will
 	      ;; - copy region (kill-ring-save)
 	      ;; - exit from copy mode
@@ -2075,7 +2117,6 @@ sudo apt-get install zeal
 
   Note: js docs are acting weird
   Solution (<2021-01-28 Thu>): find react-main.01db16f317c6.js in =~/.local/share/zeal= and delete it (there were 2, deleted both)
-* Interface enhancmenets, key bindings
 * god mode
    - [ ] use after-init hook
    #+begin_src emacs-lisp
