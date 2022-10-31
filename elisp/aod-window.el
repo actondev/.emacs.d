@@ -16,6 +16,7 @@
   (when aod.window/buffer
     (switch-to-buffer aod.window/buffer)
     (setq aod.window/buffer nil)))
+
 (defun aod.window/aw-dispatch-function (x)
   (cond ((eq (aref (kbd "a") 0) x)
 	 (message "Will place the window left of..")

@@ -1,5 +1,7 @@
 ;;; aod-eval-in-repl-shell.el --- Extensible evaluation in repl with focus in org-mode  -*- lexical-binding: t; -*-
 
+(require 'ob-shell)
+
 (defcustom aod.eir/shell-type 'vterm
   "The default shell type to be used for newly spawned shells (ie shell, eshell, term, vterm etc). It's replaced by passing :shell-type in the org-mode src header."
   :group 'aod-eval-in-repl-shell
@@ -78,12 +80,7 @@
     (let ((output (buffer-substring-no-properties (point) p)))
       output)))
 
-(provide 'aod-eval-in-repl-shell)
-
-
 (cl-defgeneric aod.eir/eof ((lang (eql sh)) string)
   (format "$(cat <<EOF\n%s\nEOF\n)" string))
 
-
-(cl-defmethod aod.eir/send-input (&context (major-mode vterm-mode))
-  (vterm-send-return))
+(provide 'aod-eval-in-repl-shell)

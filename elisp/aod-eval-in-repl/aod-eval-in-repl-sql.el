@@ -15,7 +15,6 @@
 (defun aod.eir/sql-replace-params (text)
   (let ((values
 	 (mapcar (lambda (x)
-		   ;; (message "x is %S" x)
 		   (replace-regexp-in-string ",$" "" (s-trim x)))
 		 (split-string text "[\n\r]+"))))
     (let ((i 0))
@@ -31,21 +30,5 @@
 generate tha appropriate :replace statement (ie $1=\"'this'\" etc)"
   (interactive)
   (insert (aod.eir/sql-replace-params (substring-no-properties (car kill-ring)))))
-
-;; (aod.eir/sql-replace-params
-;;  "'2021-01-19T10:43:00.028Z',
-;;     'COMPLETE',
-;;     'COMPLETE',
-;;     'regional',
-;;     'chrisfocus13',
-;;     'Christos',
-;;     '2021-01-26T10:38:00.028Z',
-;;     'Christos',
-;;     1,
-;;     1000,
-;;     'Christos',
-;;     1611571380028,
-;;     'focus',
-;;     'chip'")
 
 (provide 'aod-eval-in-repl-sql)

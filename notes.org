@@ -527,3 +527,107 @@ wget https://github.com/Wilfred/ReVo-utilities/blob/a4bdc40dd2656c496defc461fc19
 * helm-find-files & cache
   - =C-c C-u= runs helm-refresh (run this when in a helm dialog!)
     fixes some inotify issues etc
+
+* DONE repeat commands with only last key stroke
+
+  see [[file:elisp/aod-command-repeat.el]]
+  
+  check =repeat=
+  #+begin_src emacs-lisp
+(when repeat-repeat-char
+      (set-transient-map
+       (let ((map (make-sparse-keymap)))
+       (define-key map (vector repeat-repeat-char)
+           (if (null repeat-message-function) 'repeat
+             ;; If repeat-message-function is let-bound, preserve it for the
+             ;; next "iterations of the loop".
+             (let ((fun repeat-message-function))
+               (lambda ()
+                 (interactive)
+                 (let ((repeat-message-function fun))
+                   (setq this-command 'repeat)
+		   ;; Beware: messing with `real-this-command' is *bad*, but we
+		   ;; need it so `last-repeatable-command' can be recognized
+		   ;; later (bug#12232).
+                   (setq real-this-command 'repeat)
+                   (call-interactively 'repeat))))))
+         map)))
+  #+end_src
+
+https://stackoverflow.com/questions/11939243/additional-modifier-keys-in-emacs#comment15959275_11939243
+  #+begin_quote
+It's possible to have a command temporarily change the keymap, so that you only need to repeat the last key in the key sequence. C-x e (execute macro) does this - to repeat the macro, just hit e again. The source code for kmacro-call-macro seems to be the place to start reading
+  #+end_quote
+
+  =kmacro-call-macro=
+  #+begin_src emacs-lisp
+(set-transient-map
+       (let ((map (make-sparse-keymap)))
+         (define-key map (vector repeat-key)
+           (let ((ra (and kmacro-call-repeat-with-arg arg))
+                 (m (if end-macro
+			last-kbd-macro
+		      (or macro last-kbd-macro))))
+             (lambda ()
+               (interactive)
+               (kmacro-call-macro ra 'repeating nil m))))
+         map))
+  #+end_src
+
+  http://xahlee.info/emacs/emacs/elisp_repeat_command_key.html
+
+
+  #+begin_src emacs-lisp
+(global-set-key
+ (kbd "C-; C-w")
+ (lambda() (interactive)
+   (message "vector.. %S %S" (this-command-keys-vector) (this-command-keys))
+   (windmove-up)))
+  #+end_src
+
+  #+RESULTS:
+  | lambda | nil | (interactive) | (message vector.. %S %S (this-command-keys-vector) (this-command-keys)) | (windmove-up) |
+
+
+  #+begin_src emacs-lisp
+(key-binding (kbd "C-; C-w"))
+  #+end_src
+
+  #+begin_src emacs-lisp :lexical t
+(defun aod/command-repeat-on-final-keystroke-advice (fn &rest args)
+  ;; (message "vector.. %S %S" (this-command-keys-vector) (this-command-keys))
+  (apply fn args)
+  (message "keys %s last %s" (this-command-keys-vector) last-command-event)
+  (let ((map (make-sparse-keymap))
+	(repeat-fn (lambda ()
+		     (interactive)
+		     (message "repeating command")
+		     (message "repeating command: %s" fn)
+		     (apply fn args))))
+    (define-key map
+		(vector last-command-event)
+		repeat-fn)
+    (set-transient-map map t)))
+  #+end_src
+
+  #+RESULTS:
+  : aod/repeat-command-last-sequence-advice
+
+  #+begin_src emacs-lisp
+(message "%s" (kbd "C-; C-a"))
+(message "%s" (kbd "C-a"))
+(message "%s" (kbd "C-a"))
+(advice-add 'windmove-left :around 'aod/repeat-command-last-sequence-advice)
+
+(advice-remove 'windmove-left  #'aod/repeat-command-last-sequence-advice)
+
+(advice-add 'previous-line :around 'aod/repeat-command-last-sequence-advice)
+
+(advice-remove 'previous-line  #'aod/repeat-command-last-sequence-advice)
+
+
+(aod.command-repeat/enable #'windmove-left)
+(aod.command-repeat/enable #'windmove-right)
+(aod.command-repeat/enable #'windmove-up)
+(aod.command-repeat/enable #'windmove-down)
+  #+end_src
