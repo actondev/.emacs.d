@@ -1850,6 +1850,10 @@ man git-commit | grep untracked
  '((1 . lambda*)
    (1 . error)
    (0 . comment)
+   (1 . when-let)
+   (1 . when-let*)
+   (1 . if-let)
+   (1 . if-let*)
    ))
    #+end_src
 
