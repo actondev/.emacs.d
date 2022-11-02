@@ -816,6 +816,19 @@ sudo apt-get install ripgrep
    #+begin_src emacs-lisp
 (use-package transpose-frame)
    #+end_src
+** Pinning windows
+   Usecase: having the compilation buffer & commint (for program run) at bottom (for an IDE-like look). Calling =delete-other-windows= should keep those windows there (like pinned!)
+   #+begin_src emacs-lisp
+(defun aod/pin-window (window)
+  "Protects a window from being deleted with `delete-other-windows'"
+  (interactive (list (selected-window)))
+  (set-window-parameter window 'no-delete-other-windows t))
+
+(defun aod/unpin-window (window)
+  "Unprotects a window from being deleted with `delete-other-windows'"
+  (interactive (list (selected-window)))
+  (set-window-parameter window 'no-delete-other-windows nil))
+   #+end_src
 * Project management
 ** COMMENT Projectile
    Projetile MR <2021-07-30 Fri> https://github.com/bbatsov/projectile/pull/1696
