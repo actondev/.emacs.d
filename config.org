@@ -1277,10 +1277,10 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
 	     ;; ("M-[" . paredit-forward-barf-sexp) ;; c <-
 	     ;; ("M-}" . paredit-backward-barf-sexp) ;; C-M >
 	     ;; ("M-{" . paredit-backward-slurp-sexp) ;; C M <
-	     ("M-<left>" . paredit-forward-slurp-sexp)
-	     ("M-<right>" . paredit-forward-barf-sexp)
-	     ("M-S-<left>" . paredit-backward-barf-sexp)
-	     ("M-S-<right>" . paredit-backward-slurp-sexp)
+	     ("M-<right>" . paredit-forward-slurp-sexp)
+	     ("M-<left>" . paredit-forward-barf-sexp)
+	     ("M-S-<right>" . paredit-backward-barf-sexp)
+	     ("M-S-<left>" . paredit-backward-slurp-sexp)
 	     ;;
 	     ))
     #+END_SRC
