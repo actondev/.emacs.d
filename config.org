@@ -121,7 +121,8 @@
 ** compile
    #+begin_src emacs-lisp
 (with-eval-after-load 'compile
-  (setq compilation-scroll-output t)
+  (setq compilation-scroll-output t
+	compilation-always-kill t)
   (define-key compilation-mode-map (kbd "C-c C-c") #'kill-compilation))
    #+end_src
    Another option is =(setq compilation-scroll-output 'first-error)=
@@ -2247,6 +2248,10 @@ sudo apt-get install zeal
 (global-set-key (kbd "C-, C-a") 'helm-projectile-ag)
      #+end_src
 **** consult
+     Tips
+     - cosult-ripgrep
+       - add =-- -tcpp= ad the end of the query to search only cpp files.
+	 You can run =rg --type-list= to see all the available types
      #+begin_src emacs-lisp
 (global-set-key (kbd "C-, C-m") 'consult-buffer) ;; ala helm-mini
 (global-set-key (kbd "C-, C-t") 'project-find-file) ;; projecT
