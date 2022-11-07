@@ -833,10 +833,8 @@ sudo apt-get install ripgrep
   :defer 0
   :config
   (global-pin-mode 1)
-  (when (boundp 'minions-mode)
-    (add-to-list 'minions-prominent-modes 'pin-mode))
-  (with-eval-after-load 'minions-mode
-    (add-to-list 'minions-prominent-modes 'pin-mode)))
+  (with-eval-after-load "minions"
+    (add-to-list 'minions-prominent-modes 'global-pin-mode)))
    #+end_src
 
 *** COMMENT old version
