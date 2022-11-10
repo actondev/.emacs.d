@@ -975,7 +975,7 @@ So, when some files are not found, the .gitignore should be kept"
 ** Cursor
    #+BEGIN_SRC emacs-lisp
 (blink-cursor-mode t)
-(setq-default cursor-type 'box)
+(setq-default cursor-type '(bar . 3))
    #+END_SRC
 ** Welcome screen (dashboard)
    #+BEGIN_SRC emacs-lisp
@@ -2165,7 +2165,7 @@ sudo apt-get install zeal
   ;; 			      (require 'god-mode)))
   
   :config
-  (god-mode-all)
+  ;; (god-mode-all)
   (add-to-list 'god-exempt-major-modes 'vterm-mode))
    #+end_src
 
@@ -2188,8 +2188,8 @@ sudo apt-get install zeal
 **** general
      #+begin_src emacs-lisp
 (with-eval-after-load 'god-mode
-  (global-set-key (kbd "<escape>") #'god-local-mode)
-  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
+  (global-set-key (kbd "M-i") #'god-local-mode)
+  ;; (define-key god-local-mode-map (kbd "i") #'god-local-mode)
   ;; apparently not possible: C-i is interpreted as tab..
   ;;(global-set-key (kbd "C-i") #'god-local-mode)
 
