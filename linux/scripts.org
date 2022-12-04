@@ -27,8 +27,8 @@ real_monitors_all
    #+END_SRC
 
    #+RESULTS: get_monitors
-   : eDP-1 1366 768 1920 0
-   : DP-1 1920 1080 0 0
+   : eDP-1 1920 1080 0 1080
+   : DP-2 1920 1080 0 0
 
    well it's a buggy if window is not maximized but well.. that's what I have
    #+BEGIN_SRC sh :tangle "move-window.sh" :shebang "#!/bin/bash" :var cached_monitors=get_monitors() :var fake=1
@@ -234,6 +234,7 @@ window_compute_move() {
 
     # positioning it in the screen: taking in mind its offset
     new_x=$((new_x + sxoff2))
+    new_y=$((new_y + syoff2))
 
     # ensure new position is in the screen, if window width and height is not
     # too big re integrate window in the screen
@@ -414,6 +415,13 @@ xrandr | grep '*' | awk {'print $1'}
     #+RESULTS:
     |  1366x768 |
     | 1920x1080 |
+
+** alternative:?
+   #+begin_src sh
+pip3 install ewmh-m2m
+move-to-monitor
+move-to-monitor --direction SOUTH
+   #+end_src
 * <2020-11-13 Fri> installing from ppa (emacs 27)
   #+BEGIN_SRC sh 
 sudo add-apt-repository ppa:kelleyk/emacs
