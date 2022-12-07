@@ -121,7 +121,7 @@
 ** compile
    #+begin_src emacs-lisp
 (with-eval-after-load 'compile
-  (setq compilation-scroll-output t
+  (setq compilation-scroll-output 'first-error
 	compilation-always-kill t)
   (define-key compilation-mode-map (kbd "C-c C-c") #'kill-compilation))
    #+end_src
