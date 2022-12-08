@@ -679,3 +679,11 @@ It's possible to have a command temporarily change the keymap, so that you only 
 
 
   #+end_src
+
+* <2022-12-04 Sun> modal editing, mode stack, tower, kakoune etc
+   Beyond Vim and Emacs: A Scalable UI Paradigm 
+  - https://emacsconf.org/2020/talks/07/
+  - https://discuss.kakoune.com/t/beyond-vim-and-emacs-a-scalable-ui-paradigm/1415
+  - indra.el => https://github.com/countvajhula/rigpa
+  - https://github.com/jmorag/kakoune.el
+  - https://kakoune.org/

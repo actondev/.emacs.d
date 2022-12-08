@@ -145,6 +145,8 @@
    #+begin_src emacs-lisp
 (when (boundp 'byte-compile-warnings)
       (setq byte-compile-warnings nil))
+(when (boundp 'comp-async-report-warnings-errors)
+  (setq comp-async-report-warnings-errors nil))
    #+end_src
 * Package source, use-package etc
   #+BEGIN_SRC emacs-lisp
