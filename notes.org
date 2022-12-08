@@ -631,3 +631,51 @@ It's possible to have a command temporarily change the keymap, so that you only 
 (aod.command-repeat/enable #'windmove-up)
 (aod.command-repeat/enable #'windmove-down)
   #+end_src
+
+  
+* tab-bar-mode & tab-line-mode
+  - https://andreyorst.gitlab.io/posts/2020-05-07-making-emacs-tabs-work-like-in-atom/
+
+  #+begin_src emacs-lisp
+(tab-bar-mode)
+(global-tab-line-mode)
+
+(tab-line-tabs-window-buffers)
+  #+end_src
+
+
+  #+begin_src emacs-lisp
+
+(defun kill-tab ()
+  (interactive)
+  (tab-close))
+
+(global-set-key (kbd "C-; C-t") #'tab-switch)
+
+(defun aod/magit-tab-bar-hook ()
+  (let ((current-name (alist-get 'name (tab-bar--current-tab)))
+	(wanted-name (format "magit: %s" (project-name (project-current)))))
+    (unless (string= current-name wanted-name)
+      (message "switching to tab %s" wanted-name)
+      (let ((buffer (current-buffer)))
+	(delete-window)
+	(tab-bar-switch-to-tab wanted-name)
+	(switch-to-buffer buffer)))))
+
+(add-hook 'magit-post-display-buffer-hook 'aod/magit-tab-bar-hook)
+
+(remove-hook 'magit-post-display-buffer-hook 'aod/magit-tab-bar-hook)
+
+(defun aod/make-project-tab-bar-hook (tab-prefix)
+  (lambda ()
+    (let ((current-name (alist-get 'name (tab-bar--current-tab)))
+	  (wanted-name (format "%s%s" tab-prefix (project-name (project-current))) ))
+      (unless (string= current-name wanted-name)
+	(message "switching to tab %s" wanted-name)
+	(let ((buffer (current-buffer)))
+	  (delete-window)
+	  (tab-bar-switch-to-tab wanted-name)
+	  (switch-to-buffer buffer))))))
+
+
+  #+end_src

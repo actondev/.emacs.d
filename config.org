@@ -849,6 +849,25 @@ sudo apt-get install ripgrep
   (interactive (list (selected-window)))
   (set-window-parameter window 'no-delete-other-windows nil))
     #+end_src
+** tab-bar-mode
+   Note: cannot just put the =aod.tab-bar/make-project-tab-bar-hook= code in here cause it needs lexical scoping (and the tangled blocks don't get it :/)
+
+    #+begin_src emacs-lisp
+(use-package aod-tab-bar-hooks
+  :load-path "elisp/"
+  :defer 0
+  :config
+  (with-eval-after-load 'embark
+    (fset 'aod/project-embark-hook (aod.tab-bar/make-project-tab-bar-hook "embark: "))
+    (add-hook 'embark-after-export-hook 'aod/project-embark-hook))
+
+  (with-eval-after-load 'magit
+    (fset 'aod/project-magit-hook (aod.tab-bar/make-project-tab-bar-hook "magit: "))
+    (add-hook 'magit-post-display-buffer-hook 'aod/project-magit-hook)))
+
+(tab-bar-mode)
+    #+end_src
+
 * Project management
 ** COMMENT Projectile
    Projetile MR <2021-07-30 Fri> https://github.com/bbatsov/projectile/pull/1696
@@ -1290,6 +1309,7 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
   :config
   (unbind-key "C-<right>" paredit-mode-map)
   (unbind-key "C-<left>" paredit-mode-map)
+  (unbind-key "M-s" paredit-mode-map) ;; paredit-splice-sexp
   :bind(:map paredit-mode-map
 	     ;; Note: using M-] M-[ for nice-jumper (go backwards/forwards)
 	     ;;
@@ -1412,6 +1432,23 @@ paredit        ; Introduce some paredit commands.
 ;; (use-package company-lsp
 ;;   :commands company-lsp)
    #+END_SRC
+
+*** ccls
+    #+begin_src emacs-lisp
+(use-package ccls
+  :after (lsp-mode)
+  :config (add-to-list 'lsp-client-packages 'ccls)
+  ;; :config (setq lsp-disabled-clients '(clangd))
+  )
+;; (use-package ccls)
+;; (require 'ccls)
+    #+end_src
+
+*** COMMENT disabling lsp clients
+    #+begin_src emacs-lisp
+(setq lsp-disabled-clients '(clangd))
+(setq lsp-disabled-clients '(ccls))
+    #+end_src
 
 *** COMMENT lsp clang
     To get the latest clang:
@@ -2206,15 +2243,24 @@ sudo apt-get install zeal
   (define-key god-local-mode-map (kbd "]") #'forward-sexp)
 )
      #+end_src
-**** window
+**** window & tabs
      #+begin_src emacs-lisp
 (global-set-key (kbd "C-; C-w") #'windmove-up)
 (global-set-key (kbd "C-; C-a") #'windmove-left)
 (global-set-key (kbd "C-; C-s") #'windmove-down)
 (global-set-key (kbd "C-; C-d") #'windmove-right)
 
-(global-set-key (kbd "C-; C-q") #'delete-window)
+(defun aod/delete-window-or-tab ()
+  (interactive)
+  (if (window-parent (selected-window))
+      (delete-window)
+    (tab-close)))
+
+(global-set-key (kbd "C-; C-q") #'aod/delete-window-or-tab)
+
 (global-set-key (kbd "C-; C-e") #'delete-other-windows)
+
+(global-set-key (kbd "C-; C-t") #'tab-switch)
 
 (defun aod-window/split-vertical+down ()
   (interactive)
