@@ -986,6 +986,7 @@ So, when some files are not found, the .gitignore should be kept"
 ** cursor location history (go backwards/forwards): nice-jumper
    #+begin_src emacs-lisp
 (use-package nice-jumper
+  :defer 0
   :load-path "elisp/"
   ;; bindings ala intellij
   :config (nice-jumper-mode 1)
@@ -1031,7 +1032,7 @@ So, when some files are not found, the .gitignore should be kept"
 ;; note: can't use for some reason directy the system-type
 (setq system-type-name (symbol-name system-type))
 (setq frame-title-format '("%f  -- " system-type-name))
-(defun aod/name-session (name)
+(defun aod/set-session-name (name)
   (interactive "Mname:")
   ;; making it persistent across frame
   ;; if I were to use the name directly that couldn't work
@@ -1256,8 +1257,8 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
   :hook (prog-mode . hideshowvis-minor-mode)
   :bind (:map prog-mode-map
 	      ("C-<tab>" . aod.hs/toggle-line)
-	      ("<backtab>" . aod.hs/hideshow-all)
-	      ("<C-iso-lefttab>" . hs-hide-level)
+	      ("<backtab>" . aod.hs/hideshow-all) ;; shift+tab
+	      ("C-S-<iso-lefttab>" . hs-hide-level) ;; ctrl+shift+tab
 	      ("C-S-<tab>" . hs-hide-level) ;; for macos
 	      ))
    #+END_SRC

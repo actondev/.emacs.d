@@ -687,3 +687,6 @@ It's possible to have a command temporarily change the keymap, so that you only 
   - indra.el => https://github.com/countvajhula/rigpa
   - https://github.com/jmorag/kakoune.el
   - https://kakoune.org/
+* magit tricks:
+  - magit-log-trace-definition
+    git log history tracing all the changes made to function at point
