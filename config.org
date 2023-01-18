@@ -2557,7 +2557,30 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
    Usage:
    - global-command-log-mode
    - clm/open-command-log-buffer
-* COMMENT Windows
+
+* Windows
+
+** mouse wheel fix (29.0.60)
+   #+begin_src emacs-lisp
+;; event-line-count is supposed to return a positive value
+;; but in windows it can return negative values!
+;; this fucks up mwheel-scroll
+(defun aod.windows/event-line-count-fix (line-count)
+  ;; (message "here line-count %s" line-count)
+  (abs line-count))
+
+(when (eq system-type 'windows-nt)
+  (advice-add 'event-line-count :filter-return #'aod.windows/event-line-count-fix)
+  ;; re-evaluate mwheel-scroll which calls event-line-count
+  (save-window-excursion (find-function 'mwheel-scroll) (eval-defun 0))
+  ;; (byte-compile 'mwheel-scroll)
+  ;; (require 'mwheel)
+  ;; (package-recompile 'mwheel)
+  ;; (load-file "mwheel.el.gz")
+  ;; (load "mwheel")
+  )
+   #+end_src
+* COMMENT Old Windows snippets
   :PROPERTIES:
   :header-args: :tangle (when (eq system-type 'windows-nt) "yes")
   :END:

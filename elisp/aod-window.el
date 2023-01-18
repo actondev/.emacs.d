@@ -1,3 +1,5 @@
+(require 'ace-window)
+
 (defvar aod.window/placement nil
   "Set during TODO , either nil or one of 'left 'top 'right 'down")
 (defvar aod.window/buffer nil
