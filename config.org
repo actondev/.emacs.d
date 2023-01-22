@@ -855,6 +855,10 @@ sudo apt-get install ripgrep
    Note: cannot just put the =aod.tab-bar/make-project-tab-bar-hook= code in here cause it needs lexical scoping (and the tangled blocks don't get it :/)
 
     #+begin_src emacs-lisp
+(tab-bar-mode)
+    #+end_src
+*** COMMENT tab-bar-mode-hooks
+    #+begin_src emacs-lisp
 (use-package aod-tab-bar-hooks
   :load-path "elisp/"
   :defer 0
@@ -866,12 +870,6 @@ sudo apt-get install ripgrep
   (with-eval-after-load 'magit
     (fset 'aod/project-magit-hook (aod.tab-bar/make-project-tab-bar-hook "magit: "))
     (add-hook 'magit-post-display-buffer-hook 'aod/project-magit-hook)))
-
-(tab-bar-mode)
-
-(comment
- (remove-hook 'magit-post-display-buffer-hook 'aod/project-magit-hook)
- )
     #+end_src
 
 * Project management
