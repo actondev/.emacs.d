@@ -868,6 +868,10 @@ sudo apt-get install ripgrep
     (add-hook 'magit-post-display-buffer-hook 'aod/project-magit-hook)))
 
 (tab-bar-mode)
+
+(comment
+ (remove-hook 'magit-post-display-buffer-hook 'aod/project-magit-hook)
+ )
     #+end_src
 
 * Project management
@@ -2194,60 +2198,10 @@ sudo apt-get install zeal
 
   Note: js docs are acting weird
   Solution (<2021-01-28 Thu>): find react-main.01db16f317c6.js in =~/.local/share/zeal= and delete it (there were 2, deleted both)
-* god mode
-   - [ ] use after-init hook
+* "command" bindings: C-; C-,
+
+** window & tabs
    #+begin_src emacs-lisp
-(use-package god-mode
-  :defer 0
-  ;; :init
-  ;; (add-hook 'after-init-hook (lambda ()
-  ;; 			      (message "here god")
-  ;; 			      (require 'god-mode)))
-  
-  :config
-  ;; (god-mode-all)
-  (add-to-list 'god-exempt-major-modes 'vterm-mode))
-   #+end_src
-
-   #+begin_src emacs-lisp
-(defun my-god-mode-update-cursor-type ()
-  (setq cursor-type
-	(cond (god-local-mode 'hollow)
-	      (buffer-read-only 'box)
-	      (t '(bar . 3)))))
-
-(add-hook 'god-mode-enabled-hook #'my-god-mode-update-cursor-type)
-(add-hook 'god-mode-disabled-hook #'my-god-mode-update-cursor-type)
-   #+end_src
-*** COMMENT debug
-    #+begin_src emacs-lisp
-(setq god-mode-enabled-hook nil)
-(setq god-mode-disabled-hook nil)
-    #+end_src
-*** god mode bindings
-**** general
-     #+begin_src emacs-lisp
-(with-eval-after-load 'god-mode
-  (global-set-key (kbd "M-i") #'god-local-mode)
-  ;; (define-key god-local-mode-map (kbd "i") #'god-local-mode)
-  ;; apparently not possible: C-i is interpreted as tab..
-  ;;(global-set-key (kbd "C-i") #'god-local-mode)
-
-  (add-hook 'vterm-mode-hook
-	    (lambda ()
-	      (interactive)
-	      (define-key vterm-mode-map (kbd "<escape>") #'god-local-mode)))
-  )
-     #+end_src
-**** navigating
-     #+begin_src emacs-lisp
-(with-eval-after-load 'god-mode
-  (define-key god-local-mode-map (kbd "[") #'backward-sexp)
-  (define-key god-local-mode-map (kbd "]") #'forward-sexp)
-)
-     #+end_src
-**** window & tabs
-     #+begin_src emacs-lisp
 (global-set-key (kbd "C-; C-w") #'windmove-up)
 (global-set-key (kbd "C-; C-a") #'windmove-left)
 (global-set-key (kbd "C-; C-s") #'windmove-down)
@@ -2283,9 +2237,9 @@ sudo apt-get install zeal
 (global-set-key (kbd "C-; C-f") #'aod-window/split-horizontal+right)
 (global-set-key (kbd "C-; C-x") #'aod-window/split-vertical+down)
 (global-set-key (kbd "C-; C-v") #'aod-window/split-vertical+down)
-     #+end_src
-**** COMMENT helm & avy
-     #+begin_src emacs-lisp
+   #+end_src
+** COMMENT helm & avy
+   #+begin_src emacs-lisp
 (global-set-key (kbd "C-, C-r") 'helm-all-mark-rings) ;; Rings
 (global-set-key (kbd "C-, C-m") 'helm-mini) ;; Mini
 (global-set-key (kbd "C-, C-s") 'helm-swoop) ;; Swoop
@@ -2293,13 +2247,13 @@ sudo apt-get install zeal
 (global-set-key (kbd "C-, C-v") 'aod/avy)
 ;; helm-projectile-ag gives me bug in window, use projectile-ag? ..
 (global-set-key (kbd "C-, C-a") 'helm-projectile-ag)
-     #+end_src
-**** consult
-     Tips
-     - cosult-ripgrep
-       - add =-- -tcpp= ad the end of the query to search only cpp files.
-	 You can run =rg --type-list= to see all the available types
-     #+begin_src emacs-lisp
+   #+end_src
+** consult
+   Tips
+   - cosult-ripgrep
+     - add =-- -tcpp= ad the end of the query to search only cpp files.
+       You can run =rg --type-list= to see all the available types
+   #+begin_src emacs-lisp
 (global-set-key (kbd "C-, C-m") 'consult-buffer) ;; ala helm-mini
 (global-set-key (kbd "C-, C-t") 'project-find-file) ;; projecT
 (global-set-key (kbd "C-, C-r") 'consult-ripgrep)
@@ -2307,12 +2261,12 @@ sudo apt-get install zeal
 ;; (global-set-key (kbd "C-, C-r") 'consult-recent-file)
 (global-set-key (kbd "C-, C-l") 'consult-line)
 (global-set-key (kbd "C-, C-i") 'consult-imenu)
-     #+end_src
-**** region expand/contract
-     #+begin_src emacs-lisp
+   #+end_src
+** region expand/contract
+   #+begin_src emacs-lisp
 (global-set-key (kbd "C-, C-.") 'er/expand-region) ;; >: expand (. shifted)
 (global-set-key (kbd "C-, C-,") 'er/contract-region) ;; <: expand (, shifted)
-     #+end_src
+   #+end_src
 ** COMMENT Key-chord
    #+BEGIN_SRC emacs-lisp
 (defun key-chord-helm ()
