@@ -742,13 +742,14 @@ sudo apt-get install ripgrep
                  nil
                  (window-parameters (mode-line-format . none))))
   ;; (setq embark-quit-after-action '((kill-buffer . t) (t . nil)))
-  (setq embark-quit-after-action nil)
-  (require 'embark-consult)
-  )
+  (setq embark-quit-after-action nil))
 
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
   :after (embark consult)
+  ;; :init
+  ;; (with-eval-after-load 'consult
+  ;;   (require 'embark-consult))
   )
    #+end_src
 * Avy
@@ -1942,10 +1943,13 @@ man git-commit | grep untracked
 	("C-c C-l" . comint-clear-buffer)))
 #+end_src
 
-TODO
-#+begin_src emacs-lisp
-'(bind-key "C-c C-l" #'comint-clear-buffer comint-mode-map)
-#+end_src
+*** TODO COMMENT comint update speed ?
+    https://www.reddit.com/r/emacs/comments/3scsak/comment/cwwhi0j/?utm_source=share&utm_medium=web2x&context=3
+
+    #+begin_src emacs-lisp
+(make-local-variable 'jit-lock-defer-timer)
+(set (make-local-variable 'jit-lock-defer-time) 0.25)
+    #+end_src
 
 *** COMMENT Geiser
     Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
