@@ -1800,31 +1800,23 @@ It is bound to C-c C-c.
 sudo apt-get install cmake libtool-bin -y
    #+end_src
 
-* Magit
-  #+BEGIN_SRC emacs-lisp
-(use-package magit
-  ;; show-all is meant for org-mode. ediff would show org-mode files folded
-  :hook (ediff-prepare-buffer . show-all)
-  :config
-  (setq ediff-split-window-function 'split-window-horizontally)
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
-  (set-face-attribute 'magit-branch-current nil
-		      :underline t)
-  (defun ediff-copy-both-to-C ()
-    (interactive)
-    (ediff-copy-diff ediff-current-difference nil 'C nil
-                     (concat
-                      (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
-                      (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
-  (defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
-  (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map))
-  #+END_SRC
-
+* ediff
   Ediff: great diff tool that can be used in magit :)
   Customizing colors cause in doom-molokai theme you could't notice anything
   #+BEGIN_SRC emacs-lisp
 (use-package ediff
+  :hook (ediff-prepare-buffer . show-all)
   :config
+  (setq ediff-split-window-function 'split-window-horizontally
+	ediff-window-setup-function 'ediff-setup-windows-plain
+	ediff-autostore-merges t)
+  ;; ?? the buffer-read-only was commented out.. 27 years ago!?
+  ;; 92c51e075e8bc9c2ace8487bfc42f23389d09b73
+  ;; AuthorDate: Fri Sep 20 01:10:05 1996 +0000
+  (defconst ediff-protected-variables '(
+				      buffer-read-only
+				      mode-line-format))
+
   ;; A head (last commit)
   (set-face-attribute 'ediff-current-diff-A nil
 		      :background "#8b0000"
@@ -1837,7 +1829,28 @@ sudo apt-get install cmake libtool-bin -y
   (set-face-attribute 'ediff-current-diff-C nil
 		      :background "#8b5a00"
 		      :foreground "#CCC")
+
+  ;; (defun ediff-copy-both-to-C ()
+  ;;   (interactive)
+  ;;   (ediff-copy-diff ediff-current-difference nil 'C nil
+  ;;                    (concat
+  ;;                     (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+  ;;                     (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+  ;; (defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+  ;; (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
+  
   )
+  #+END_SRC
+
+* Magit
+  #+BEGIN_SRC emacs-lisp
+(use-package magit
+  ;; show-all is meant for org-mode. ediff would show org-mode files folded
+  :config
+  (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (set-face-attribute 'magit-branch-current nil
+		      :underline t))
   #+END_SRC
 
 ** show untracked files
