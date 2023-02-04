@@ -40,36 +40,48 @@
   (set-window-configuration aod-do/saved-window-excursion)
   (transient-quit-one))
 
-(defvar-local aod-do/action
-  (lambda ()
-    (message "no action has been set!")))
+(defvar-local aod-do/action nil)
 
 (defvar aod-do/action-global nil
   "Set this to override the aod-do/action-interactive to call this instead of aod-do/action")
 
-(defvar aod-do/registered-actions (list ()))
+(defvar aod-do/registered-actions (list))
 
 (defun aod-do/register-action (action)
   (add-to-list 'aod-do/registered-actions action))
 
+(defun aod-do/read-action ()
+  (if aod-do/registered-actions
+      (let ((choice ; NB: intern-soft will return nil if passed empty string or if no such symbol exists
+	     (intern-soft (completing-read "Action: "
+					   aod-do/registered-actions
+					   ))))
+	(symbol-function choice))
+    (progn
+      (message "No action has been registered! You can register one with `aod-do/register-action'")
+      nil)))
+
 (defun aod-do/set-global-action ()
   (interactive)
-  (let ((choice
-	 (completing-read "Action: "
-			  (mapcar (lambda (el)
-				    (if (null el)
-					"nil"
-				      (format "#'%s" el)))
-				  aod-do/registered-actions))))
-    (setq aod-do/action-global (eval (read choice)))))
+  (setq aod-do/action-global (aod-do/read-action)))
 
-(defun aod-do/action-interactive ()
-  (interactive)
+(defun aod-do/action-interactive (prefix)
+  (interactive "P")
   (setq aod-do/saved-window-excursion (current-window-configuration))
   (setq aod-do/saved-buffer (current-buffer))
-  (if aod-do/action-global
-      (funcall aod-do/action-global)
-    (funcall aod-do/action)))
+  (cond
+   ((and aod-do/action-global ; global action is bypassed with a prefix argument
+	 (not prefix))
+    (funcall aod-do/action-global))
+   ((and aod-do/action ; local action is bypassed with a prefix argument
+	 (not prefix))
+    (funcall aod-do/action))
+   ((eq 1 (length aod-do/registered-actions)) ; defaulting to sole action
+    (let ((action (car aod-do/registered-actions)))
+      (message "calling sole registered action %s" action)
+      (funcall action)))
+   (:else ; otherwise we prompt for action
+    (when-let ((action (aod-do/read-action)))
+      (funcall action)))))
 
 (provide 'aod-do)
-
