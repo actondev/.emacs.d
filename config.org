@@ -816,8 +816,11 @@ sudo apt-get install ripgrep
 
      #+BEGIN_SRC emacs-lisp
 (use-package workgroups2
-  :commands (workgroups-mode wg-open-session)
-  )
+  :commands (workgroups-mode wg-open-session wg-create-workgroup)
+  :config
+  ;; only restore windows in CURRENT FRAME, do not try to restore
+  ;; all the open frames
+  (setq wg-control-frames nil))
   #+END_SRC
 ** transpose-frame
    - flip-frame: Flip vertically
