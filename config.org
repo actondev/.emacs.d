@@ -1432,7 +1432,9 @@ paredit        ; Introduce some paredit commands.
 	lsp-lens-auto-enable nil
 	lsp-headerline-breadcrumb-enable nil
 	;; the end
-	))
+	)
+  (add-to-list 'lsp-file-watch-ignored-directories
+	       "[/\\\\]build[^/\\\\]*\\'"))
 
 (use-package lsp-ui
   :commands lsp-ui-mode)
