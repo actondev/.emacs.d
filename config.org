@@ -2522,6 +2522,17 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
 (define-key aod.logos/present-mode-map (kbd "[") 'logos-backward-page-dwim)
 (define-key aod.logos/present-mode-map (kbd "]") 'logos-forward-page-dwim)
 (define-key aod.logos/present-mode-map (kbd "q") 'aod.logos/present-mode)
+
+(defun aod.logos/backward-skip-comment (&rest args)
+  (when (org-in-commented-heading-p)
+    (call-interactively #'logos-backward-page-dwim)))
+
+(defun aod.logos/forward-skip-comment (&rest args)
+  (when (org-in-commented-heading-p)
+    (call-interactively #'logos-forward-page-dwim)))
+
+(advice-add 'logos-backward-page-dwim :after #'aod.logos/backward-skip-comment)
+(advice-add 'logos-forward-page-dwim :after #'aod.logos/forward-skip-comment)
    #+end_src
 ** command log
    #+BEGIN_SRC emacs-lisp
