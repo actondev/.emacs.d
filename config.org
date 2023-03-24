@@ -247,6 +247,12 @@
    #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path (relative-from-init "elisp"))
    #+END_SRC
+
+** elisp.el : helpers
+   #+begin_src emacs-lisp
+(load (relative-from-init "elisp.el"))
+   #+end_src
+
 * Org customizations
   Note: (org-version) <2021-12-08 Wed>
   - 9.3 (emacs 27.1 elisp)
@@ -1948,14 +1954,29 @@ man git-commit | grep untracked
 	("C-c C-l" . comint-clear-buffer)))
 #+end_src
 
+#+begin_src emacs-lisp
+(defun aod/make-comint-clean (name program &optional startfile &rest switches)
+  (when-let* ((buffer-name (format "*%s*" name))
+	      (buffer (get-buffer buffer-name)))
+    (when-let ((proc (get-buffer-process buffer)))
+      (delete-process proc))
+    (with-current-buffer buffer
+      (erase-buffer)))
+  (apply #'make-comint name program startfile switches))
+#+end_src
+
 *** TODO COMMENT comint update speed ?
     https://www.reddit.com/r/emacs/comments/3scsak/comment/cwwhi0j/?utm_source=share&utm_medium=web2x&context=3
 
-    #+begin_src emacs-lisp
-(make-local-variable 'jit-lock-defer-timer)
-(set (make-local-variable 'jit-lock-defer-time) 0.25)
-    #+end_src
-
+** compilation
+   #+begin_src emacs-lisp
+(use-package compilation
+  :pin manual ;; built-in?
+  :ensure nil ;; ??
+  :bind
+  (:map compilation-mode-map
+	("C-c C-l" . comint-clear-buffer)))
+   #+end_src
 *** COMMENT Geiser
     Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
     #+BEGIN_SRC emacs-lisp
