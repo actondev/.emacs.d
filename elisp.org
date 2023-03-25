@@ -451,3 +451,36 @@ TODO: if called with a prefix argument ask for the regexp..?"
 	  (customize-save-variable 'aod.cache/files aod.cache/files)
 	  read)))))
   #+END_SRC
+
+* aod do helpers: aod.project/defn & transient
+  #+begin_src emacs-lisp
+(defmacro aod.project/defn (name args &rest body)
+  "Defines a function which executes with `default-directory' set
+to the project root for where it was defined"
+  (let ((root (project-root (project-current))))
+    `(defun ,name
+	 ,args
+       (interactive)
+       (let ((default-directory ,root))
+	 ,@body))))
+
+(defmacro aod.project/defn-with-root (name args &rest body)
+  "Defines a function which executes with `default-directory' set
+to the project root for where it was defined"
+  (let ((root (project-root (project-current))))
+    `(defun ,name
+	 ,args
+       (interactive)
+       (let ((default-directory ,root))
+	 ,@body))))
+
+(defmacro aod.transient/defvar (var default doc reader)
+  `(progn
+     (defvar ,var ,default
+       (format "Defined with `aod.transient/defvar': %s ",doc))
+     (transient-define-argument ,var ()
+       :description ,doc
+       :class 'transient-lisp-variable
+       :variable ',var
+       :reader ,reader)))
+  #+end_src

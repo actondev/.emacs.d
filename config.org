@@ -159,100 +159,6 @@
 			 ))
   #+END_SRC
 
-** use-package
-   Bootstrapping use-package
-   #+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-(setq use-package-always-ensure t
-      use-package-always-defer t
-      use-package-verbose 'verbose
-      use-package-minimum-reported-time 0.01
-      )
-   #+END_SRC
-
-** COMMENT quelpa (for git forks)
-   #+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'quelpa)
-  (with-temp-buffer
-    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-    (eval-buffer)
-    ;;(quelpa-self-upgrade)
-    ))
-(setq quelpa-checkout-melpa-p nil)
-(setq quelpa-update-melpa-p nil)
-
-(use-package quelpa-use-package
-  :demand t
-  :init (setq quelpa-update-melpa-p nil)
-  ;; i think (quelpa-use-package-activate-advice) made things fail
-  ;; ie helm not being installed later on
-  ;; :config (quelpa-use-package-activate-advice)
-  )
-   #+END_SRC
-
-   and the =:quelpa= argument in =use-package= accepts a melpa recipe format:
-   https://github.com/melpa/melpa#recipe-format
-   #+BEGIN_EXAMPLE elisp
-(<package-name>
- :fetcher [git|github|gitlab|hg]
- [:url "<repo url>"]
- [:repo "github-or-gitlab-user/repo-name"]
- [:commit "commit"]
- [:branch "branch"]
- [:version-regexp "<regexp>"]
- [:files ("<file1>" ...)])
-   #+END_EXAMPLE
-
-** COMMENT straight.el
-   <2020-11-13 Fri> tried to set eval-in-repl to use my fork, and had errors.
-   so not using straight :)
-   see
-   + https://github.crookster.org/switching-to-straight.el-from-emacs-26-builtin-package.el/
-   + https://github.com/raxod502/straight.el/blob/develop/README.md#getting-started
-
-   #+BEGIN_SRC emacs-lisp
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-	(url-retrieve-synchronously
-	 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-	 'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-;;(setq straight-vc-git-default-clone-depth 1)
-;; (setq straight-use-package-by-default nil)
-(straight-use-package 'use-package)
-   #+END_SRC
-
-** el-get
-   #+begin_src emacs-lisp
-(use-package el-get
-  :demand t
-  :ensure t)
-;; not really needed
-;; (use-package use-package-el-get)
-   #+end_src
-** Custom directories
-   Note: in [[file:init.el]] we defined the =relative-from-init= function.
-   Here we add relative folders (from the init file) to load files from.
-   + [ ] TODO add here something like a =custom= folder (which will be in gitignore)
-   #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path (relative-from-init "elisp"))
-   #+END_SRC
-
-** elisp.el : helpers
-   #+begin_src emacs-lisp
-(load (relative-from-init "elisp.el"))
-   #+end_src
-
 * Org customizations
   Note: (org-version) <2021-12-08 Wed>
   - 9.3 (emacs 27.1 elisp)
@@ -263,14 +169,15 @@
 ;; removing from built-in: needed?
 ;; see https://www.reddit.com/r/emacs/comments/r11nqd/how_to_install_orgmode_now_that_org_emacs_lisp/
 ;; https://github.com/jwiegley/use-package/issues/319#issuecomment-845214233
-(assq-delete-all 'org package--builtins)
-(assq-delete-all 'org package--builtin-versions)
+;; (assq-delete-all 'org package--builtins)
+;; (assq-delete-all 'org package--builtin-versions)
 
 (use-package org
-  :ensure t
+  :elpaca nil
+  ;; :ensure t
   ;; ignore org-mode from upstream and use a manually installed version
   ;; was on :pin manual to use the built-in org?
-  :pin gnu
+  :pin manual
   :config
   (setq org-src-preserve-indentation t
 	org-startup-folded t
@@ -337,7 +244,7 @@
 (setq org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar")
    #+end_src
 
-** (org-babel) eval-in-repl
+** COMMENT (org-babel) eval-in-repl
 
 *** el-get : my forks
     Just stating this before =use-package= makes it so that my fork is used.
@@ -361,7 +268,7 @@
   ;; :load-path "~/dev/github/eval-in-repl"
 
   ;; add ensure nil if using el-get
-  :ensure nil
+  ;; :ensure nil
   )
 
 
@@ -373,7 +280,7 @@
   ;; :load-path "~/dev/github/org-babel-eval-in-repl"
 
   ;; add ensure nil if using el-get
-  :ensure nil
+  ;; :ensure nil
 
   :init
   (with-eval-after-load 'org
@@ -489,8 +396,7 @@ multiple files"
     (helm-toggle-visible-mark-forward)))
 
 (use-package helm
-  :ensure t
-  ;; dashboard: opening project file requires helm and helm-make-source
+  ;; :ensure t
   :commands (helm helm-make-source)
   :bind(
 	("M-x" . helm-M-x)
@@ -555,7 +461,6 @@ sudo apt-get install silversearcher-ag
    #+begin_src emacs-lisp
 (use-package vertico
   ;; :hook (after-init . vertico-mode)
-  :defer 0
   :config
   (vertico-mode)
   ;; Do not allow the cursor in the minibuffer prompt
@@ -728,8 +633,6 @@ sudo apt-get install ripgrep
 ** embark
    #+begin_src emacs-lisp
 (use-package embark
-  :ensure t
-
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
    ;; ("C-;" . embark-dwim)        ;; good alternative: M-.
@@ -761,6 +664,7 @@ sudo apt-get install ripgrep
 * Avy
   #+begin_src emacs-lisp
 (use-package aod-read-multiple-choice
+  :elpaca nil
   :load-path "elisp/"
   ;; without demand t, and without bindigs
   ;; commands should be set: this will actually load the function
@@ -790,6 +694,7 @@ sudo apt-get install ripgrep
 ** Resizing (windresize)
    #+BEGIN_SRC emacs-lisp
 (use-package windresize
+  :commands (windresize)
   :config
   (setq windresize-default-increment 5)
   )
@@ -807,6 +712,7 @@ sudo apt-get install ripgrep
 ** aod-window
    #+begin_src emacs-lisp
 (use-package aod-window
+  :elpaca nil
   :load-path "elisp/"
   ;; without demand t, and without bindigs
   ;; commands should be set: this will actually load the function
@@ -841,8 +747,8 @@ sudo apt-get install ripgrep
 
    #+begin_src emacs-lisp
 (use-package pin-mode
+  :elpaca nil
   :load-path "elisp/"
-  :defer 0
   :config
   (global-pin-mode 1)
   (with-eval-after-load "minions"
@@ -870,8 +776,8 @@ sudo apt-get install ripgrep
 *** COMMENT tab-bar-mode-hooks
     #+begin_src emacs-lisp
 (use-package aod-tab-bar-hooks
+  :elpaca nil
   :load-path "elisp/"
-  :defer 0
   :config
   (with-eval-after-load 'embark
     (fset 'aod/project-embark-hook (aod.tab-bar/make-project-tab-bar-hook "embark: "))
@@ -977,7 +883,6 @@ So, when some files are not found, the .gitignore should be kept"
 ** ibuffer : grouping by project
    #+BEGIN_SRC emacs-lisp
 (use-package ibuffer-projectile
-  :ensure t
   :hook
   (ibuffer .
 	   (lambda ()
@@ -998,7 +903,7 @@ So, when some files are not found, the .gitignore should be kept"
 ** cursor location history (go backwards/forwards): nice-jumper
    #+begin_src emacs-lisp
 (use-package nice-jumper
-  :defer 0
+  :elpaca nil
   :load-path "elisp/"
   ;; bindings ala intellij
   :config (nice-jumper-mode 1)
@@ -1012,30 +917,22 @@ So, when some files are not found, the .gitignore should be kept"
 (setq-default cursor-type '(bar . 3))
    #+END_SRC
 ** Welcome screen (dashboard)
+   TODO after elpaca init?
    #+BEGIN_SRC emacs-lisp
 (use-package dashboard
-  ;; :init
-  ;; (add-hook 'after-init-hook (lambda ()
-  ;; 			       (require 'dashboard)))
-  :demand t
-  
+  ;; :demand t
   :diminish dashboard-mode
   :config
-  (dashboard-setup-startup-hook)
-  
-  ;;  (setq dashboard-banner-logo-title "your custom text")
-  (setq dashboard-startup-banner 1) ;; integer is for text
+  (message "config dashboard %s" (format-time-string "%Y-%m-%dT%T %3N"))
+  (setq dashboard-startup-banner 2) ;; integer is for text banner index
   (setq dashboard-items '(
 			  (projects . 10)
                           (bookmarks . 10)
 			  (recents  . 10)
 			  ))
-  
-  ;; fixing emacs client starting with scratch
-  ;; https://www.reddit.com/r/emacs/comments/8i2ip7/emacs_dashboard_emacsclient/
-  (if (= 1 (length command-line-args))
-      ;; going to dashboard only if we didn't pass a file
-      (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+  ;; Note: (dashboard-setup-startup-hook) is not working well with elpaca (assumes after-init-hook)
+  (when (< (length command-line-args) 2)
+    (dashboard-open))
   )
    #+END_SRC
 ** frame title
@@ -1065,8 +962,6 @@ So, when some files are not found, the .gitignore should be kept"
 ** doom
    #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
-  :demand t
-
   :config
   (load-theme 'doom-molokai t)
   (doom-themes-visual-bell-config)
@@ -1079,8 +974,6 @@ So, when some files are not found, the .gitignore should be kept"
 ** doom-modeline
    #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
-  ;; :hook (after-init . doom-modeline-mode)
-  :defer 0
   :config
   (doom-modeline-mode)
   ;; border for modeline: had problem with org-mode src blocks (same color)
@@ -1114,9 +1007,6 @@ So, when some files are not found, the .gitignore should be kept"
 
     #+BEGIN_SRC emacs-lisp
 (use-package minions
-  ;; :hook (after-init . minions-mode)
-  :defer 0
-
   :config
   (minions-mode 1)
   (setq doom-modeline-minor-modes (featurep 'minions)))
@@ -1128,7 +1018,7 @@ So, when some files are not found, the .gitignore should be kept"
   (powerline-default-theme))
    #+END_SRC
 
-** highlighting matching tag (show-paren)
+** COMMENT highlighting matching tag (show-paren)
    #+BEGIN_SRC emacs-lisp
 (use-package paren
   :hook (prog-mode . show-paren-mode)
@@ -1205,7 +1095,6 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
     #+BEGIN_SRC emacs-lisp
 (use-package company
   ;; :hook (after-init . global-company-mode)
-  :defer 0
   :config
   (global-company-mode)
   (setq company-dabbrev-downcase nil)
@@ -1230,6 +1119,7 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
      adds functionality similar to org-mode: toggle code block hide/show by pressing tab
    #+BEGIN_SRC emacs-lisp
 (use-package hideshow-org
+  :elpaca nil
   ;; https://github.com/shanecelis/hideshow-org
   :load-path "elisp/"
   ;; :hook (prog-mode . hs-org/minor-mode)
@@ -1264,6 +1154,7 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
 ;;     (call-interactively command)))
 
 (use-package hideshowvis
+  :elpaca nil
   ;; https://www.emacswiki.org/emacs/hideshowvis.el
   :load-path "elisp/"
   :hook (prog-mode . hideshowvis-minor-mode)
@@ -1320,6 +1211,10 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
   ;; <C-left>	paredit-forward-barf-sexp
   ;; <C-M-right>	paredit-backward-barf-sexp
   ;; <C-M-left>	paredit-backward-slurp-sexp  :config
+
+  ;; TODO elpaca: fix
+  ;; complains that paredit-mode is nil
+  ;; (is it the emacs-29 native-comp issue with paredit??)
   :hook ((clojure-mode emacs-lisp-mode scheme-mode ) . paredit-mode)
   :config
   (unbind-key "C-<right>" paredit-mode-map)
@@ -1500,7 +1395,7 @@ sudo ./llvm.sh
 ** HEX colors
    an alternative to rainbow-mode? 
    #+BEGIN_SRC emacs-lisp :tangle no
-   (load-file (relative-from-init "elisp/xah.el"))
+   (load-file (relative-from-init "elisp/xah.el" user-emacs-directory))
    #+END_SRC
    And now you can call the =xah-syntax-color-hex= function in any buffer :)
    Found at http://ergoemacs.org/emacs/xah-css-mode.html
@@ -1536,7 +1431,6 @@ sudo ./llvm.sh
   ;; (add-hook 'after-init-hook (lambda ()
   ;; 			      (message "here yasnippet")
   ;; 			     (require 'yasnippet)))
-  :defer 0
   :config
   (yas-global-mode 1)
   )
@@ -1817,6 +1711,7 @@ sudo apt-get install cmake libtool-bin -y
   Customizing colors cause in doom-molokai theme you could't notice anything
   #+BEGIN_SRC emacs-lisp
 (use-package ediff
+  :elpaca nil
   :hook (ediff-prepare-buffer . show-all)
   :config
   (setq ediff-split-window-function 'split-window-horizontally
@@ -1862,7 +1757,10 @@ sudo apt-get install cmake libtool-bin -y
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   (set-face-attribute 'magit-branch-current nil
-		      :underline t))
+		      :underline t)
+  :bind
+  (("C-x g" . magit-status))
+  )
   #+END_SRC
 
 ** show untracked files
@@ -1945,13 +1843,20 @@ man git-commit | grep untracked
    #+end_src
 
 ** Repls (comint)
-#+begin_src emacs-lisp
+   Note: there is no "package" comint? see package--builtin-versions and package-activated-list
+   So we cannot use
+   #+begin_src emacs-lisp :tangle nil
 (use-package comint
-  :pin manual ;; built-in?
-  :ensure nil ;; ??
+  :elpaca nil
+  :pin manual
   :bind
   (:map comint-mode-map
 	("C-c C-l" . comint-clear-buffer)))
+   #+end_src
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'comint
+  (define-key comint-mode-map (kbd "C-c C-l") #'comint-clear-buffer))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1970,12 +1875,15 @@ man git-commit | grep untracked
 
 ** compilation
    #+begin_src emacs-lisp
-(use-package compilation
+(use-package compile
+  :elpaca nil
   :pin manual ;; built-in?
-  :ensure nil ;; ??
+  ;; :ensure nil ;; ??
   :bind
   (:map compilation-mode-map
-	("C-c C-l" . comint-clear-buffer)))
+	("C-c C-l" . comint-clear-buffer))
+  :config
+  (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter))
    #+end_src
 *** COMMENT Geiser
     Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
@@ -2004,6 +1912,7 @@ man git-commit | grep untracked
 
     #+BEGIN_SRC emacs-lisp
 (use-package cmuscheme
+  :elpaca nil
   :load-path "elisp/"
   :bind(
 	:map scheme-mode-map
@@ -2016,6 +1925,7 @@ man git-commit | grep untracked
 *** s7 scheme + (ns)
     #+BEGIN_SRC emacs-lisp
 (use-package aod-s7
+  :elpaca nil
   :load-path "elisp/"
   ;; the after apparently is needed..
   ;; if not, the bindings are not there even if in a scheme file
@@ -2034,6 +1944,7 @@ man git-commit | grep untracked
     #+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.s7pd\\'" . scheme-mode))
 (use-package s7bi-pd
+  :elpaca nil
   :load-path "elisp/"
   :commands (aod/s7bi-pd-mode)
   )
@@ -2073,6 +1984,7 @@ man git-commit | grep untracked
 
     #+begin_src emacs-lisp
 (use-package cc-mode
+  :elpaca nil
   :config
   (message "here, cc-mode")
   :bind (:map c-mode-base-map
@@ -2116,11 +2028,11 @@ man git-commit | grep untracked
    #+end_src
 
 * Debug
-** gdb
+** COMMENT gdb
 - https://stackoverflow.com/questions/20990795/can-emacs-gdb-mode-display-expressions-in-separate-window
 #+begin_src emacs-lisp
 (use-package gdb-mi
-  :ensure nil
+  ;; :ensure nil
   :config
   (setq gdb-many-windows t
 	gdb-show-main t))
@@ -2130,7 +2042,7 @@ man git-commit | grep untracked
 	       gdb-show-main t))
 #+end_src
 
-*** gdb hydra
+*** COMMENT gdb hydra
 https://github.com/weirdNox/dotfiles/blob/c216e6c8d1cb96855c569768f42f8a4311eb27e2/config/.emacs.d/init.el#L440
 #+begin_src emacs-lisp
 (defhydra hydra-gdb (:exit nil :foreign-keys run)
@@ -2204,7 +2116,6 @@ https://github.com/weirdNox/emacs-gdb#default-keybindings
    Associating with =.http= files
    #+BEGIN_SRC emacs-lisp
 (use-package restclient
-  :ensure t
   :mode ("\\.http\\'" . restclient-mode)
   )
    #+END_SRC
@@ -2402,7 +2313,7 @@ sudo apt-get install zeal
    #+BEGIN_SRC emacs-lisp
 (use-package which-key
   ;; :hook (after-init . which-key-mode)
-  :defer 0
+  ;; :defer 0
   :config
   (which-key-mode)
   (which-key-enable-god-mode-support)
@@ -2415,6 +2326,7 @@ sudo apt-get install zeal
 
    #+BEGIN_SRC emacs-lisp
 (use-package button-lock
+  :elpaca nil
   :load-path "elisp/"
   :commands (button-lock-mode button-lock-set-button)
   :config
@@ -2478,8 +2390,8 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
 ** aod-do
    #+begin_src emacs-lisp
 (use-package aod-do
+  :elpaca nil
   :load-path "elisp/"
-  :defer 0
   )
 
 ;;(key-chord-define-global "/d" #'aod-do/action-interactive)
@@ -2516,13 +2428,16 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
 ** present-mode
 
    #+begin_src emacs-lisp
-(setq aod.logos/present-mode-map (make-sparse-keymap))
-(define-minor-mode aod.logos/present-mode
+(setq aod-logos/present-mode-map (make-sparse-keymap))
+;; Note: when using aod.logos/present-mode I had errors in emacs < 29
+;; during easy-mmode--mode-docstring
+;; called from define-minor-mode
+(define-minor-mode aod-logos/present-mode
   "Toggle present mode"
   :init-value nil
   :lighter "present"
-  :keymap aod.logos/present-mode-map
-  (if aod.logos/present-mode
+  :keymap aod-logos/present-mode-map
+  (if aod-logos/present-mode
       (progn
 	(logos-narrow-dwim)
 	(logos-focus-mode 1)
@@ -2540,20 +2455,20 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
       (setq-local org-hide-emphasis-markers aod.log/org-hide-emphasis-markers)
       (widen))))
 
-(define-key aod.logos/present-mode-map (kbd "[") 'logos-backward-page-dwim)
-(define-key aod.logos/present-mode-map (kbd "]") 'logos-forward-page-dwim)
-(define-key aod.logos/present-mode-map (kbd "q") 'aod.logos/present-mode)
+(define-key aod-logos/present-mode-map (kbd "[") 'logos-backward-page-dwim)
+(define-key aod-logos/present-mode-map (kbd "]") 'logos-forward-page-dwim)
+(define-key aod-logos/present-mode-map (kbd "q") 'aod-logos/present-mode)
 
-(defun aod.logos/backward-skip-comment (&rest args)
+(defun aod-logos/backward-skip-comment (&rest args)
   (when (org-in-commented-heading-p)
     (call-interactively #'logos-backward-page-dwim)))
 
-(defun aod.logos/forward-skip-comment (&rest args)
+(defun aod-logos/forward-skip-comment (&rest args)
   (when (org-in-commented-heading-p)
     (call-interactively #'logos-forward-page-dwim)))
 
-(advice-add 'logos-backward-page-dwim :after #'aod.logos/backward-skip-comment)
-(advice-add 'logos-forward-page-dwim :after #'aod.logos/forward-skip-comment)
+(advice-add 'logos-backward-page-dwim :after #'aod-logos/backward-skip-comment)
+(advice-add 'logos-forward-page-dwim :after #'aod-logos/forward-skip-comment)
    #+end_src
 ** command log
    #+BEGIN_SRC emacs-lisp
@@ -2794,7 +2709,7 @@ powershell -Command Add-MpPreference -ExclusionExtension ".elc"
    + =string-starts-with= doesn't exist
      replaced with =string-prefix-p=
    #+BEGIN_SRC emacs-lisp
-(load-file (relative-from-init "elisp/dired-fix.el"))
+(load-file (expand-file-name "elisp/dired-fix.el" user-emacs-directory))
    #+END_SRC
 
 * Linux

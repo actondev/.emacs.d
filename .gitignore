@@ -1,5 +1,7 @@
 # ignore .el files: tangled from .org files
 /*.el
+!early-init.el
+
 session.*
 eshell/
 # some files about unicode fonts end up being there
@@ -26,6 +28,7 @@ projectile.cache
 straight/
 quelpa/
 elpa/
+elpaca/
 el-get/
 server/
 
