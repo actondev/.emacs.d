@@ -939,13 +939,13 @@ So, when some files are not found, the .gitignore should be kept"
    #+BEGIN_SRC emacs-lisp
 ;; note: can't use for some reason directy the system-type
 (setq system-type-name (symbol-name system-type))
-(setq frame-title-format '("%f  -- " system-type-name))
+(setq frame-title-format '("%f  -- emacs " emacs-version " " system-type-name))
 (defun aod/set-session-name (name)
   (interactive "Mname:")
   ;; making it persistent across frame
   ;; if I were to use the name directly that couldn't work
   (setq aod/session-name name)
-  (setq frame-title-format `("" aod/session-name " -- %f  -- " system-type-name)))
+  (setq frame-title-format `("" aod/session-name " -- %f  -- emacs " emacs-version " " system-type-name)))
    #+END_SRC
 ** COMMENT monokai
    #+BEGIN_SRC emacs-lisp
