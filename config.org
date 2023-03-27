@@ -919,11 +919,10 @@ So, when some files are not found, the .gitignore should be kept"
 ** Welcome screen (dashboard)
    TODO after elpaca init?
    #+BEGIN_SRC emacs-lisp
-(use-package dashboard
-  ;; :demand t
-  :diminish dashboard-mode
+(elpaca
+ (dashboard :repo "git@github.com:actondev/emacs-dashboard.git"
+	    :branch "elpaca-init-time")
   :config
-  (message "config dashboard %s" (format-time-string "%Y-%m-%dT%T %3N"))
   (setq dashboard-startup-banner 2) ;; integer is for text banner index
   (setq dashboard-items '(
 			  (projects . 10)
