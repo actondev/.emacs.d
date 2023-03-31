@@ -1872,6 +1872,16 @@ man git-commit | grep untracked
 *** TODO COMMENT comint update speed ?
     https://www.reddit.com/r/emacs/comments/3scsak/comment/cwwhi0j/?utm_source=share&utm_medium=web2x&context=3
 
+** aod-repl
+   #+begin_src emacs-lisp
+(use-package aod-repl
+  :elpaca nil
+  :load-path "elisp/aod-repl/"
+  :init
+  :bind (:map prog-mode-map
+	      ("C-<return>" . aod-repl/eval-dwim)
+	      ))
+   #+end_src
 ** compilation
    #+begin_src emacs-lisp
 (use-package compile
