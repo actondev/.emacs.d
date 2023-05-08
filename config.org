@@ -1609,6 +1609,17 @@ sudo ./llvm.sh
                                                   an-arg)))
      transient-params)))
    #+end_src
+* AI
+  https://platform.openai.com/account/api-keys
+  #+begin_src emacs-lisp
+(use-package chatgpt-shell
+  ;; :ensure t
+  ;; :custom
+  ;; ((chatgpt-shell-openai-key
+  ;;   (lambda ()
+  ;;     (auth-source-pass-get 'secret "openai-key"))))
+  )
+  #+end_src
 * Hacking around
 ** custom local variables
    #+begin_src emacs-lisp
