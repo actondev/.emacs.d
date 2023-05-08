@@ -244,9 +244,9 @@
 (setq org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar")
    #+end_src
 
-** COMMENT (org-babel) eval-in-repl
+** (org-babel) eval-in-repl
 
-*** el-get : my forks
+*** COMMENT el-get : my forks
     Just stating this before =use-package= makes it so that my fork is used.
     the =:config= etc from =use-package= calls work as expected
     #+begin_src emacs-lisp
@@ -261,7 +261,7 @@
    :branch "feature/shell-and-term")
     #+end_src
 
-*** installing with use-package
+*** COMMENT installing with use-package
     #+BEGIN_SRC emacs-lisp
 (use-package eval-in-repl
   ;; while developing:
@@ -308,6 +308,7 @@
 *** TODO my mod: aod-eval-in-repl ??
     #+begin_src emacs-lisp
 (use-package aod-eval-in-repl
+  :elpaca nil
   :load-path "elisp/aod-eval-in-repl/"
   :init
   (with-eval-after-load 'org
@@ -984,22 +985,31 @@ So, when some files are not found, the .gitignore should be kept"
   ;;   '(misc-info battery irc mu4e gnus github debug minor-modes input-method major-mode process))
   (doom-modeline-def-modeline 'dashboard
     '(bar window-number modals buffer-default-directory-simple)
-    '(misc-info battery irc mu4e gnus github debug minor-modes input-method major-mode process)))
+    '(misc-info battery irc mu4e gnus github debug minor-modes input-method major-mode process))
+  )
    #+END_SRC
 
    + [ ] TODO
      If sometimes you don't see the icons (it happens on doom-modeline reset and enable again)
    #+BEGIN_SRC emacs-lisp :tangle no
 ;; (setq doom-modeline-icon (display-graphic-p))
-(setq doom-modeline-buffer-state-icon t)
+(setq doom-modeline-buffer-state-icon nil)
    #+END_SRC
-** all-the-icons
-   #+begin_src emacs-lisp
+** fonts
+*** all-the-icons
+    #+begin_src emacs-lisp
 (use-package all-the-icons
   :if (display-graphic-p))
-   #+end_src
+    #+end_src
 
-   Note: after you have to run =all-the-icons-install-fonts= with M-x.
+    Note: after you have to run =all-the-icons-install-fonts= with M-x.
+*** nerd fonts
+    #+begin_src emacs-lisp
+(use-package nerd-icons
+    :if (display-graphic-p))
+    #+end_src
+    Note: after you have to run =nerd-icons-install-fonts= with M-x.
+
 *** minions: showing minor modes
     https://github.com/tarsius/minions
     A minor-mode menu for the mode line
@@ -1785,7 +1795,13 @@ man git-commit | grep untracked
 *** repl (cider etc)
     Cider is amazing :)
     #+BEGIN_SRC emacs-lisp
-(use-package cider)
+(use-package cider
+  :config
+  (setq cider-print-quota 4096)
+  (add-to-list 'cider-repl-init-code "(set! *print-length* 4096)" )
+  (add-to-list 'cider-repl-init-code "(set! *print-level* 5)")
+  (message "here cider")
+  )
 
 (use-package clj-refactor
   ;; WIP
@@ -1882,6 +1898,19 @@ man git-commit | grep untracked
 	      ("C-<return>" . aod-repl/eval-dwim)
 	      ))
    #+end_src
+
+** common lisp, slime
+   #+begin_src emacs-lisp
+(use-package emacs
+  :elpaca nil
+  :bind (:map lisp-mode-map
+	      ("C-<return>" . slime-eval-defun)
+	      ))
+
+(with-eval-after-load 'slime
+  (define-key slime-mode-indirect-map (kbd "M-n") #'outline-next-visible-heading)
+  (define-key slime-mode-indirect-map (kbd "M-p") #'outline-previous-visible-heading))
+   #+end_src
 ** compilation
    #+begin_src emacs-lisp
 (use-package compile
@@ -1947,6 +1976,30 @@ man git-commit | grep untracked
 	)
   )
     #+END_SRC
+
+*** janet
+    #+begin_src emacs-lisp
+(use-package janet-mode
+  :elpaca nil
+  :load-path "elisp/"
+  ;; the after apparently is needed..
+  ;; if not, the bindings are not there even if in a scheme file
+  ;; and having started a scheme with (run-scheme)
+  :after (cmuscheme)
+  :bind(
+	:map janet-mode-map
+	("C-<return>" . scheme-send-definition)
+	("M-<return>" . scheme-send-last-sexp)
+	)
+  )
+
+(elpaca
+ (ijanet
+   :type git
+   :host github
+   :repo "serialdev/ijanet-mode"
+))
+    #+end_src
 
 *** s7bi pd
 
@@ -2035,7 +2088,10 @@ man git-commit | grep untracked
 				  (prong (warn "Could not find python executable")
 					 nil))))
    #+end_src
-
+** nim
+   #+begin_src emacs-lisp
+(use-package nim-mode)
+   #+end_src
 * Debug
 ** COMMENT gdb
 - https://stackoverflow.com/questions/20990795/can-emacs-gdb-mode-display-expressions-in-separate-window

@@ -484,3 +484,13 @@ to the project root for where it was defined"
        :variable ',var
        :reader ,reader)))
   #+end_src
+
+* mark region
+  #+begin_src emacs-lisp
+(defun aod/mark-region (start end)
+  (set-mark start)
+  (goto-char end))
+  #+end_src
+
+  #+RESULTS:
+  : aod/mark-region
