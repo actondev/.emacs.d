@@ -18,17 +18,43 @@
 
 (defun aod-repl/js2-mark-node-at-point ()
   (interactive)
-  (aod-repl/js2-mark-node (js2-node-at-point)))
+  (aod-repl/js2-mark-node (js2-node-at-point (point) t)))
 
-(defun aod-repl/js2-mark-top-level ()
+(defun aod-repl/js2-mark-top-level-old ()
   "From js2-mark-parent-statement (expand-region/js2-mode-expansions.el)"
   (interactive)
+  
   (named-let rec ((p0 0)
 		  (p1 (point)))
     (unless (eq p0 p1)
       (beginning-of-line)
-      (js2-mark-defun)
+      (cond ((js2-class-node-p (js2-node-at-point))
+	     (aod-repl/js2-mark-node-at-point))
+	    ((js2-ast-root-p (js2-node-at-point))
+	     (aod-repl/js2-mark-node-at-point))
+	    (t (js2-mark-defun)))
       (rec p1 (point)))))
+
+(defun aod-repl/js2-mark-defun-safe ()
+  (interactive)
+  (condition-case nil
+      (js2-mark-defun)
+    (error (progn
+	     (message "js2-mark-defun errored out, fallback to mark-defun")
+	     (mark-defun)))))
+
+(defun aod-repl/js2-mark-top-level ()
+  "From js2-mark-parent-statement (expand-region/js2-mode-expansions.el)"
+  (interactive)
+  (aod-repl/js2-mark-defun-safe)
+  (while (not (eq (point)
+		  (save-mark-and-excursion
+		    (beginning-of-line)
+		    (point)))
+	      )
+    (beginning-of-line)
+    (deactivate-mark)
+    (aod-repl/js2-mark-defun-safe)))
 
 (defcustom aod-repl/mark-statement-per-major-mode #s(hash-table data (js2-mode aod-repl/js2-mark-top-level))
   "Custom fn for marking the current statement to be evaluated for a specific major-mode"

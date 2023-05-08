@@ -49,6 +49,7 @@
 		    ;; TODO autoloads not present?
 		    ;; that's why I need to require those
 		    aod-do
+		    aod-eval-in-repl
 		    pin-mode
 		    nice-jumper
 		    )))
