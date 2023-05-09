@@ -2103,6 +2103,28 @@ man git-commit | grep untracked
    #+begin_src emacs-lisp
 (use-package nim-mode)
    #+end_src
+*** compiler line:column support in Compilation
+    http://praveen.kumar.in/2011/03/09/making-gnu-emacs-detect-custom-error-messages-a-maven-example/
+    #+begin_src emacs-lisp
+(with-eval-after-load 'compile
+  (add-to-list 'compilation-error-regexp-alist
+               'nim)
+  (add-to-list
+   'compilation-error-regexp-alist-alist
+   '(nim
+     "^\\(.*\\)(\\([0-9]+\\), \\([0-9]+\\)) \\(\\(Warning\\)\\|\\(Error\\)\\):" 1 2 3 (5)
+     ))
+  )
+    #+end_src
+**** COMMENT improving it
+     #+begin_src emacs-lisp
+(setq compilation-error-regexp-alist  (remove 'nim compilation-error-regexp-alist))
+(setq compilation-error-regexp-alist-alist  (assq-delete-all 'nim compilation-error-regexp-alist-alist))
+
+(when-let ((nim-regexp (assq 'nim compilation-error-regexp-alist-alist)))
+  (setf (cdr nim-regexp) '("^\\(.*\\)(\\([0-9]+\\), \\([0-9]+\\)) \\(\\(Warning\\)\\|\\(Error\\)\\):" 1 2 3 (5)))
+  )
+     #+end_src
 * Debug
 ** COMMENT gdb
 - https://stackoverflow.com/questions/20990795/can-emacs-gdb-mode-display-expressions-in-separate-window
