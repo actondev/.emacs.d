@@ -121,7 +121,9 @@
 ** compile
    #+begin_src emacs-lisp
 (with-eval-after-load 'compile
-  (setq compilation-scroll-output 'first-error
+  (setq compilation-scroll-output t
+	compilation-auto-jump-to-first-error t
+	compilation-skip-threshold 2 ; skip warnings
 	compilation-always-kill t)
   (define-key compilation-mode-map (kbd "C-c C-c") #'kill-compilation))
    #+end_src
@@ -200,7 +202,7 @@
   (unbind-key "C-," org-mode-map) ;; agenda (conflicts with C-, etc (my map)
   :bind (:map org-mode-map
 	      ("C-M-p" . org-up-element)
-	      ("C-M-n" . org-down-element)))    
+	      ("C-M-n" . org-down-element)))
    #+end_src
 ** org-contrib
 #+begin_src emacs-lisp
@@ -753,7 +755,9 @@ sudo apt-get install ripgrep
   :config
   (global-pin-mode 1)
   (with-eval-after-load "minions"
-    (add-to-list 'minions-prominent-modes 'global-pin-mode)))
+    (add-to-list 'minions-prominent-modes 'global-pin-mode))
+  ;; nerd font font "pin"
+  (setq pin-indicator "󰐃"))
    #+end_src
 
 *** COMMENT old version
@@ -2112,7 +2116,7 @@ man git-commit | grep untracked
   (add-to-list
    'compilation-error-regexp-alist-alist
    '(nim
-     "^\\(.*\\)(\\([0-9]+\\), \\([0-9]+\\)) \\(\\(Warning\\)\\|\\(Error\\)\\):" 1 2 3 (5)
+     "\\(/.*\\)(\\([0-9]+\\)\\(, \\([0-9]+\\)\\)?) \\(\\(Error\\)\\|\\(\\)\\)" 1 2 4 (7)
      ))
   )
     #+end_src
@@ -2122,8 +2126,9 @@ man git-commit | grep untracked
 (setq compilation-error-regexp-alist-alist  (assq-delete-all 'nim compilation-error-regexp-alist-alist))
 
 (when-let ((nim-regexp (assq 'nim compilation-error-regexp-alist-alist)))
-  (setf (cdr nim-regexp) '("^\\(.*\\)(\\([0-9]+\\), \\([0-9]+\\)) \\(\\(Warning\\)\\|\\(Error\\)\\):" 1 2 3 (5)))
-  )
+  (setf (cdr nim-regexp) '(
+			   "\\(/.*\\)(\\([0-9]+\\)\\(, \\([0-9]+\\)\\)?)[ :]\\(\\(Error\\)\\|\\(\\)\\)" 1 2 4 (7)
+			   )))
      #+end_src
 * Debug
 ** COMMENT gdb
