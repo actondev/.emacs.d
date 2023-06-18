@@ -48,5 +48,5 @@
 (setq elpaca-verbosity 1
       ;; supposedly faster
       elpaca-cache-autoloads t
-      elpaca-ui-row-limit 10000
+      elpaca-ui-row-limit 1000
       )
