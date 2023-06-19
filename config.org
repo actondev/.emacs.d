@@ -337,7 +337,7 @@
 (setq org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar")
    #+end_src
 
-** (org-babel) eval-in-repl
+** COMMENT (org-babel) eval-in-repl
 
 *** el-get : my forks
     Just stating this before =use-package= makes it so that my fork is used.
@@ -398,8 +398,8 @@
        (:name eval-in-repl :type git :url "https://github.com/actonDev/eval-in-repl.git" :branch "feature/shell-and-term" :after nil)))     
 
     #+end_src
-*** TODO my mod: aod-eval-in-repl ??
-    #+begin_src emacs-lisp
+** aod-eval-in-repl
+   #+begin_src emacs-lisp
 (use-package aod-eval-in-repl
   :load-path "elisp/aod-eval-in-repl/"
   :init
@@ -409,7 +409,7 @@
 	      ("C-<return>" . aod.eir/eval-org-src)
 	      ("C-S-<return>" . aod.eir/eval-org-src-block)
 	      ))
-    #+end_src
+   #+end_src
 ** exporting to html
    #+BEGIN_SRC emacs-lisp
 (use-package htmlize)
@@ -784,6 +784,8 @@ sudo apt-get install ripgrep
   :config
   (setq avy-keys (list
 		  ?a ?b ?c ?d ?e ?f ?g ?h ?i ?j ?k ?l ?m ?n ?o ?p ?q ?r ?s ?t ?u ?v ?w ?x ?y ?z))
+  (setq avy-all-windows nil)
+  ;; (setq avy-style 'pre)
   :bind (("M-s s" . avy-goto-char-timer)))
   #+end_src
 * Window management
@@ -2226,16 +2228,34 @@ https://github.com/weirdNox/emacs-gdb#default-keybindings
    this vs restclient?
 
 * Documentation
-  Note: first install zeal
+  Note: first install zeal (linux) or dash (osx)
   #+begin_src sh :tangle no
 sudo apt-get install zeal
   #+end_src
+  or https://kapeli.com/dash
+
+      #+begin_src emacs-lisp
+(defun aod-doc-at-point ()
+  (interactive)
+  (pcase system-type
+    ('gnu/linux (call-interactively 'zeal-at-point))
+    ('darwin (call-interactively 'dash-at-point))))
+    #+end_src
 
   #+begin_src emacs-lisp
 (use-package zeal-at-point
+  :if (eq system-type 'gnu/linux)
   :bind
-  (("C-c d" . zeal-at-point)))
+  (("C-c d" . aod-doc-at-point)))
   #+end_src
+
+    #+begin_src emacs-lisp
+(use-package dash-at-point
+  :if (eq system-type 'darwin)
+  :bind
+  (("C-c d" . aod-doc-at-point)))
+  #+end_src
+
 
   Note: js docs are acting weird
   Solution (<2021-01-28 Thu>): find react-main.01db16f317c6.js in =~/.local/share/zeal= and delete it (there were 2, deleted both)
@@ -2289,7 +2309,7 @@ sudo apt-get install zeal
 ;; helm-projectile-ag gives me bug in window, use projectile-ag? ..
 (global-set-key (kbd "C-, C-a") 'helm-projectile-ag)
    #+end_src
-** consult
+** consult & avy
    Tips
    - cosult-ripgrep
      - add =-- -tcpp= ad the end of the query to search only cpp files.
@@ -2302,6 +2322,7 @@ sudo apt-get install zeal
 ;; (global-set-key (kbd "C-, C-r") 'consult-recent-file)
 (global-set-key (kbd "C-, C-l") 'consult-line)
 (global-set-key (kbd "C-, C-i") 'consult-imenu)
+(global-set-key (kbd "C-, C-v") 'aod/avy)
    #+end_src
 ** region expand/contract
    #+begin_src emacs-lisp
