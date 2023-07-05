@@ -13,10 +13,13 @@
 (when (file-exists-p custom-file)
   (load custom-file))
 
-(if t
+(setq aod--use-elpaca nil)
+
+(if aod--use-elpaca
     (progn
       (load (expand-file-name "bootstrap/elpaca.el" user-emacs-directory)))
   (progn
+    (setq package-enable-at-startup t)
     (load (expand-file-name "bootstrap/use-package.el" user-emacs-directory))))
 
 (setq use-package-always-ensure t
