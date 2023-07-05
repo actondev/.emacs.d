@@ -44,7 +44,11 @@
 (define-minor-mode global-pin-mode
   "Enabling pin global mode takes into account if `pin-mode' is enabled (per bufer)"
   :init-value nil
-  :lighter (:eval (if (window-parameter (selected-window) 'no-delete-other-windows) pin-indicator ""))
+  :lighter (:eval (if (window-parameter (selected-window) 'no-delete-other-windows)
+		      pin-indicator
+		    ;; (propertize pin-indicator
+		    ;; 		  'face '(:family "Symbols Nerd Font Mono"))
+		    ""))
   :global t)
 
 ;;;###autoload

@@ -24,7 +24,7 @@ Note: (file-readable-p \".\") returns t so.. wtf
 
 TODO could just use last mod date to check .org and .el modified date?
 that would enable manually tagling"
-  (let* ((path (relative-from-init rel-path))
+  (let* ((path (expand-file-name rel-path user-emacs-directory))
 	 ;; Note: make-symbol is not gonna work
 	 (symbol (intern (concat "md5_" path)))
 	 (checksum (md5-file path))
@@ -51,7 +51,7 @@ that would enable manually tagling"
 - If the tangled .el file exists and the .org isn't last mod date is NOT newer,
 then the .el file is loaded without parsing the .org file.
 - Otherwise, the .org file is parsed and loaded."
-  (let* ((path (relative-from-init rel-path))
+  (let* ((path (expand-file-name rel-path user-emacs-directory))
 	 (el-path (concat (file-name-sans-extension path)
 			  ".el")))
     (if (and

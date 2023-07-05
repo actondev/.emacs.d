@@ -461,6 +461,7 @@ Note that this text might end up into the OS's clipboard. See `kill-new'
 (require 'aod-eval-in-repl-shell)
 (require 'aod-eval-in-repl-python)
 (require 'aod-eval-in-repl-sql)
-(require 'aod-eval-in-repl-js)
+(when (featurep 'js2)
+  (require 'aod-eval-in-repl-js))
 (require 'aod-eval-in-repl-mode)
 (provide 'aod-eval-in-repl)
