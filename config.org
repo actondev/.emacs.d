@@ -122,7 +122,7 @@
    #+begin_src emacs-lisp
 (with-eval-after-load 'compile
   (setq compilation-scroll-output t
-	compilation-auto-jump-to-first-error t
+	compilation-auto-jump-to-first-error nil
 	compilation-skip-threshold 2 ; skip warnings
 	compilation-always-kill t)
   (define-key compilation-mode-map (kbd "C-c C-c") #'kill-compilation))
@@ -2085,7 +2085,9 @@ man git-commit | grep untracked
     #+end_src
 *** formatting
     #+begin_src emacs-lisp
-(use-package clang-format)
+(use-package clang-format
+    :commands (clang-format-buffer)
+  )
     #+end_src
 
     a useful hook then is:

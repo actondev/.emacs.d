@@ -100,7 +100,7 @@ Version 2016-07-18"
     (if aod-web/browse-private-p
 	(progn
 	  (message "opening in private firefox window")
-	  (shell-command (concat "firefox --private-window " url)))
+	  (shell-command (format "firefox --private-window '%s'" url)))
       (progn
 	(message "openining in normal browser window")
 	(browse-url-default-browser url))
@@ -455,16 +455,6 @@ TODO: if called with a prefix argument ask for the regexp..?"
 * aod do helpers: aod.project/defn & transient
   #+begin_src emacs-lisp
 (defmacro aod.project/defn (name args &rest body)
-  "Defines a function which executes with `default-directory' set
-to the project root for where it was defined"
-  (let ((root (project-root (project-current))))
-    `(defun ,name
-	 ,args
-       (interactive)
-       (let ((default-directory ,root))
-	 ,@body))))
-
-(defmacro aod.project/defn-with-root (name args &rest body)
   "Defines a function which executes with `default-directory' set
 to the project root for where it was defined"
   (let ((root (project-root (project-current))))
