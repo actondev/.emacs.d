@@ -42,6 +42,9 @@
 (global-so-long-mode 1)
 
 (setq find-file-visit-truename t)
+(setq fill-column 100)
+(setq dired-listing-switches "-alh")
+(setq indent-tabs-mode nil)
    #+END_SRC
 
 ** functions
@@ -1628,6 +1631,23 @@ sudo ./llvm.sh
   ;;     (auth-source-pass-get 'secret "openai-key"))))
   )
   #+end_src
+** copilot (no MELPA?)
+   #+begin_src emacs-lisp  :tangle nil
+(package-vc-install "https://github.com/zerolfx/copilot.el")
+(copilot-login)
+   #+end_src
+
+   #+begin_src emacs-lisp
+(when (package-installed-p 'copilot)
+  (use-package copilot
+    :hook (prog-mode . copilot-mode)
+    :bind (:map copilot-completion-map
+		("<tab>" . 'copilot-accept-completion)
+		("TAB" . 'copilot-accept-completion)
+		;; ("C-TAB" . 'copilot-accept-completion-by-word)
+		;; ("C-<tab>" . 'copilot-accept-completion-by-word)
+		)))
+   #+end_src
 * Hacking around
 ** custom local variables
    #+begin_src emacs-lisp
@@ -1940,7 +1960,14 @@ man git-commit | grep untracked
   (:map compilation-mode-map
 	("C-c C-l" . comint-clear-buffer))
   :config
-  (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter))
+  (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+  ;; https://emacs.stackexchange.com/a/66692
+  ;; Prefer existing frames already displaying *compilation*.
+  (add-to-list 'display-buffer-alist
+               (cons "\\`\\*compilation\\*\\'"
+                     (cons 'display-buffer-reuse-window
+                           '((reusable-frames . visible)
+                             (inhibit-switch-frame . nil))))))
    #+end_src
 *** COMMENT Geiser
     Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
@@ -2136,6 +2163,13 @@ man git-commit | grep untracked
 			   "\\(/.*\\)(\\([0-9]+\\)\\(, \\([0-9]+\\)\\)?)[ :]\\(\\(Error\\)\\|\\(\\)\\)" 1 2 4 (7)
 			   )))
      #+end_src
+** zig
+   #+begin_src emacs-lisp
+(use-package zig-mode
+  :bind (:map zig-mode-map
+	      ("M-n" . end-of-defun)
+	      ("M-p" . beginning-of-defun)))
+   #+end_src
 * Debug
 ** COMMENT gdb
 - https://stackoverflow.com/questions/20990795/can-emacs-gdb-mode-display-expressions-in-separate-window

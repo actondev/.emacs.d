@@ -690,3 +690,7 @@ It's possible to have a command temporarily change the keymap, so that you only 
 * magit tricks:
   - magit-log-trace-definition
     git log history tracing all the changes made to function at point
+
+* ag: filter filename
+     -G --file-search-regex PATTERN
+          Only search files whose names match PATTERN.
