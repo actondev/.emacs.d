@@ -87,3 +87,4 @@
 		       gcs-done)
 	      (aod/require-init-packages)
 	      (setq aod/--init-run t)))))
+(put 'downcase-region 'disabled nil)

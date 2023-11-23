@@ -694,3 +694,7 @@ It's possible to have a command temporarily change the keymap, so that you only 
 * ag: filter filename
      -G --file-search-regex PATTERN
           Only search files whose names match PATTERN.
+
+	  
+* changing the font in whole emacs (not per buffer)
+  - set-frame-font

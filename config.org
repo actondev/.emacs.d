@@ -42,7 +42,7 @@
 (global-so-long-mode 1)
 
 (setq find-file-visit-truename t)
-(setq fill-column 100)
+(setq-default fill-column 100)
 (setq dired-listing-switches "-alh")
 (setq indent-tabs-mode nil)
    #+END_SRC
@@ -606,6 +606,14 @@ sudo apt-get install ripgrep
   ;; (setq consult-narrow-key "<") ;; (kbd "C-+")
 
   )
+   #+end_src
+   
+** consult-notes
+   #+begin_src emacs-lisp :tangle nil
+;; (use-package consults-notes)
+(package-vc-install "https://github.com/mclear-tools/consult-notes")
+
+(setq consult-notes-file-dir-sources '(("Holoplot"  ?h  "~/dev/holoplot/notes")))
    #+end_src
 
 ** consult completion
@@ -2583,7 +2591,7 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
 		logos-hide-buffer-boundaries t
 		logos-hide-fringe t
 		logos-variable-pitch nil
-		logos-buffer-read-only t
+		logos-buffer-read-only nil
 		logos-scroll-lock nil
 		logos-olivetti t))
    #+end_src
@@ -2599,6 +2607,7 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
   :init-value nil
   :lighter "present"
   :keymap aod-logos/present-mode-map
+  (require 'logos)
   (if aod-logos/present-mode
       (progn
 	(logos-narrow-dwim)
@@ -2617,9 +2626,10 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
       (setq-local org-hide-emphasis-markers aod.log/org-hide-emphasis-markers)
       (widen))))
 
-(define-key aod-logos/present-mode-map (kbd "[") 'logos-backward-page-dwim)
-(define-key aod-logos/present-mode-map (kbd "]") 'logos-forward-page-dwim)
-(define-key aod-logos/present-mode-map (kbd "q") 'aod-logos/present-mode)
+(define-key aod-logos/present-mode-map (kbd "<f7>") 'logos-backward-page-dwim)
+(define-key aod-logos/present-mode-map (kbd "<f9>") 'logos-forward-page-dwim)
+(define-key aod-logos/present-mode-map (kbd "M-p") 'logos-backward-page-dwim)
+(define-key aod-logos/present-mode-map (kbd "M-n") 'logos-forward-page-dwim)
 
 (defun aod-logos/backward-skip-comment (&rest args)
   (when (org-in-commented-heading-p)
