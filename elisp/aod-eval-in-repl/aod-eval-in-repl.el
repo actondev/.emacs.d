@@ -395,8 +395,10 @@ Note that this text might end up into the OS's clipboard. See `kill-new'
   (let ((modes '(shell-mode term-mode vterm-mode comint-mode)))
     (read-buffer "Repl buffer: " nil nil
 		 (lambda (x)
-		   (with-current-buffer x
-		     (memq major-mode modes))))))
+		   (let* ((name (if (consp x) (car x) x))
+			  (buffer (get-buffer name)))
+		     (with-current-buffer buffer
+		       (memq major-mode modes)))))))
 
 ;; or, send string..
 (defun aod.eir/eval-org-src (arg &optional whole-block)
@@ -416,9 +418,9 @@ Note that this text might end up into the OS's clipboard. See `kill-new'
 	     ;; org-babel-read evals only if something starts with ( etc
 	     (dir (org-babel-read (cdr (assq :dir opts))))
 	     (default-directory
-	       (or (and dir (file-name-as-directory (expand-file-name
-						     dir)))
-		   default-directory)))
+	      (or (and dir (file-name-as-directory (expand-file-name
+						    dir)))
+		  default-directory)))
 	(message "starting repl %S at dir %S " lang default-directory)
 	(save-selected-window (aod.eir/start-repl lang session opts))
 	(aod.eir/eval lang session
