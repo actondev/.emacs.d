@@ -44,7 +44,8 @@
 (setq find-file-visit-truename t)
 (setq-default fill-column 100)
 (setq dired-listing-switches "-alh")
-(setq indent-tabs-mode nil)
+;; does this actually work? (need to disable tabs in qml)
+(setq-default indent-tabs-mode nil)
    #+END_SRC
 
 ** functions
@@ -1449,8 +1450,25 @@ sudo ./llvm.sh
         2))))
 
    #+END_SRC
-** TODO Writing - spelling
-   TBD
+** TODO spelling (spell checking)
+   #+begin_src emacs-lisp
+(setq ispell-program-name "aspell")
+   #+end_src
+   - [ ] hook for everywhere non-prog mode =flyspell-mode= ?
+   - [ ] hook for prog-mode for flyspell-prog-mode ?
+   - https://www.emacswiki.org/emacs/FlySpell
+   - https://github.com/minad/jinx ?
+
+   #+begin_src emacs-lisp
+(use-package flyspell
+
+  :config
+  ;; I'm using various C- prefixes
+  (unbind-key "C-;" flyspell-mode-map)
+  (unbind-key "C-." flyspell-mode-map)
+  (unbind-key "C-," flyspell-mode-map)
+  )
+   #+end_src
 ** snippets (yasnippet)
    #+begin_src emacs-lisp
 (use-package yasnippet
@@ -1578,6 +1596,17 @@ sudo ./llvm.sh
 			(+ 2 (point))))))
   (message "bin %s => dec %s" bin (string-to-number bin 2))
   )
+
+(defun dec->bin (dec)
+  (interactive (list (string-to-number (if (region-active-p)
+					   (buffer-substring-no-properties
+					    (caar (region-bounds))
+					    (cdar (region-bounds)))
+					 (buffer-substring-no-properties
+					  (point)
+					  (+ 2 (point)))))))
+  (message "dec %s => bin %s" dec (int-to-binary-string dec)))
+
    #+end_src
    #+end_src
 ** uuid-at-point

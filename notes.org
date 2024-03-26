@@ -74,8 +74,18 @@ time is displayed."
   + [X] so-long (There is a complete section later with comments about this)
     https://www.emacswiki.org/emacs/SoLong
     optimization for long lines bringing emacs to its knees
-* Spelling
+* Spelling (spell check)
 ** Windows setup
+** <2024-03-26 Tue> macos
+   #+begin_src sh
+brew install aspell
+   #+end_src
+
+   #+begin_src emacs-lisp
+(setq ispell-program-name "aspell")
+(flyspell-mode)
+(flyspell-buffer)
+   #+end_src
 * ober eval in repl & vars
   :PROPERTIES:
   :header-args: :session *test* :var test="abc" test2="def" :dir ~/dev
@@ -698,3 +708,12 @@ It's possible to have a command temporarily change the keymap, so that you only 
 	  
 * changing the font in whole emacs (not per buffer)
   - set-frame-font
+
+* rg: filter filename
+  -g for --glob
+  - query -- -g "*.ext"
+  - exclude with
+    query -- -g "!*.ext"
+* git: rebasing & our vs their
+  - our is the branch i'm rebasing on
+    ie if i'm rebasing my ft/awesome on top of develop, I'm replaying commits on develop. So "our" is develop, and their is "ft/awesome"
