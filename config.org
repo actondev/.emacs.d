@@ -240,6 +240,7 @@
 				 (scheme . t)
 				 (dot . t)
 				 (plantuml . t)
+				 (js . t)
 				 ;;	  (python . t)
 				 ;;	  (sql . t)
 				 ;;	  (python . t)
@@ -1672,9 +1673,11 @@ sudo ./llvm.sh
   ;;     (auth-source-pass-get 'secret "openai-key"))))
   )
   #+end_src
-** copilot (no MELPA?)
+** copilot (no MELPA?): manual step
    #+begin_src emacs-lisp  :tangle nil
 (package-vc-install "https://github.com/zerolfx/copilot.el")
+(require 'copilot)
+;; Need to install nodejs!
 (copilot-login)
    #+end_src
 
