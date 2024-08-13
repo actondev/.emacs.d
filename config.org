@@ -42,7 +42,11 @@
 (global-so-long-mode 1)
 
 (setq find-file-visit-truename t)
-(setq-default fill-column 100)
+
+(defun aod/prog-mode-fill-column ()
+  (setq fill-column 100))
+(add-hook 'porg-mode-hook #'aod/prog-mode-fill-column)
+
 (setq dired-listing-switches "-alh")
 ;; does this actually work? (need to disable tabs in qml)
 (setq-default indent-tabs-mode nil)
