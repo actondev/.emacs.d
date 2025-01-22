@@ -454,10 +454,12 @@ TODO: if called with a prefix argument ask for the regexp..?"
 
 * aod do helpers: aod.project/defn & transient
   #+begin_src emacs-lisp
+(defvar-local aod.project/root nil)
+
 (defmacro aod.project/defn (name args &rest body)
   "Defines a function which executes with `default-directory' set
 to the project root for where it was defined"
-  (let ((root (project-root (project-current))))
+  (let ((root (or aod.project/root default-directory)))
     `(defun ,name
 	 ,args
        (interactive)
