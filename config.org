@@ -2728,6 +2728,13 @@ setxkbmap -option ctrl:swapcaps # ctrl is caps & caps is control
   ;; (load "mwheel")
   )
    #+end_src
+* Multimedia
+   #+begin_src emacs-lisp
+(use-package aod-sample-manager
+  :load-path "elisp/"
+  :commands aod-sample-manager/play-mode)
+   #+end_src
+
 * COMMENT Old Windows snippets
   :PROPERTIES:
   :header-args: :tangle (when (eq system-type 'windows-nt) "yes")
