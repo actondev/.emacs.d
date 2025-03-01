@@ -1674,6 +1674,18 @@ sudo ./llvm.sh
   )
   #+end_src
 ** copilot (no MELPA?): manual step
+   #+begin_src emacs-lisp
+(use-package copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+	      ("<tab>" . 'copilot-accept-completion)
+	      ("TAB" . 'copilot-accept-completion)
+	      ;; ("C-TAB" . 'copilot-accept-completion-by-word)
+	      ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
+	      )
+  )
+   #+end_src
+
    #+begin_src emacs-lisp  :tangle nil
 (package-vc-install "https://github.com/zerolfx/copilot.el")
 (require 'copilot)
@@ -1681,7 +1693,7 @@ sudo ./llvm.sh
 (copilot-login)
    #+end_src
 
-   #+begin_src emacs-lisp
+   #+begin_src emacs-lisp :tangle nil
 (when (package-installed-p 'copilot)
   (use-package copilot
     :hook (prog-mode . copilot-mode)
@@ -2213,6 +2225,13 @@ man git-commit | grep untracked
   :bind (:map zig-mode-map
 	      ("M-n" . end-of-defun)
 	      ("M-p" . beginning-of-defun)))
+   #+end_src
+** pdf
+   #+begin_src emacs-lisp
+(use-package pdf-tools)
+;; TODO (pdf-tools-install)
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
    #+end_src
 * Debug
 ** COMMENT gdb
