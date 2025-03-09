@@ -681,6 +681,11 @@ sudo apt-get install ripgrep
   ;;   (require 'embark-consult))
   )
    #+end_src
+* Searching/index
+  ripgrep-all, for pdf etc?
+  #+begin_src sh
+
+  #+end_src
 * Avy
   #+begin_src emacs-lisp
 (use-package aod-read-multiple-choice
@@ -791,7 +796,7 @@ sudo apt-get install ripgrep
   (interactive (list (selected-window)))
   (set-window-parameter window 'no-delete-other-windows nil))
     #+end_src
-** tab-bar-mode
+** COMMENT tab-bar-mode
    Note: cannot just put the =aod.tab-bar/make-project-tab-bar-hook= code in here cause it needs lexical scoping (and the tangled blocks don't get it :/)
 
     #+begin_src emacs-lisp
@@ -1673,10 +1678,9 @@ sudo ./llvm.sh
   ;;     (auth-source-pass-get 'secret "openai-key"))))
   )
   #+end_src
-** copilot (no MELPA?): manual step
+** COMMENT copilot (no MELPA?): manual step
    #+begin_src emacs-lisp
 (use-package copilot
-  :hook (prog-mode . copilot-mode)
   :bind (:map copilot-completion-map
 	      ("<tab>" . 'copilot-accept-completion)
 	      ("TAB" . 'copilot-accept-completion)
@@ -2226,12 +2230,25 @@ man git-commit | grep untracked
 	      ("M-n" . end-of-defun)
 	      ("M-p" . beginning-of-defun)))
    #+end_src
-** pdf
+** pdf (better run it manually ?)
    #+begin_src emacs-lisp
-(use-package pdf-tools)
-;; TODO (pdf-tools-install)
+(use-package pdf-tools
+  :init (pdf-loader-install)
+  :hook (pdf-view-mode . (lambda ()
+                           (display-line-numbers-mode -1)))
+  )
+;; (pdf-tools-install) ? when?
+
+(use-package org-noter-pdftools)
+
+(use-package org-noter
+  :config
+  (require 'org-noter-pdftools))
+
 (use-package org-pdftools
-  :hook (org-mode . org-pdftools-setup-link))
+  :after (org-noter-pdf-tools)
+  :hook (org-mode . org-pdftools-setup-link)
+  )
    #+end_src
 * Debug
 ** COMMENT gdb
@@ -2318,7 +2335,7 @@ https://github.com/weirdNox/emacs-gdb#default-keybindings
 (use-package realgud)
 #+end_src
 * Web
-** restclient
+** COMMENT restclient
    Associating with =.http= files
    #+BEGIN_SRC emacs-lisp
 (use-package restclient
@@ -2337,7 +2354,7 @@ https://github.com/weirdNox/emacs-gdb#default-keybindings
   (org-babel-do-load-languages 'org-babel-load-languages
 			       '((restclient . t))))
    #+END_SRC
-** TODO ob-http
+** COMMENT ob-http
    https://github.com/zweifisch/ob-http
 
    this vs restclient?
