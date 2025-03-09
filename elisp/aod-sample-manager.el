@@ -17,7 +17,34 @@
 (define-key aod-sample-manager/play-mode-map (kbd "n") 'aod-sample-manager/next)
 (define-key aod-sample-manager/play-mode-map (kbd "p") 'aod-sample-manager/prev)
 (define-key aod-sample-manager/play-mode-map (kbd "SPC") 'aod-sample-manager/play-toggle)
+(define-key aod-sample-manager/play-mode-map (kbd "C-g") 'aod-sample-manager/stop)
 (define-key aod-sample-manager/play-mode-map (kbd "j") 'aod-sample-manager/jump)
+
+(defun aod-sample-manager/down-mouse-org (event)
+  "Make org links draggable to external applications."
+  (when mark-active
+    (deactivate-mark))
+  (with-selected-window (posn-window (event-end event))
+    (goto-char (posn-point (event-end event))))
+  (when-let ((link (aod-sample-manager/get-current-org)))
+    (aod-sample-manager/play-file link)
+    (dnd-begin-file-drag link nil 'copy t)))
+
+(defun aod-sample-manager/down-mouse (event)
+  "Make links draggable to external applications. See `dired-mouse-drag'"
+  (interactive "e")
+  (pcase major-mode
+    ('org-mode (aod-sample-manager/down-mouse-org event))
+    ('dired-mode)
+    ('dired-mode (dired-mouse-drag event))
+    (_ (user-error "unsupported mode"))))
+
+
+;; Hm down-mouse-1 doesn't let mouse-1 to get through when I mess with dnd etc
+;; And I can't think of an easy way to do that only after having moved the mouse (would need timers?)
+;; REMARK: drag-mouse-1 is generated on "drop", no on move
+;; The issue is that if down-mouse-1 triggers playback, we will trigger playback also when we start draggin out the sample.
+(define-key aod-sample-manager/play-mode-map [down-mouse-1] 'aod-sample-manager/down-mouse)
 
 (defvar aod-sample-manager/supported-extentions '("wav" "mp3" "ogg" "flac"))
 
@@ -34,7 +61,9 @@ this behavior. It is enabled by default upon enabling the mode"
       (pcase major-mode
         ('dired-mode
          (setq dired-mouse-drag-files t))
-        ('org-mode t)
+        ('org-mode
+         ;; (define-key org-mouse-map [mouse-2] nil) ; org-open-at-mouse
+         )
         (_ (aod-sample-manager/play-mode -1)
            (user-error "play mode only works in dired or org mode")))
     (message "play mode disabled")))
