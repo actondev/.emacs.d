@@ -20,30 +20,25 @@
 (define-key aod-sample-manager/play-mode-map (kbd "C-g") 'aod-sample-manager/stop)
 (define-key aod-sample-manager/play-mode-map (kbd "j") 'aod-sample-manager/jump)
 
-(defun aod-sample-manager/down-mouse-org (event)
+(defun aod-sample-manager/down-mouse (event)
+  (interactive "e")
   "Make org links draggable to external applications."
   (when mark-active
     (deactivate-mark))
   (with-selected-window (posn-window (event-end event))
     (goto-char (posn-point (event-end event))))
-  (when-let ((link (aod-sample-manager/get-current-org)))
+  (when-let ((link (aod-sample-manager/get-current)))
     (aod-sample-manager/play-file link)
-    (dnd-begin-file-drag link nil 'copy t)))
+    ;; mouse pos: (posn-x-y (cadr event)) or (nth 2 (cadr event))
+    (track-mouse
+      (let ((event (read-event)))
+        (when (eq (car event) 'mouse-movement)
+          (aod-sample-manager/stop)
+          (dnd-begin-file-drag link nil 'copy t))))))
 
-(defun aod-sample-manager/down-mouse (event)
-  "Make links draggable to external applications. See `dired-mouse-drag'"
-  (interactive "e")
-  (pcase major-mode
-    ('org-mode (aod-sample-manager/down-mouse-org event))
-    ('dired-mode)
-    ('dired-mode (dired-mouse-drag event))
-    (_ (user-error "unsupported mode"))))
-
-
-;; Hm down-mouse-1 doesn't let mouse-1 to get through when I mess with dnd etc
-;; And I can't think of an easy way to do that only after having moved the mouse (would need timers?)
-;; REMARK: drag-mouse-1 is generated on "drop", no on move
-;; The issue is that if down-mouse-1 triggers playback, we will trigger playback also when we start draggin out the sample.
+;; Use down-mouse-1 to play, track mouse and on mouse movement stop playback & start drag-n-drop.
+;; REMARK: down-mouse-1 doesn't let mouse-1 to get through when I mess with dnd etc
+;; Also: drag-mouse-1 is generated on "drop", not on move.
 (define-key aod-sample-manager/play-mode-map [down-mouse-1] 'aod-sample-manager/down-mouse)
 
 (defvar aod-sample-manager/supported-extentions '("wav" "mp3" "ogg" "flac"))
