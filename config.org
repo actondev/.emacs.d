@@ -1,5 +1,9 @@
 #+PROPERTY: header-args :results silent :tangle yes
 
+#+begin_src emacs-lisp
+;; warning: auto-generated from config.org
+#+end_src
+
 * Some defaults
 ** general
    #+BEGIN_SRC emacs-lisp
@@ -200,7 +204,7 @@
 	org-context-in-file-links nil ;; org-store-link will just store file. add prefix arg to get also context
 	)
   (setq org-log-note-clock-out t)
-  (setq org-image-actual-width 400)
+  '(setq org-image-actual-width 400)
   ;; for <sTAB to work
   (require 'org-tempo)
   ;; org-goto with helm?
@@ -949,7 +953,6 @@ So, when some files are not found, the .gitignore should be kept"
    TODO after elpaca init?
    #+BEGIN_SRC emacs-lisp
 (use-package dashboard
-  ;; :demand t
   :diminish dashboard-mode
   :config
   (message "config dashboard %s" (format-time-string "%Y-%m-%dT%T %3N"))
@@ -971,6 +974,7 @@ So, when some files are not found, the .gitignore should be kept"
 ;; note: can't use for some reason directy the system-type
 (setq system-type-name (symbol-name system-type))
 (setq frame-title-format '("%f  -- emacs " emacs-version " " system-type-name))
+;; (setq frame-title-format '((:eval (file-name-nondirectory buffer-file-name))))
 (defun aod/set-session-name (name)
   (interactive "Mname:")
   ;; making it persistent across frame
@@ -1025,6 +1029,30 @@ So, when some files are not found, the .gitignore should be kept"
 ;; (setq doom-modeline-icon (display-graphic-p))
 (setq doom-modeline-buffer-state-icon nil)
    #+END_SRC
+** COMMENT nano
+   useful for customizing the colors
+   #+begin_src emacs-lisp
+(use-package nano-theme
+  :config
+  )
+
+(comment
+ (progn
+   (setq frame-title-format '((:eval (file-name-nondirectory buffer-file-name))))
+   (setq nano-dark-foreground "#FFFFFF")
+   (setq nano-dark-background "#202020")
+   (setq nano-dark-highlight "#505050")
+   (setq nano-dark-subtle "#404040")
+   (setq nano-dark-faded "#B0B0B0" )
+   (setq nano-dark-salient "#FFB545")
+   (setq nano-dark-strong "#72DEC2")
+   (setq nano-dark-popout "#FF0000")
+   (setq nano-dark-critical "#FF0000")
+   (load-theme 'nano-dark t)
+   )
+ )
+   #+end_src
+
 ** fonts
 *** all-the-icons
     #+begin_src emacs-lisp
@@ -1677,8 +1705,9 @@ sudo ./llvm.sh
   ;;   (lambda ()
   ;;     (auth-source-pass-get 'secret "openai-key"))))
   )
-  #+end_src
-** COMMENT copilot (no MELPA?): manual step
+   #+end_src
+** copilot
+
    #+begin_src emacs-lisp
 (use-package copilot
   :bind (:map copilot-completion-map
@@ -1690,23 +1719,44 @@ sudo ./llvm.sh
   )
    #+end_src
 
+   manual step: login
    #+begin_src emacs-lisp  :tangle nil
-(package-vc-install "https://github.com/zerolfx/copilot.el")
 (require 'copilot)
 ;; Need to install nodejs!
 (copilot-login)
    #+end_src
 
-   #+begin_src emacs-lisp :tangle nil
-(when (package-installed-p 'copilot)
-  (use-package copilot
-    :hook (prog-mode . copilot-mode)
-    :bind (:map copilot-completion-map
-		("<tab>" . 'copilot-accept-completion)
-		("TAB" . 'copilot-accept-completion)
-		;; ("C-TAB" . 'copilot-accept-completion-by-word)
-		;; ("C-<tab>" . 'copilot-accept-completion-by-word)
-		)))
+** aider
+   #+begin_src emacs-lisp
+(use-package aidermacs
+  :bind (("C-c a" . aidermacs-transient-menu))
+  :config
+  ; Set API_KEY in .bashrc, that will automatically picked up by aider or in elisp
+  ;; (setenv "ANTHROPIC_API_KEY" "sk-...")
+  ; defun my-get-openrouter-api-key yourself elsewhere for security reasons
+  ;; (setenv "OPENROUTER_API_KEY" (my-get-openrouter-api-key))
+  :custom
+  ; See the Configuration section below
+  (aidermacs-use-architect-mode t)
+  (aidermacs-default-model "openrouter/anthropic/claude-3.7-sonnet"))
+   #+end_src
+** gptel
+   #+begin_src emacs-lisp
+(use-package gptel
+  :config
+
+  (setq gptel-backend
+        (gptel-make-openai
+         "OpenRouter"               ;Any name you want
+         :host "openrouter.ai"
+         :endpoint "/api/v1/chat/completions"
+         :stream t
+         :key (getenv "OPENROUTER_API_KEY")
+         :models '(
+                   anthropic/claude-3.7-sonnet
+                   )
+         ))
+  )
    #+end_src
 * Hacking around
 ** custom local variables

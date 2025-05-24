@@ -1,3 +1,6 @@
+#+begin_src emacs-lisp
+;; warning: auto-generated from elisp.org
+#+end_src
 * Elisp
   Some functions that help :)
 * Basic functionality
@@ -504,4 +507,37 @@ apps are not started from a shell."
     (setq exec-path (split-string path-from-shell path-separator))
     (message "PATH: %s" path-from-shell)))
 
+
+(defun aod/env-from-shell (name)
+  (let ((value (replace-regexp-in-string
+                "[ \t\n]*$" "" (shell-command-to-string
+                                (format
+		                 "$SHELL --login -c 'echo $%s'" name)))))
+    value))
+
+(defun aod/set-env-from-shell (name)
+  (interactive (list (read-string "env name: ")))
+  (let ((value (aod/env-from-shell name)))
+    (setenv name value)
+    value))
+
+(defun aod/set-path-from-shell ()
+  "Set up Emacs' `exec-path' and PATH environment variable to match
+that used by the user's shell.
+
+This is particularly useful under Mac OS X and macOS, where GUI
+apps are not started from a shell."
+  (interactive)
+  (let ((path (aod/env-from-shell "PATH")))
+    (setenv "PATH" path)
+    (setq exec-path (split-string path path-separator))
+    (message "PATH: %s" path)))
+
+  #+end_src
+
+* COMMENT xdg visit file
+  #+begin_src sh
+url="/home/actondev/daw/samples/Blu Mar Ten - Jungle Jungle - 1989 to 1999 Samplepack/Breaks/Adrift Break.wav"
+
+dbus-send --session --print-reply --dest=org.freedesktop.FileManager1 --type=method_call /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:"file://$url" string:""
   #+end_src

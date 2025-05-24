@@ -12,21 +12,27 @@
   (require 'logos)
   (if aod-logos/present-mode
       (progn
-	(logos-narrow-dwim)
+	;; (logos-narrow-dwim)
 	(logos-focus-mode 1)
 	(logos--mode 'menu-bar-mode -1)
 	(logos--mode 'tool-bar-mode -1)
 	(logos--mode 'display-line-numbers-mode -1)
 	(logos--mode 'org-modern-mode 1)
-	(setq-local aod.log/org-hide-emphasis-markers org-hide-emphasis-markers)
-	(setq-local org-hide-emphasis-markers t)
-	;; trigger update for org-hide-emphasis-markers
-	(font-lock-mode 1)
+
+        ;; while it looks cool, it messes up the table alignment, when
+        ;; previously aligned *WITH* the marker
+        ;;
+        ;; (setq-local aod.log/org-hide-emphasis-markers org-hide-emphasis-markers)
+	;; (setq-local org-hide-emphasis-markers t)
+
+        ;; trigger update for org-hide-emphasis-markers
+	;; (font-lock-mode 1)
 	)
     (progn
       (logos-focus-mode -1)
-      (setq-local org-hide-emphasis-markers aod.log/org-hide-emphasis-markers)
-      (widen))))
+      ;; (setq-local org-hide-emphasis-markers aod.log/org-hide-emphasis-markers)
+      ;; (widen)
+      )))
 
 (define-key aod-logos/present-mode-map (kbd "<f7>") 'logos-backward-page-dwim)
 (define-key aod-logos/present-mode-map (kbd "<f9>") 'logos-forward-page-dwim)

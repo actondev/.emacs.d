@@ -9,7 +9,7 @@
 
 (defun aod-sample-manager/play-file (file)
   (interactive "f")
-  (message "playing %s" file)
+  (message "playing %s" (file-name-nondirectory file))
   (aod-sample-manager/stop)
   (setq aod-sample-manager/play-process (start-process aod-sample-manager/play-program nil aod-sample-manager/play-program (f-expand file))))
 
