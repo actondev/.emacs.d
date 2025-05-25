@@ -2079,9 +2079,9 @@ man git-commit | grep untracked
                            '((reusable-frames . visible)
                              (inhibit-switch-frame . nil))))))
    #+end_src
-*** COMMENT Geiser
-    Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
-    #+BEGIN_SRC emacs-lisp
+** COMMENT Geiser
+   Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
+   #+BEGIN_SRC emacs-lisp
 (use-package geiser
   :config
   (setq geiser-chez-binary "scheme")
@@ -2100,11 +2100,11 @@ man git-commit | grep untracked
   ;; 	("M-<return>" . geiser-eval-last-sexp)
   ;; 	)
   )
-    #+END_SRC
+   #+END_SRC
 
-*** cmuscheme
+** cmuscheme
 
-    #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
 (use-package cmuscheme
   :elpaca nil
   :load-path "elisp/"
@@ -2114,10 +2114,10 @@ man git-commit | grep untracked
 	;; ("M-<return>" . scheme-send-last-sexp)
 	)
   )
-    #+END_SRC
+   #+END_SRC
    
-*** s7 scheme + (ns)
-    #+BEGIN_SRC emacs-lisp
+** s7 scheme + (ns)
+   #+BEGIN_SRC emacs-lisp
 (use-package aod-s7
   :elpaca nil
   :load-path "elisp/"
@@ -2131,10 +2131,10 @@ man git-commit | grep untracked
 	("M-<return>" . aod.s7/send-last-sexp)
 	)
   )
-    #+END_SRC
+   #+END_SRC
 
-*** janet
-    #+begin_src emacs-lisp
+** janet
+   #+begin_src emacs-lisp
 (use-package janet-mode
   :elpaca nil
   :load-path "elisp/"
@@ -2155,7 +2155,7 @@ man git-commit | grep untracked
 ;;    :host github
 ;;    :repo "serialdev/ijanet-mode"
 ;; ))
-    #+end_src
+   #+end_src
 
 *** s7bi pd
 
