@@ -2079,6 +2079,19 @@ man git-commit | grep untracked
                            '((reusable-frames . visible)
                              (inhibit-switch-frame . nil))))))
    #+end_src
+** eat & better compilation
+   see also https://codeberg.org/ideasman42/emacs-fancy-compilation/issues/9 =run-command=
+   #+begin_src emacs-lisp
+(use-package eat)
+(use-package eat-compilation
+  :load-path "elisp/"
+  :commands (eat-compilation-mode)
+  :if (package-installed-p 'eat)
+  :init
+  (with-eval-after-load "compile"
+    (eat-compilation-mode 1)))
+   #+end_src
+
 ** COMMENT Geiser
    Geiser fucking annoyes me. Asks everytime when I open an =ss= file for scheme implementation
    #+BEGIN_SRC emacs-lisp
