@@ -204,7 +204,7 @@ Version 2016-07-18"
 		;; comint-ptyp
 		(interrupt-process session comint-ptyp))
 
-	    (ober-eval-block-in-repl)))))))
+	    (call-interactively 'aod.eir/eval-org-src-block)))))))
    #+END_SRC
 
 ** buttons for named block
