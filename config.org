@@ -1416,8 +1416,9 @@ paredit        ; Introduce some paredit commands.
     #+begin_src emacs-lisp
 (use-package ccls
   :after (lsp-mode)
-  :config (add-to-list 'lsp-client-packages 'ccls)
-  ;; :config (setq lsp-disabled-clients '(clangd))
+  ;; :config (add-to-list 'lsp-client-packages 'ccls)
+  ;; :config (add-to-list 'lsp-client-packages 'clangd)
+  :config (setq lsp-disabled-clients '(clangd))
   )
 ;; (use-package ccls)
 ;; (require 'ccls)
