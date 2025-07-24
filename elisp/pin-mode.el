@@ -35,7 +35,7 @@
 ;;
 ;;; Code:
 
-(defcustom pin-indicator "📌"
+(defcustom pin-indicator "📍"
   "This string is shown in the `global-pin-mode' lighter when a buffer's window is pinned. Suggestions: 📌 📍 🖈"
   :type 'string
   :group 'pin-mode)
@@ -55,13 +55,17 @@
 (defun pin-window (window)
   "Protects a window from being deleted with `delete-other-windows'"
   (interactive (list (selected-window)))
-  (set-window-parameter window 'no-delete-other-windows t))
+  (set-window-parameter window 'no-delete-other-windows t)
+  (set-window-dedicated-p window t)
+  )
 
 ;;;###autoload
 (defun unpin-window (window)
   "Unprotects a window from being deleted with `delete-other-windows'"
   (interactive (list (selected-window)))
-  (set-window-parameter window 'no-delete-other-windows nil))
+  (set-window-parameter window 'no-delete-other-windows nil)
+  (set-window-dedicated-p window nil)
+  )
 
 ;;;###autoload
 (defun unpin-all-windows ()
