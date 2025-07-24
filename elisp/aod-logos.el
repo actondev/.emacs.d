@@ -19,17 +19,21 @@
 	(logos--mode 'display-line-numbers-mode -1)
 	(logos--mode 'org-modern-mode 1)
 
+        ;; backing up
+        (setq-local aod.logos/org-hide-emphasis-markers org-hide-emphasis-markers)
+
         ;; while it looks cool, it messes up the table alignment, when
         ;; previously aligned *WITH* the marker
-        ;;
-        (setq-local aod.log/org-hide-emphasis-markers org-hide-emphasis-markers)
+        ;; comment or uncomment next line accordingly
 	;; (setq-local org-hide-emphasis-markers t)
+
         ;; trigger update for org-hide-emphasis-markers
 	(font-lock-mode 1)
 	)
     (progn
       (logos-focus-mode -1)
-      (setq-local org-hide-emphasis-markers aod.log/org-hide-emphasis-markers)
+      ;; reverting
+      (setq-local org-hide-emphasis-markers aod.logos/org-hide-emphasis-markers)
       (font-lock-mode 1)
       (widen)
       )))
