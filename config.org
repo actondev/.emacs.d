@@ -1462,6 +1462,10 @@ sudo ./llvm.sh
 	    (message "Clang executable set to %s" vscodium-clang))
 	(warn "Clang could not be found in %s" vscodium-clang)))))
     #+end_src
+** eglot (lsp builtin)
+   emacs 30.2 has eglot 1.17.30, but at <2025-09-01 Mon> eglot 1.18 is out
+   (had some issues with eglot & eldoc, some "go to" not working)
+   upgraded also eldoc, issue still there
 ** Linting
    Flycheck: checking only when saving (not when editing the file - can cause slowness)
    #+BEGIN_SRC emacs-lisp
@@ -2302,13 +2306,36 @@ man git-commit | grep untracked
 			   )))
      #+end_src
 ** zig
+   <2025-09-01 Mon> lsp seems to not work following definitions with zls 0.15, while eglot seems to work fine
+   eldoc is interesting to run also with eglot
+
    #+begin_src emacs-lisp
+(defun aod-eglot-fix-all ()
+  (interactive)
+  (eglot-code-actions nil nil "source.fixAll" t))
+
 (use-package zig-mode
   :bind (:map zig-mode-map
 	      ("M-n" . end-of-defun)
-	      ("M-p" . beginning-of-defun)))
+	      ("M-p" . beginning-of-defun))
+  :hook (zig-mode .
+                  (lambda ()
+                    (eglot-ensure)
+                    (eglot-inlay-hints-mode -1)
+                    ;; local hook with "t" (important!)
+                    (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)) t)
+                    (add-hook 'before-save-hook 'aod-eglot-fix-all t))))
+
+;; fix bad :hook with (setq zig-mode-hook nil)
+;;   and re-evalute (use-package zig-mode ..)
+
+;; remove the hook by running in a zig file:
+;; (remove-hook 'before-save-hook 'aod-eglot-fix-all t)
    #+end_src
 ** pdf (better run it manually ?)
+   - (pdf-tools-install)  ; Standard activation command
+   - (pdf-loader-install) ; On demand loading, leads to faster startup time
+
    #+begin_src emacs-lisp
 (use-package pdf-tools
   :init (pdf-loader-install)
