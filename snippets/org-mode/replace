@@ -4,7 +4,7 @@
 # --
 :replace `(mapconcat
 		'identity
-		(helm-comp-read "Local variables: " (mapcar
+		(completing-read "Local variables: " (mapcar
 			  (lambda (x)
 			    (symbol-name (car x)))
 			  (aod/local-variables))
