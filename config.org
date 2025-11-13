@@ -699,14 +699,19 @@ sudo apt-get install ripgrep
   ;; commands should be set: this will actually load the function
   :commands (aod/read-multiple-choice))
 
-(defun aod/avy ()
-  (interactive)
+(defun aod/avy (&optional arg)
+  (interactive "P")
   (let ((choices '((?C "char (default)" avy-goto-char)
 		   (?L "line" avy-goto-line)
 		   (?W "word" avy-goto-word-1)
 		   (?S "search" avy-goto-char-timer)
 		   )))
-    (let ((choice (aod/read-multiple-choice "avy action:" choices 'allow)))
+    (let ((choice (aod/read-multiple-choice "avy action:" choices 'allow))
+          ;; avy says: call with C-u (arg 4) to negate the value of avy-all-windows
+          ;; but the "negation" only seems to work if it was previously set to true
+          ;; so, we negate it ourselves & reset the interactive prefix arugment
+          (avy-all-windows (if arg (not avy-all-windows) avy-all-windows))
+          (current-prefix-arg nil))
       (if (listp choice)
 	  (call-interactively (caddr choice))
 	(progn
@@ -717,9 +722,12 @@ sudo apt-get install ripgrep
   :config
   (setq avy-keys (list
 		  ?a ?b ?c ?d ?e ?f ?g ?h ?i ?j ?k ?l ?m ?n ?o ?p ?q ?r ?s ?t ?u ?v ?w ?x ?y ?z))
-  (setq avy-all-windows nil)
+  (setq avy-all-windows t)
   ;; (setq avy-style 'pre)
-  :bind (("M-s s" . avy-goto-char-timer)))
+  :bind (
+         ;; ("M-s s" . avy-goto-char-timer))
+         ("M-s s" . aod/avy))
+  )
   #+end_src
 * Window management
 ** Resizing (windresize)
