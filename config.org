@@ -85,11 +85,14 @@
    #+END_SRC
 ** bindings
    #+BEGIN_SRC emacs-lisp
-(defun aod/find-file ()
-  (interactive)
-  (if (eq major-mode 'dired-mode)
-      (call-interactively #'find-file)
-    (call-interactively #'find-file-at-point)))
+(defun aod/find-file (&optional arg)
+  (interactive "P")
+  (if arg
+      (if-let ((file (ffap-file-at-point)))
+          (find-file-at-point)
+        (let ((default-directory (or buffer-file-name default-directory)))
+          (call-interactively #'find-file)))
+    (call-interactively #'find-file)))
 
 (global-set-key (kbd "C-x C-f") 'aod/find-file)
 (global-set-key (kbd "C-/") 'toggle-comment-on-line)
