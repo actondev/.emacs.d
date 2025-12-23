@@ -1,7 +1,7 @@
 ;;; aod-sample-manager.el --- sample manager like functionality for dired  -*- lexical-binding: t; -*-
 
-(defcustom aod-sample-manager/play-program "aplay"
-  "The program to use to play samples"
+(defcustom aod-sample-manager/play-program "play"
+  "The program to use to play samples. play is part of sox package & supports flac as well, unlike aplay"
   :type 'string
   :group 'aod-sample-manager)
 

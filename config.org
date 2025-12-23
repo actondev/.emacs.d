@@ -2355,6 +2355,12 @@ man git-commit | grep untracked
   :hook (org-mode . org-pdftools-setup-link)
   )
    #+end_src
+** html
+   #+begin_src emacs-lisp
+(defun aod.eww/current-file ()
+  (interactive)
+  (eww-open-file (buffer-file-name)))
+   #+end_src
 * Debug
 ** COMMENT gdb
 - https://stackoverflow.com/questions/20990795/can-emacs-gdb-mode-display-expressions-in-separate-window
