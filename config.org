@@ -787,16 +787,33 @@ sudo apt-get install ripgrep
 ** Pinning windows
    Usecase: having the compilation buffer & commint (for program run) at bottom (for an IDE-like look). Calling =delete-other-windows= should keep those windows there (like pinned!)
 
+   TODO disable & re-enable when switching buffers interactively (consult-buffer)
    #+begin_src emacs-lisp
 (use-package pin-mode
   :elpaca nil
   :load-path "elisp/"
   :config
   (global-pin-mode 1)
+
+  ;; might as well skip it from minions, since I also the "dedicated window" shows in doom-modeline
   (with-eval-after-load "minions"
-    (add-to-list 'minions-prominent-modes 'global-pin-mode))
+    ;; (add-to-list 'minions-prominent-modes 'global-pin-mode)
+    )
+  ;; to undo:
+  ;; (setq minions-prominent-modes (remove 'global-pin-mode minions-prominent-modes))
+  
   ;; nerd font font "pin"
-  (setq pin-indicator "󰐃"))
+  ;; (setq pin-indicator "󰐃")
+  )
+   #+end_src
+
+   for reference, doom modeline defines the following for the dedicated window
+   #+begin_src emacs-lisp :tangle nil
+(propertize
+       (format " %s " (doom-modeline-icon 'mdicon "nf-md-pin" "⍑" "D" :face face))
+       'help-echo "Window strongly dedicated to its buffer\nmouse-1: Toggle"
+       'local-map mode-line-window-dedicated-keymap
+       'mouse-face 'mode-line-highlight)
    #+end_src
 
 *** COMMENT old version
@@ -2097,6 +2114,12 @@ man git-commit | grep untracked
                      (cons 'display-buffer-reuse-window
                            '((reusable-frames . visible)
                              (inhibit-switch-frame . nil))))))
+   #+end_src
+** compilation inspection: godot
+   #+begin_src emacs-lisp
+(use-package rmsbolt
+  :config (setq rmsbolt-asm-format nil)
+  )
    #+end_src
 ** eat & better compilation
    see also https://codeberg.org/ideasman42/emacs-fancy-compilation/issues/9 =run-command=

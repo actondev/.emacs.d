@@ -35,7 +35,7 @@
 ;;
 ;;; Code:
 
-(defcustom pin-indicator "📍"
+(defcustom pin-indicator "PIN"
   "This string is shown in the `global-pin-mode' lighter when a buffer's window is pinned. Suggestions: 📌 📍 🖈"
   :type 'string
   :group 'pin-mode)
