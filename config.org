@@ -174,6 +174,7 @@
 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")
 			 ;;("org" . "https://orgmode.org/elpa/") ; better from gnu elpa, org-plus-contrib is at nongnu as org-contrib
 			 ))
+;; package-install-upgrade-built-in
   #+END_SRC
 
 * Org customizations
@@ -602,9 +603,12 @@ sudo apt-get install ripgrep
    consult-theme
    :preview-key '(:debounce 0.2 any)
    consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-recent-file
-   consult--source-project-recent-file
+   consult-bookmark
+   consult-recent-file
+   consult-xref
+   consult-source-bookmark
+   consult-source-recent-file
+   consult-source-project-recent-file
    :preview-key "M-.")
 
   ;; see https://github.com/minad/consult/issues/613
@@ -693,8 +697,8 @@ sudo apt-get install ripgrep
   #+begin_src sh
 
   #+end_src
-* Avy
-  #+begin_src emacs-lisp
+** Avy
+   #+begin_src emacs-lisp
 (use-package aod-read-multiple-choice
   :elpaca nil
   :load-path "elisp/"
@@ -729,9 +733,21 @@ sudo apt-get install ripgrep
   ;; (setq avy-style 'pre)
   :bind (
          ;; ("M-s s" . avy-goto-char-timer))
-         ("M-s s" . aod/avy))
+         ;; ("M-s s" . aod/avy)
+         )
   )
-  #+end_src
+   #+end_src
+** flash
+   #+begin_src emacs-lisp
+(use-package flash
+  :config
+  (setq flash-multi-window t)
+  :bind (
+         ;; ("M-s s" . avy-goto-char-timer))
+         ("M-s j" . flash-jump)
+         ("M-s s" . flash-jump)
+         ))
+   #+end_src
 * Window management
 ** Resizing (windresize)
    #+BEGIN_SRC emacs-lisp
@@ -1798,10 +1814,20 @@ sudo ./llvm.sh
    #+begin_src emacs-lisp
 (use-package eca
   :config
-  (setq eca-buttons-allow-mouse t)
+  (setq eca-buttons-allow-mouse nil) ;; do I get accidental clicks?
   (setq eca-chat-use-side-window nil)
   )
    #+end_src
+* Other editors/apps syncing
+  #+begin_src emacs-lisp
+(defun open-in-zed ()
+  "Open the current file at the current line in Zed."
+  (interactive)
+  (if (buffer-file-name)
+      (shell-command
+       (format "zed '%s:%d'" (buffer-file-name) (line-number-at-pos)))
+    (message "Buffer is not visiting a file")))
+  #+end_src
 * Hacking around
 ** custom local variables
    #+begin_src emacs-lisp
