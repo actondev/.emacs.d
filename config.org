@@ -1718,7 +1718,11 @@ sudo ./llvm.sh
    #+end_src
 ** transient
    #+begin_src emacs-lisp
+;; Force newer version from MELPA instead of built-in 0.7.2.2
+;; which is too old for magit and other packages
 (use-package transient
+  :ensure t
+  :pin melpa  ;; or use :pin gnu for GNU ELPA version 0.12.0
   :commands (define-transient-command
 	      transient-define-prefix
 	      transient-define-suffix
