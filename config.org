@@ -398,6 +398,19 @@ example: some-file.el#L10 -> links to some-file.el at line 10"
 	(message "Reverting to %s" aod/original-default-directory)
 	(setq-local default-directory aod/original-default-directory)))))
    #+end_src
+* Makrdown customizations
+  #+begin_src emacs-lisp
+(use-package markdown
+  ;; todo that triggers a download
+  ;; :elpaca nil
+  ;; :pin manual
+
+  :ensure nil
+  :bind (:map markdown-mode-map
+	      ("M-<up>" . markdown-move-up)
+	      ("M-<down>" . markdown-move-down))
+  )
+  #+end_src
 * COMMENT Helm
   #+BEGIN_SRC emacs-lisp
 (setq aod.helm/C-SPC-set-mark-p nil)
