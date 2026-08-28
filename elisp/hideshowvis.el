@@ -1,4 +1,4 @@
-;;; hideshowvis.el --- Add markers to the fringe for regions foldable by hideshow.el
+;;; hideshowvis.el --- Add markers to the fringe for regions foldable by hideshow.el  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright 2008-2012 Jan Rehders
 ;;

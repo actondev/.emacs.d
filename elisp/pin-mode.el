@@ -1,4 +1,4 @@
-;;; pin-mode.el --- Pin windows: keep them from closing
+;;; pin-mode.el --- Pin windows: keep them from closing  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2022 Christos Vagias
 ;; Author: Christos Vagias

@@ -1,7 +1,8 @@
 #+PROPERTY: header-args :results silent :tangle yes
 
 #+begin_src emacs-lisp
-;; warning: auto-generated from config.org
+;;; -*- lexical-binding: t -*-
+;;; warning: auto-generated from config.org
 #+end_src
 
 * Some defaults

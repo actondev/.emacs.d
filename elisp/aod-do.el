@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; pro tip:
 ;; run the following into a known project
 ;; 

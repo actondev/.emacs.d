@@ -1,5 +1,5 @@
 #+begin_src emacs-lisp
-;; warning: auto-generated from elisp.org
+;; warning: auto-generated from elisp.org  -*- lexical-binding: t; -*-
 #+end_src
 * Elisp
   Some functions that help :)

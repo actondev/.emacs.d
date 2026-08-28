@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 (defun aod-repl/help-echo-src-block (window buffer char)
   (save-current-buffer
     (set-buffer buffer)

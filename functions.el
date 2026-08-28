@@ -1,4 +1,4 @@
-;; some helper functions to have available in init.el
+;; some helper functions to have available in init.el  -*- lexical-binding: t; -*-
 
 (defun get-file-contents (filePath)
   "Return filePath's file content.
