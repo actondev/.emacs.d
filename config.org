@@ -1956,7 +1956,16 @@ It is bound to C-c C-c.
    #+begin_src sh
 sudo apt-get install cmake libtool-bin -y
    #+end_src
-
+** ghostel
+   #+begin_src emacs-lisp
+(use-package ghostel)
+(use-package ghostel-compile
+  :ensure nil ;; do NOT download, shipped via ghostel
+  ;; :after (ghostel)
+  ;; :init (ghostel-compile-global-mode)
+  :hook (after-init . ghostel-compile-global-mode)
+  )
+   #+end_src
 * ediff
   Ediff: great diff tool that can be used in magit :)
   Customizing colors cause in doom-molokai theme you could't notice anything
@@ -2182,13 +2191,13 @@ man git-commit | grep untracked
    see also https://codeberg.org/ideasman42/emacs-fancy-compilation/issues/9 =run-command=
    #+begin_src emacs-lisp
 (use-package eat)
-(use-package eat-compilation
-  :load-path "elisp/"
-  :commands (eat-compilation-mode)
-  :if (package-installed-p 'eat)
-  :init
-  (with-eval-after-load "compile"
-    (eat-compilation-mode 1)))
+'(use-package eat-compilation
+   :load-path "elisp/"
+   :commands (eat-compilation-mode)
+   :if (package-installed-p 'eat)
+   :init
+   (with-eval-after-load "compile"
+     (eat-compilation-mode 0)))
    #+end_src
 
 ** COMMENT Geiser
