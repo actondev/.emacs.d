@@ -409,6 +409,7 @@ example: some-file.el#L10 -> links to some-file.el at line 10"
   :bind (:map markdown-mode-map
 	      ("M-<up>" . markdown-move-up)
 	      ("M-<down>" . markdown-move-down))
+  ;; useful: (markdown-toggle-markup-hiding)
   )
   #+end_src
 * COMMENT Helm
@@ -1290,7 +1291,7 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
 	      ))
    #+END_SRC
 
-** selection
+** selection, multiple cursors
    #+BEGIN_SRC emacs-lisp
 ;; usecase: select the block (enclosed by parenthesis).. expand -> wrap around the outter block
 (use-package expand-region)
@@ -1301,6 +1302,9 @@ Credit: https://emacsnotes.wordpress.com/2018/10/26/highlight-text-not-with-face
 	 ( "M-<f3>" . mc/mark-all-like-this) ;; submlime like
 	 ("C-S-<mouse-1>" . mc/add-cursor-on-click))
   )
+;; see (locate-user-emacs-file ".mc-lists.el")
+;; for settings. you might have selected accidentally "no" to edit multiple
+;; you can fix with (setq mc/cmds-to-run-once '())
    #+END_SRC
 ** undo
    Note: for some reason =C-_= (which original runs =undo=) gets
@@ -1456,6 +1460,7 @@ paredit        ; Introduce some paredit commands.
 	;; these 2 seem to make buffer code navigation quite slow!
 	lsp-lens-auto-enable nil
 	lsp-headerline-breadcrumb-enable nil
+        lsp-enable-on-type-formatting nil ;; annoying indentation/formatting
 	;; the end
 	)
   (add-to-list 'lsp-file-watch-ignored-directories
@@ -1469,7 +1474,7 @@ paredit        ; Introduce some paredit commands.
 ;;   :commands company-lsp)
    #+END_SRC
 
-*** ccls
+*** COMMENT ccls
     #+begin_src emacs-lisp
 (use-package ccls
   :after (lsp-mode)
@@ -2293,6 +2298,11 @@ man git-commit | grep untracked
   :config
   (setq js2-strict-missing-semi-warning nil))
    #+end_src
+
+   #+begin_src emacs-lisp
+(defalias 'json-mode 'js-json-mode)
+   #+end_src
+
 ** TypeScript
    #+begin_src emacs-lisp
 (use-package typescript-mode)
@@ -2435,6 +2445,15 @@ man git-commit | grep untracked
   (interactive)
   (eww-open-file (buffer-file-name)))
    #+end_src
+** glsl
+   #+begin_src emacs-lisp
+(use-package glsl-mode)
+   #+end_src
+** qml
+   #+begin_src emacs-lisp
+(use-package qml-mode)
+   #+end_src
+
 * Debug
 ** COMMENT gdb
 - https://stackoverflow.com/questions/20990795/can-emacs-gdb-mode-display-expressions-in-separate-window
