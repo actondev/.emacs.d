@@ -405,12 +405,22 @@ example: some-file.el#L10 -> links to some-file.el at line 10"
   ;; todo that triggers a download
   ;; :elpaca nil
   ;; :pin manual
-
   :ensure nil
   :bind (:map markdown-mode-map
 	      ("M-<up>" . markdown-move-up)
-	      ("M-<down>" . markdown-move-down))
+	      ("M-<down>" . markdown-move-down)
+              ("M-p" . markdown-previous-visible-heading)
+              ("M-n" . markdown-next-visible-heading)
+              ;; ("C-c <'>" . markdown-edit-code-block)
+              )
   ;; useful: (markdown-toggle-markup-hiding)
+  :bind (:map poly-markdown-mode-map
+              ("C-c '" . markdown-edit-code-block)
+              )
+  :bind (:map polymode-minor-mode-map
+              ("C-c n" . polymode-map))
+  :config
+  (define-key polymode-minor-mode-map(kbd "M-n") nil)
   )
   #+end_src
 * COMMENT Helm
@@ -1001,6 +1011,31 @@ So, when some files are not found, the .gitignore should be kept"
   :config (nice-jumper-mode 1)
   :bind (("M-[" . nice-jumper/backward)
 	 ("M-]" . nice-jumper/forward)))
+   #+end_src
+
+   <2026-08-28 Fri> updated nice-jumper to work with x-ref and emacs 31.
+   FYI better-jumper works only when using evil-mode
+   #+begin_src emacs-lisp
+'(use-package better-jumper
+  ;; :elpaca nil
+  ;; :load-path "elisp/"
+  ;; bindings ala intellij
+  :config
+  (better-jumper-mode +1)
+  :bind (("C-M-[" . better-jumper-jump-backward)
+         ("C-M-]" . better-jumper-jump-forward))
+)
+
+;; meh
+'(use-package dogears
+  ;; :elpaca nil
+  ;; :load-path "elisp/"
+  ;; bindings ala intellij
+  :config
+  ;; (better-jumper-mode +1)
+  :bind (("C-M-[" . dogears-back)
+         ("C-M-]" . dogears-forward))
+)
    #+end_src
 * Appearance
 ** Cursor

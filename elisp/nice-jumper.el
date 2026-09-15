@@ -252,13 +252,22 @@
         (defadvice split-window-internal (before nice-jumper activate)
           (nice-jumper--set-jump))
         (defadvice find-tag-noselect (before nice-jumper activate)
+          (nice-jumper--set-jump))
+        ;; Since Emacs 31, `xref-find-definitions' et al. no longer jump via
+        ;; `switch-to-buffer' (they use `pop-to-buffer' through the internal
+        ;; `xref--switch-to-buffer'), so it has to be advised directly.
+        (defadvice xref-find-definitions (before nice-jumper activate)
+          (nice-jumper--set-jump))
+        (defadvice xref-find-references (before nice-jumper activate)
           (nice-jumper--set-jump)))
     (when nice-jumper--wired
       (remove-hook 'next-error-hook #'nice-jumper--set-jump)
       (remove-hook 'window-configuration-change-hook #'nice-jumper--window-configuration-hook)
       (ad-remove-advice 'switch-to-buffer 'before 'nice-jumper)
       (ad-remove-advice 'split-window-internal 'before 'nice-jumper)
-      (ad-remove-advice 'find-tag-noselect 'before 'nice-jumper))))
+      (ad-remove-advice 'find-tag-noselect 'before 'nice-jumper)
+      (ad-remove-advice 'xref-find-definitions 'before 'nice-jumper)
+      (ad-remove-advice 'xref-find-references 'before 'nice-jumper))))
 
 ;;;###autoload
 (defun turn-on-nice-jumper-mode ()
