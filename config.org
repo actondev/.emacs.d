@@ -2000,6 +2000,11 @@ sudo apt-get install cmake libtool-bin -y
   ;; :init (ghostel-compile-global-mode)
   :hook (after-init . ghostel-compile-global-mode)
   )
+
+(use-package ghostel-comint
+  :ensure nil
+  :hook (after-init . ghostel-comint-global-mode))
+
    #+end_src
 * ediff
   Ediff: great diff tool that can be used in magit :)
@@ -2222,7 +2227,7 @@ man git-commit | grep untracked
   :config (setq rmsbolt-asm-format nil)
   )
    #+end_src
-** eat & better compilation
+** COMMENT eat & better compilation
    see also https://codeberg.org/ideasman42/emacs-fancy-compilation/issues/9 =run-command=
    #+begin_src emacs-lisp
 (use-package eat)
