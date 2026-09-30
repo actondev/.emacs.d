@@ -1876,6 +1876,47 @@ sudo ./llvm.sh
   (setq eca-chat-use-side-window nil)
   )
    #+end_src
+** autocomplete (minuet)
+   https://github.com/milanglacier/minuet-ai.el
+   #+begin_src emacs-lisp
+(use-package minuet
+  :bind
+  (("M-i" . minuet-show-suggestion) ;; manual trigger, overlay ghost text
+   :map minuet-active-mode-map
+   ;; only active while a suggestion is shown
+   ("M-p" . minuet-previous-suggestion)
+   ("M-n" . minuet-next-suggestion)
+   ("<tab>" . minuet-accept-suggestion)
+   ("M-a" . minuet-accept-suggestion-line)
+   ("C-g" . minuet-dismiss-suggestion))
+  ;; auto-suggest on idle; costs a request per pause
+  ;; :hook (prog-mode . minuet-auto-suggestion-mode)
+  :config
+  (setq minuet-provider 'openai-compatible)
+  (setq minuet-request-timeout 3)
+  (setq minuet-n-completions 3) ;; each extra completion costs output tokens
+  (setq minuet-context-window 4000)
+  (plist-put minuet-openai-compatible-options
+             :end-point "https://openrouter.ai/api/v1/chat/completions")
+  (plist-put minuet-openai-compatible-options :api-key "OPENROUTER_API_KEY")
+  (plist-put minuet-openai-compatible-options :model
+             ;; "mistralai/codestral-2508"
+             ;; "qwen/qwen3.8-flash"
+             ;; "qwen/qwen3.8-omni-flash"
+             ;; "upstage/solar-mini4"
+             "deepseek/deepseek-v4.1-flash"
+             )
+  ;; prioritize fast providers on openrouter
+  (minuet-set-optional-options minuet-openai-compatible-options
+                               :provider '(:sort "throughput"))
+  ;; reasoning models (eg qwen3.x) otherwise stream only thinking tokens
+  ;; with empty content until timeout
+  (minuet-set-optional-options minuet-openai-compatible-options
+                               :reasoning '(:enabled :false))
+  (minuet-set-optional-options minuet-openai-compatible-options :max_tokens 64)
+  (minuet-set-optional-options minuet-openai-compatible-options :top_p 0.9))
+   #+end_src
+
 * Other editors/apps syncing
   #+begin_src emacs-lisp
 (defun open-in-zed ()
