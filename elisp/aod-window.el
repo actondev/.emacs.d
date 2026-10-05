@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 (require 'ace-window)
 
 (defvar aod.window/placement nil
